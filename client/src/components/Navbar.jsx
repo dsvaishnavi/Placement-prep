@@ -18,7 +18,7 @@ function Navbar() {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <GraduationCap className="w-6 h-6" />
-            <span className="text-xl font-bold">PlacePrep</span>
+            <span className="text-xl font-bold">PlacementPrep</span>
           </div>
 
           {/* Navigation Links */}
@@ -46,4 +46,4 @@ function Navbar() {
   )
 }
 
-export default Navbar
+export default Navbar 
