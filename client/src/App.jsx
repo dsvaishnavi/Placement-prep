@@ -3,7 +3,7 @@ import AppRoutes from './routes/AppRoutes'
 
 function App() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Navbar />
       <AppRoutes />
     </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { 
-  Brain, BookOpen, Target, FileText, 
-  TrendingUp, Cpu, Zap, Clock, CheckCircle, 
+import {
+  Brain, BookOpen, Target, FileText,
+  TrendingUp, Cpu, Zap, Clock, CheckCircle,
   Activity, Target as AccuracyIcon, Gauge as SpeedIcon,
   RefreshCw as ConsistencyIcon, Users as ManagementIcon,
   BarChart3, LineChart, PieChart, TrendingDown,
@@ -13,51 +13,51 @@ function Progress() {
   const [preparationLevel, setPreparationLevel] = useState(0)
   const [animatedCompletion, setAnimatedCompletion] = useState(0)
   const radarRef = useRef(null)
-  
+
   // Progress data for overview section - updated to blue theme
   const progressOverview = [
-    { 
-      title: 'Aptitude Performance', 
-      progress: 76, 
-      percentage: 76, 
-      completed: 38, 
+    {
+      title: 'Aptitude Performance',
+      progress: 76,
+      percentage: 76,
+      completed: 38,
       total: 50,
       icon: Brain,
-      gradient: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-      strokeColor: '#2563eb',
+      gradient: 'linear-gradient(135deg, #0047AB, #6D8196)',
+      strokeColor: '#0047AB',
       animationDelay: 0
     },
-    { 
-      title: 'Core Subject Completion', 
-      progress: 58, 
-      percentage: 58, 
-      completed: 29, 
+    {
+      title: 'Core Subject Completion',
+      progress: 58,
+      percentage: 58,
+      completed: 29,
       total: 50,
       icon: BookOpen,
-      gradient: 'linear-gradient(135deg, #1d4ed8, #1e40af)',
-      strokeColor: '#1d4ed8',
+      gradient: 'linear-gradient(135deg, #6D8196, #000080)',
+      strokeColor: '#6D8196',
       animationDelay: 100
     },
-    { 
-      title: 'Weekly Study Target', 
-      progress: 80, 
-      percentage: 80, 
-      completed: 4, 
+    {
+      title: 'Weekly Study Target',
+      progress: 80,
+      percentage: 80,
+      completed: 4,
       total: 5,
       icon: Target,
-      gradient: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-      strokeColor: '#3b82f6',
+      gradient: 'linear-gradient(135deg, #82C8E5, #0047AB)',
+      strokeColor: '#82C8E5',
       animationDelay: 200
     },
-    { 
-      title: 'Mock Test Performance', 
-      progress: 65, 
-      percentage: 65, 
-      completed: 13, 
+    {
+      title: 'Mock Test Performance',
+      progress: 65,
+      percentage: 65,
+      completed: 13,
       total: 20,
       icon: FileText,
-      gradient: 'linear-gradient(135deg, #60a5fa, #3b82f6)',
-      strokeColor: '#60a5fa',
+      gradient: 'linear-gradient(135deg, #6D8196, #82C8E5)',
+      strokeColor: '#6D8196',
       animationDelay: 300
     },
   ]
@@ -68,11 +68,11 @@ function Progress() {
 
   // Skills data for radar chart - updated to blue theme
   const skillsData = [
-    { skill: 'Problem Solving', value: 75, icon: Cpu, color: '#2563eb' },
-    { skill: 'Management', value: 70, icon: ManagementIcon, color: '#1d4ed8' },
-    { skill: 'Speed', value: 60, icon: SpeedIcon, color: '#3b82f6' },
-    { skill: 'Consistency', value: 55, icon: ConsistencyIcon, color: '#60a5fa' },
-    { skill: 'Accuracy', value: 80, icon: AccuracyIcon, color: '#93c5fd' },
+    { skill: 'Problem Solving', value: 75, icon: Cpu, color: '#0047AB' },
+    { skill: 'Management', value: 70, icon: ManagementIcon, color: '#6D8196' },
+    { skill: 'Speed', value: 60, icon: SpeedIcon, color: '#82C8E5' },
+    { skill: 'Consistency', value: 55, icon: ConsistencyIcon, color: '#000080' },
+    { skill: 'Accuracy', value: 80, icon: AccuracyIcon, color: '#0047AB' },
   ]
 
   // Subject icons mapping
@@ -86,11 +86,11 @@ function Progress() {
 
   // Topics completion data - updated to blue theme
   const topicsData = [
-    { subject: 'Data Structures', completed: 24, total: 28, gradient: 'linear-gradient(90deg, #2563eb, #1d4ed8)' },
-    { subject: 'Algorithms', completed: 16, total: 32, gradient: 'linear-gradient(90deg, #1d4ed8, #1e40af)' },
-    { subject: 'DBMS', completed: 24, total: 24, gradient: 'linear-gradient(90deg, #3b82f6, #2563eb)' },
-    { subject: 'Operating Systems', completed: 10, total: 18, gradient: 'linear-gradient(90deg, #60a5fa, #3b82f6)' },
-    { subject: 'Computer Networks', completed: 12, total: 22, gradient: 'linear-gradient(90deg, #93c5fd, #60a5fa)' },
+    { subject: 'Data Structures', completed: 24, total: 28, gradient: 'linear-gradient(90deg, #0047AB, #6D8196)' },
+    { subject: 'Algorithms', completed: 16, total: 32, gradient: 'linear-gradient(90deg, #6D8196, #000080)' },
+    { subject: 'DBMS', completed: 24, total: 24, gradient: 'linear-gradient(90deg, #82C8E5, #0047AB)' },
+    { subject: 'Operating Systems', completed: 10, total: 18, gradient: 'linear-gradient(90deg, #6D8196, #82C8E5)' },
+    { subject: 'Computer Networks', completed: 12, total: 22, gradient: 'linear-gradient(90deg, #000080, #6D8196)' },
   ]
 
   // Calculate overall stats
@@ -114,7 +114,7 @@ function Progress() {
     const radius = (size - strokeWidth) / 2
     const circumference = radius * 2 * Math.PI
     const offset = circumference - (progress / 100) * circumference
-    
+
     return (
       <div className="relative flex flex-col items-center">
         <div className="relative" style={{ width: size, height: size }}>
@@ -137,22 +137,22 @@ function Progress() {
               strokeDashoffset={circumference}
               strokeLinecap="round"
               className="fill-transparent transition-all duration-2000 ease-out stroke-blue-600"
-              style={{ 
+              style={{
                 strokeDashoffset: offset,
               }}
             />
           </svg>
-          
+
           {/* Center Content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <div className="mb-2">
               <Icon className="w-10 h-10 text-blue-700" />
             </div>
-            <div className="text-4xl font-bold text-blue-900 transition-all duration-1000 ease-out">
+            <div className="text-4xl font-bold text-primary transition-all duration-1000 ease-out">
               {progress}%
             </div>
             {label && (
-              <div className="text-sm font-medium text-slate-600 mt-1">{label}</div>
+              <div className="text-sm font-medium text-primary mt-1">{label}</div>
             )}
           </div>
         </div>
@@ -167,46 +167,46 @@ function Progress() {
         {progressOverview.map((item, index) => {
           const Icon = item.icon
           return (
-            <div 
-              key={index} 
-              className="bg-white rounded-lg p-5 border border-blue-100 hover:border-blue-200 transition-colors"
+            <div
+              key={index}
+              className="bg-surface rounded-lg p-5 border border-border hover:border-primaryAccent transition-colors"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-50">
-                    <Icon className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 rounded-lg bg-secondary/10">
+                    <Icon className="w-5 h-5 text-primary" />
                   </div>
-                  <h3 className="font-semibold text-blue-900">{item.title}</h3>
+                  <h3 className="font-semibold text-primary">{item.title}</h3>
                 </div>
-                <span className="text-lg font-bold text-blue-900">{item.percentage}%</span>
+                <span className="text-lg font-bold text-primary">{item.percentage}%</span>
               </div>
-              
+
               {/* Progress Bar */}
-              <div className="relative h-2 bg-blue-100 rounded-full overflow-hidden mb-2">
-                <div 
+              <div className="relative h-2 bg-surface rounded-full overflow-hidden mb-2">
+                <div
                   className="absolute h-full rounded-full transition-all duration-1000 ease-out"
-                  style={{ 
+                  style={{
                     width: `${item.percentage}%`,
                     background: item.gradient
                   }}
                 />
               </div>
-              
+
               {/* Progress Info */}
-              <div className="flex justify-between text-sm text-slate-600 mt-3">
+              <div className="flex justify-between text-sm text-primary mt-3">
                 <span className="font-medium">Progress</span>
                 <span>{item.completed}/{item.total} completed</span>
               </div>
-              
+
               {/* Status Indicator */}
               <div className="flex items-center gap-2 mt-3">
-                <div 
+                <div
                   className="w-2 h-2 rounded-full bg-blue-500"
                 />
                 <span className="text-sm text-slate-600">
-                  {item.percentage >= 80 ? 'Excellent' : 
-                   item.percentage >= 60 ? 'Good' : 
-                   'Needs Improvement'}
+                  {item.percentage >= 80 ? 'Excellent' :
+                    item.percentage >= 60 ? 'Good' :
+                      'Needs Improvement'}
                 </span>
               </div>
             </div>
@@ -222,7 +222,7 @@ function Progress() {
     const center = size / 2
     const radius = size * 0.35
     const angleStep = (2 * Math.PI) / skillsData.length
-    
+
     const skillPoints = skillsData.map((item, index) => {
       const angle = index * angleStep - Math.PI / 2
       const valueRadius = (item.value / 100) * radius
@@ -242,20 +242,20 @@ function Progress() {
     const gridCircles = [0.2, 0.4, 0.6, 0.8, 1].map(scale => radius * scale)
 
     return (
-      <div className="relative w-full max-w-2xl mx-auto">
+      <div className="relative w-100 max-w-4xl mx-auto">
         <div className="bg-blue-50 rounded-xl p-6 mb-6 border border-blue-100">
-          <svg 
-            width="100%" 
-            height="320" 
-            viewBox={`0 0 ${size} ${size}`}
+          <svg
+            width="100%"
+            height="380"
+            viewBox="0 0 320 350"
             className="mx-auto"
             aria-label="Skills Analysis Radar Chart"
             role="img"
           >
             <defs>
               <linearGradient id="radarFill" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.15" />
-                <stop offset="100%" stopColor="#2563EB" stopOpacity="0.1" />
+                <stop offset="0%" stopColor="#0047AB" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="#6D8196" stopOpacity="0.1" />
               </linearGradient>
             </defs>
 
@@ -267,7 +267,7 @@ function Progress() {
                 cy={center}
                 r={r}
                 fill="none"
-                stroke="#DBEAFE"
+                stroke="#82C8E5"
                 strokeWidth="1"
                 strokeDasharray="4"
               />
@@ -281,7 +281,7 @@ function Progress() {
                 y1={center}
                 x2={point.x}
                 y2={point.y}
-                stroke="#DBEAFE"
+                stroke="#82C8E5"
                 strokeWidth="1"
               />
             ))}
@@ -290,7 +290,7 @@ function Progress() {
             <polygon
               points={polygonPoints}
               fill="url(#radarFill)"
-              stroke="#3B82F6"
+              stroke="#0047AB"
               strokeWidth="2"
               strokeLinejoin="round"
             />
@@ -303,7 +303,7 @@ function Progress() {
                   cy={point.y}
                   r="4"
                   fill="white"
-                  stroke="#3B82F6"
+                  stroke="#0047AB"
                   strokeWidth="2"
                 />
               </g>
@@ -316,7 +316,7 @@ function Progress() {
               const labelRadius = radius + 40
               const labelX = center + labelRadius * Math.cos(angle)
               const labelY = center + labelRadius * Math.sin(angle)
-              
+
               let textAnchor = 'middle'
               if (Math.abs(Math.cos(angle)) > 0.8) {
                 textAnchor = Math.cos(angle) > 0 ? 'start' : 'end'
@@ -329,7 +329,7 @@ function Progress() {
                       <Icon className="w-5 h-5 text-blue-600" />
                     </div>
                   </foreignObject>
-                  
+
                   <text
                     x={labelX}
                     y={labelY + 25}
@@ -357,24 +357,24 @@ function Progress() {
             })}
           </svg>
         </div>
-        
+
         {/* Skill indicators */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {skillsData.map((skill, index) => (
-            <div 
+            <div
               key={index}
-              className="bg-white rounded-lg p-4 border border-blue-100"
+              className="bg-surface rounded-lg p-4 border border-border"
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-500" />
-                  <span className="text-xs font-medium text-slate-700">{skill.skill}</span>
+                  <div className="w-3 h-3 rounded-full bg-primary" />
+                  <span className="text-xs font-medium text-primary">{skill.skill}</span>
                 </div>
-                <span className="text-sm font-bold text-blue-900">{skill.value}%</span>
+                <span className="text-sm font-bold text-primary">{skill.value}%</span>
               </div>
-              <div className="h-2 bg-blue-100 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-1000"
+              <div className="h-2 bg-surface rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-1000"
                   style={{ width: `${skill.value}%` }}
                 />
               </div>
@@ -386,19 +386,23 @@ function Progress() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-background to-surface">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="mb-10 text-center">
           <div className="inline-flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 rounded-full bg-blue-100">
-              <Activity className="w-8 h-8 text-blue-700" />
+            <div className="p-3 rounded-full bg-primary/10">
+              <Activity className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-700">
+            <h1 className="
+              text-4xl md:text-5xl font-bold leading-[1.15] pb-3
+              bg-gradient-to-r  from-primary  via-primaryAccent  to-primary  bg-clip-text text-transparent
+            ">
               Progress Dashboard
             </h1>
+
           </div>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          <p className="text-lg text-slate-600  max-w-2xl mx-auto">
             Track your learning progress and analyze performance metrics
           </p>
         </div>
@@ -418,11 +422,11 @@ function Progress() {
                     <p className="text-slate-600 text-sm">Your current progress level</p>
                   </div>
                 </div>
-                
-                <CircularProgress 
-                  progress={preparationLevel} 
-                  size={200} 
-                  strokeWidth={16} 
+
+                <CircularProgress
+                  progress={preparationLevel}
+                  size={200}
+                  strokeWidth={16}
                   Icon={TrendingUp}
                   label="Overall Progress"
                 />
@@ -439,13 +443,13 @@ function Progress() {
                     </div>
                   </div>
                   <div className="h-2 bg-blue-100 rounded-full mt-3 overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-2000"
                       style={{ width: `${animatedCompletion}%` }}
                     />
                   </div>
                 </div>
-                
+
                 <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-2xl font-bold text-blue-900">{completedTopics}</div>
@@ -459,7 +463,7 @@ function Progress() {
                     <span className="text-xs font-medium text-blue-700">+12%</span>
                   </div>
                 </div>
-                
+
                 <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-2xl font-bold text-blue-900">{pendingTopics}</div>
@@ -467,10 +471,10 @@ function Progress() {
                   </div>
                   <div className="text-sm text-slate-600 mb-2">Pending Topics</div>
                   <div className="h-2 bg-blue-100 rounded-full">
-                    <div className="h-full bg-blue-300 rounded-full" style={{ width: `${(pendingTopics/totalTopics)*100}%` }} />
+                    <div className="h-full bg-blue-300 rounded-full" style={{ width: `${(pendingTopics / totalTopics) * 100}%` }} />
                   </div>
                 </div>
-                
+
                 <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
                   <div className="flex items-center justify-between mb-2">
                     <Zap className="w-5 h-5 text-blue-600" />
@@ -502,7 +506,7 @@ function Progress() {
               </div>
               <span className="text-sm text-slate-500">{completionPercentage}% overall</span>
             </div>
-            
+
             <div className="space-y-5">
               {topicsData.map((topic, index) => {
                 const percent = Math.round((topic.completed / topic.total) * 100)
@@ -519,9 +523,9 @@ function Progress() {
                       <span className="font-bold text-blue-900">{percent}%</span>
                     </div>
                     <div className="h-3 bg-blue-100 rounded-full overflow-hidden relative">
-                      <div 
+                      <div
                         className="h-full rounded-full transition-all duration-700"
-                        style={{ 
+                        style={{
                           width: `${percent}%`,
                           background: topic.gradient
                         }}
@@ -546,7 +550,7 @@ function Progress() {
               </div>
               <h2 className="text-xl font-bold text-blue-900">Weekly Performance</h2>
             </div>
-            
+
             <div className="flex items-end justify-between gap-2 h-40">
               {weeklyScores.map((score, index) => (
                 <div key={index} className="flex-1 flex flex-col items-center h-full">
@@ -560,7 +564,7 @@ function Progress() {
                 </div>
               ))}
             </div>
-            
+
             <div className="pt-6 mt-6 border-t border-blue-100">
               <div className="flex items-center justify-between">
                 <div>

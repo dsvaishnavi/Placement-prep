@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
-import { 
-  BookOpen, Database, Cpu, Layers, Network, Box, 
+import {
+  BookOpen, Database, Cpu, Layers, Network, Box,
   Search, Filter, Code, Cloud, Server,
   Smartphone, Shield, Wifi, GitBranch,
   Terminal, Lock, Globe, BarChart, Zap, Hash,
@@ -25,8 +25,8 @@ function CoreConcepts() {
   // All subjects with department information
   const allSubjects = [
     // Computer Science
-    { 
-      title: 'DBMS', 
+    {
+      title: 'DBMS',
       description: 'Master database management systems, SQL queries, and data modeling',
       topicCount: 24,
       icon: Database,
@@ -34,8 +34,8 @@ function CoreConcepts() {
       status: 'Completed',
       popularity: 95
     },
-    { 
-      title: 'Operating Systems', 
+    {
+      title: 'Operating Systems',
       description: 'Understand processes, memory management, and system architecture',
       topicCount: 18,
       icon: Cpu,
@@ -43,8 +43,8 @@ function CoreConcepts() {
       status: 'In Progress',
       popularity: 90
     },
-    { 
-      title: 'OOPS', 
+    {
+      title: 'OOPS',
       description: 'Learn object-oriented principles, design patterns, and SOLID principles',
       topicCount: 16,
       icon: Box,
@@ -52,8 +52,8 @@ function CoreConcepts() {
       status: 'Not Started',
       popularity: 88
     },
-    { 
-      title: 'Computer Networks', 
+    {
+      title: 'Computer Networks',
       description: 'Explore network protocols, topologies, and communication models',
       topicCount: 22,
       icon: Network,
@@ -61,8 +61,8 @@ function CoreConcepts() {
       status: 'In Progress',
       popularity: 92
     },
-    { 
-      title: 'Data Structures', 
+    {
+      title: 'Data Structures',
       description: 'Master arrays, linked lists, trees, graphs, and algorithm analysis',
       topicCount: 28,
       icon: Layers,
@@ -70,8 +70,8 @@ function CoreConcepts() {
       status: 'In Progress',
       popularity: 98
     },
-    { 
-      title: 'Algorithms', 
+    {
+      title: 'Algorithms',
       description: 'Learn sorting, searching, dynamic programming, and complexity analysis',
       topicCount: 32,
       icon: Code,
@@ -80,8 +80,8 @@ function CoreConcepts() {
       popularity: 97
     },
     // Information Technology
-    { 
-      title: 'Web Development', 
+    {
+      title: 'Web Development',
       description: 'Full-stack development with modern frameworks and best practices',
       topicCount: 26,
       icon: Globe,
@@ -89,8 +89,8 @@ function CoreConcepts() {
       status: 'In Progress',
       popularity: 96
     },
-    { 
-      title: 'Cloud Computing', 
+    {
+      title: 'Cloud Computing',
       description: 'AWS, Azure, and Google Cloud services and architectures',
       topicCount: 21,
       icon: Cloud,
@@ -98,8 +98,8 @@ function CoreConcepts() {
       status: 'Not Started',
       popularity: 94
     },
-    { 
-      title: 'DevOps', 
+    {
+      title: 'DevOps',
       description: 'CI/CD pipelines, containerization, and infrastructure as code',
       topicCount: 19,
       icon: Server,
@@ -108,8 +108,8 @@ function CoreConcepts() {
       popularity: 91
     },
     // Electronics & Communication
-    { 
-      title: 'Digital Electronics', 
+    {
+      title: 'Digital Electronics',
       description: 'Logic gates, flip-flops, and digital circuit design',
       topicCount: 17,
       icon: Circuit, // Using Cpu icon
@@ -117,8 +117,8 @@ function CoreConcepts() {
       status: 'Not Started',
       popularity: 85
     },
-    { 
-      title: 'Microprocessors', 
+    {
+      title: 'Microprocessors',
       description: '8085/8086 architecture, assembly programming, and interfacing',
       topicCount: 15,
       icon: Microchip, // Using Cpu icon
@@ -127,8 +127,8 @@ function CoreConcepts() {
       popularity: 82
     },
     // Mechanical Engineering
-    { 
-      title: 'Thermodynamics', 
+    {
+      title: 'Thermodynamics',
       description: 'Laws of thermodynamics, heat transfer, and energy conversion',
       topicCount: 14,
       icon: Zap,
@@ -137,8 +137,8 @@ function CoreConcepts() {
       popularity: 78
     },
     // Civil Engineering
-    { 
-      title: 'Structural Analysis', 
+    {
+      title: 'Structural Analysis',
       description: 'Stress, strain, beams, and structural design principles',
       topicCount: 16,
       icon: BarChart,
@@ -147,8 +147,8 @@ function CoreConcepts() {
       popularity: 76
     },
     // Electrical Engineering
-    { 
-      title: 'Power Systems', 
+    {
+      title: 'Power Systems',
       description: 'Generation, transmission, and distribution of electrical power',
       topicCount: 18,
       icon: GitBranch,
@@ -157,8 +157,8 @@ function CoreConcepts() {
       popularity: 80
     },
     // Data Science
-    { 
-      title: 'Machine Learning', 
+    {
+      title: 'Machine Learning',
       description: 'Supervised and unsupervised learning algorithms and models',
       topicCount: 25,
       icon: Terminal,
@@ -166,8 +166,8 @@ function CoreConcepts() {
       status: 'In Progress',
       popularity: 99
     },
-    { 
-      title: 'Big Data Analytics', 
+    {
+      title: 'Big Data Analytics',
       description: 'Hadoop, Spark, and distributed computing frameworks',
       topicCount: 20,
       icon: Hash,
@@ -176,8 +176,8 @@ function CoreConcepts() {
       popularity: 93
     },
     // Cybersecurity
-    { 
-      title: 'Network Security', 
+    {
+      title: 'Network Security',
       description: 'Cryptography, firewalls, intrusion detection, and security protocols',
       topicCount: 22,
       icon: Shield,
@@ -185,8 +185,8 @@ function CoreConcepts() {
       status: 'Not Started',
       popularity: 89
     },
-    { 
-      title: 'Ethical Hacking', 
+    {
+      title: 'Ethical Hacking',
       description: 'Penetration testing, vulnerability assessment, and security auditing',
       topicCount: 19,
       icon: Lock,
@@ -203,13 +203,13 @@ function CoreConcepts() {
   // Filter and sort subjects
   const filteredSubjects = useMemo(() => {
     let filtered = allSubjects
-    
+
     if (selectedDepartment !== 'All Departments') {
-      filtered = filtered.filter(subject => 
+      filtered = filtered.filter(subject =>
         subject.department === selectedDepartment
       )
     }
-    
+
     if (searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(subject =>
@@ -218,7 +218,7 @@ function CoreConcepts() {
         subject.department.toLowerCase().includes(query)
       )
     }
-    
+
     switch (sortBy) {
       case 'popularity':
         return [...filtered].sort((a, b) => b.popularity - a.popularity)
@@ -234,73 +234,74 @@ function CoreConcepts() {
   const getIconColor = (status) => {
     switch (status) {
       case 'Completed':
-        return 'text-green-600'
+        return 'text-success'
       case 'In Progress':
-        return 'text-blue-600'
+        return 'text-primaryAccent'
       default:
-        return 'text-gray-400'
+        return 'text-muted'
     }
   }
 
   const totalSubjects = filteredSubjects.length
   const totalTopics = filteredSubjects.reduce((sum, subject) => sum + subject.topicCount, 0)
   const completedSubjects = filteredSubjects.filter(s => s.status === 'Completed').length
-  const avgProgress = totalSubjects > 0 
+  const avgProgress = totalSubjects > 0
     ? Math.round((completedSubjects / totalSubjects) * 100)
     : 0
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-background to-surface">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12 text-center max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-          <span className="bg-gradient-to-r 
-                 from-blue-900 
-                 via-blue-700 
-                 to-sky-500 
+            <span className="bg-gradient-to-r 
+                 from-primary 
+                 via-primaryAccent 
+                 to-primary 
                  bg-clip-text text-transparent">
-  Core Concepts
-</span>
+              Core Concepts
+            </span>
 
           </h1>
-          <p className="text-lg text-gray-600 leading-relaxed mb-8">
-            Master the fundamental concepts across engineering disciplines. 
+          <p className="text-lg text-muted leading-relaxed mb-8">
+            Master the fundamental concepts across engineering disciplines.
             Each module is designed to build your expertise from ground up.
           </p>
         </div>
-        <div className="mt-16 pt-8 border-t border-gray-200">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900">{totalSubjects}</div>
-                  <div className="text-sm text-gray-600">Core Concepts</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900">{totalTopics}</div>
-                  <div className="text-sm text-gray-600">Total Topics</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900">{completedSubjects}</div>
-                  <div className="text-sm text-gray-600">Completed</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900">{avgProgress}%</div>
-                  <div className="text-sm text-gray-600">Avg. Progress</div>
-                </div>
-              </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary">{totalSubjects}</div>
+              <div className="text-sm text-muted">Core Concepts</div>
             </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary">{totalTopics}</div>
+              <div className="text-sm text-muted">Total Topics</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary">{completedSubjects}</div>
+              <div className="text-sm text-muted">Completed</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary">{avgProgress}%</div>
+              <div className="text-sm text-muted">Avg. Progress</div>
+            </div>
+          </div>
+        <div className="mt-16 pt-8 border-t border-border">
+          
+        </div>
         <div className="mb-8 max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between 
-                        bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        bg-surface p-6 rounded-2xl shadow-sm border border-border">
             <div className="flex-1 w-full md:w-auto">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 
-                                text-gray-400 w-5 h-5" />
+                                text-muted w-5 h-5" />
                 <input
                   type="text"
                   placeholder="Search concepts, subjects, or departments..."
-                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl
-                           focus:outline-none focus:ring-2 focus:ring-blue-500 
-                           focus:border-transparent text-gray-700"
+                  className="w-full pl-12 pr-4 py-3 border border-border rounded-xl
+                           focus:outline-none focus:ring-2 focus:ring-primary 
+                           focus:border-transparent text-primary"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -310,12 +311,12 @@ function CoreConcepts() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="relative">
                 <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 
-                                text-gray-400 w-5 h-5" />
+                                text-muted w-5 h-5" />
                 <select
-                  className="pl-12 pr-10 py-3 border border-gray-200 rounded-xl
-                           focus:outline-none focus:ring-2 focus:ring-blue-500 
-                           focus:border-transparent appearance-none bg-white
-                           text-gray-700 cursor-pointer"
+                  className="pl-12 pr-10 py-3 border border-border rounded-xl
+                           focus:outline-none focus:ring-2 focus:ring-primary 
+                           focus:border-transparent appearance-none bg-surface
+                           text-primary cursor-pointer"
                   value={selectedDepartment}
                   onChange={(e) => setSelectedDepartment(e.target.value)}
                 >
@@ -329,10 +330,10 @@ function CoreConcepts() {
 
               <div className="relative">
                 <select
-                  className="pl-4 pr-10 py-3 border border-gray-200 rounded-xl
-                           focus:outline-none focus:ring-2 focus:ring-blue-500 
-                           focus:border-transparent appearance-none bg-white
-                           text-gray-700 cursor-pointer"
+                  className="pl-4 pr-10 py-3 border border-border rounded-xl
+                           focus:outline-none focus:ring-2 focus:ring-primary 
+                           focus:border-transparent appearance-none bg-surface
+                           text-primary cursor-pointer"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                 >
@@ -344,8 +345,8 @@ function CoreConcepts() {
 
               {(selectedDepartment !== 'All Departments' || searchQuery.trim() !== '') && (
                 <button
-                  className="px-4 py-3 text-gray-600 hover:text-gray-800 font-medium
-                           hover:bg-gray-50 rounded-xl transition-colors"
+                  className="px-4 py-3 text-muted hover:text-primary font-medium
+                           hover:bg-primarySoft rounded-xl transition-colors"
                   onClick={() => {
                     setSelectedDepartment('All Departments')
                     setSearchQuery('')
@@ -360,11 +361,11 @@ function CoreConcepts() {
           <div className="mt-4 flex flex-wrap gap-2">
             {selectedDepartment !== 'All Departments' && (
               <span className="inline-flex items-center gap-2 px-3 py-1.5 
-                             bg-blue-50 text-blue-700 rounded-lg text-sm font-medium">
+                             bg-primaryAccent/10 text-primaryAccent rounded-lg text-sm font-medium">
                 Department: {selectedDepartment}
-                <button 
+                <button
                   onClick={() => setSelectedDepartment('All Departments')}
-                  className="hover:text-blue-900"
+                  className="hover:text-primary"
                 >
                   ×
                 </button>
@@ -372,11 +373,11 @@ function CoreConcepts() {
             )}
             {searchQuery.trim() !== '' && (
               <span className="inline-flex items-center gap-2 px-3 py-1.5 
-                             bg-green-50 text-green-700 rounded-lg text-sm font-medium">
+                             bg-success/10 text-success rounded-lg text-sm font-medium">
                 Search: "{searchQuery}"
-                <button 
+                <button
                   onClick={() => setSearchQuery('')}
-                  className="hover:text-green-900"
+                  className="hover:text-primary"
                 >
                   ×
                 </button>
@@ -386,8 +387,8 @@ function CoreConcepts() {
         </div>
 
         <div className="mb-8 text-center">
-          <p className="text-gray-600">
-            Showing <span className="font-semibold text-gray-900">{totalSubjects}</span> concepts
+          <p className="text-muted">
+            Showing <span className="font-semibold text-primary">{totalSubjects}</span> concepts
             {selectedDepartment !== 'All Departments' && ` in ${selectedDepartment}`}
             {searchQuery && ` matching "${searchQuery}"`}
           </p>
@@ -401,38 +402,38 @@ function CoreConcepts() {
                 return (
                   <div
                     key={index}
-                    className="group relative bg-white rounded-2xl p-6 border border-gray-100 
+                    className="group relative bg-surface rounded-2xl p-6 border border-border 
                              shadow-sm hover:shadow-xl transition-all duration-300 
                              hover:-translate-y-1 cursor-pointer
-                             hover:border-blue-100 active:scale-[0.99]"
+                             hover:border-primaryAccent active:scale-[0.99]"
                   >
                     <div className="flex items-start justify-between mb-6">
                       <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-xl bg-gray-50 group-hover:bg-blue-50 
+                        <div className={`p-3 rounded-xl bg-primarySoft group-hover:bg-primaryAccent/10 
                                       transition-colors duration-300 ${getIconColor(subject.status)}`}>
                           <IconComponent className="w-6 h-6" />
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-700 
+                          <h3 className="text-xl font-bold text-primary group-hover:text-primaryAccent 
                                        transition-colors duration-300">
                             {subject.title}
                           </h3>
                           <div className="mt-1 flex flex-wrap gap-2">
                             <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full 
-                                           text-xs font-medium ${subject.status === 'Completed' 
-                                             ? 'bg-green-50 text-green-700' 
-                                             : subject.status === 'In Progress' 
-                                             ? 'bg-blue-50 text-blue-700' 
-                                             : 'bg-gray-50 text-gray-700'}`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${subject.status === 'Completed' 
-                                               ? 'bg-green-500' 
-                                               : subject.status === 'In Progress' 
-                                               ? 'bg-blue-500' 
-                                               : 'bg-gray-400'}`}></span>
+                                           text-xs font-medium ${subject.status === 'Completed'
+                                ? 'bg-success/10 text-success'
+                                : subject.status === 'In Progress'
+                                  ? 'bg-primaryAccent/10 text-primaryAccent'
+                                  : 'bg-primarySoft text-muted'}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${subject.status === 'Completed'
+                                ? 'bg-success'
+                                : subject.status === 'In Progress'
+                                  ? 'bg-primaryAccent'
+                                  : 'bg-muted'}`}></span>
                               {subject.status}
                             </span>
                             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full 
-                                           text-xs font-medium bg-purple-50 text-purple-700">
+                                           text-xs font-medium bg-info/10 text-info">
                               {subject.department}
                             </span>
                           </div>
@@ -440,70 +441,70 @@ function CoreConcepts() {
                       </div>
                     </div>
 
-                    <p className="text-gray-600 mb-6 leading-relaxed line-clamp-2">
+                    <p className="text-muted mb-6 leading-relaxed line-clamp-2">
                       {subject.description}
                     </p>
 
-                    <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
+                    <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
-                          <BookOpen className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm font-medium text-gray-700">
+                          <BookOpen className="w-4 h-4 text-muted" />
+                          <span className="text-sm font-medium text-primary">
                             {subject.topicCount} Topics
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className="text-xs text-gray-500">Popularity:</span>
-                          <span className="text-sm font-semibold text-gray-700">
+                          <span className="text-xs text-muted">Popularity:</span>
+                          <span className="text-sm font-semibold text-primary">
                             {subject.popularity}%
                           </span>
                         </div>
                       </div>
-                      
-                      <button 
-                        className="flex items-center gap-2 text-blue-600 hover:text-blue-700 
+
+                      <button
+                        className="flex items-center gap-2 text-primary hover:text-primaryAccent 
                                  font-semibold text-sm transition-all duration-300
                                  group-hover:gap-3"
                       >
                         Start Learning
-                        <svg 
-                          className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" 
-                          fill="none" 
-                          viewBox="0 0 24 24" 
+                        <svg
+                          className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
+                          fill="none"
+                          viewBox="0 0 24 24"
                           stroke="currentColor"
                         >
-                          <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth={2} 
-                            d="M14 5l7 7m0 0l-7 7m7-7H3" 
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M14 5l7 7m0 0l-7 7m7-7H3"
                           />
                         </svg>
                       </button>
                     </div>
 
                     <div className="absolute inset-0 rounded-2xl border-2 border-transparent 
-                                  group-hover:border-blue-200 transition-all duration-300 
+                                  group-hover:border-secondary transition-all duration-300 
                                   pointer-events-none" />
                   </div>
                 )
               })}
             </div>
 
-            
+
           </>
         ) : (
-          <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-100">
+          <div className="text-center py-16 bg-surface rounded-2xl shadow-sm border border-border">
             <div className="mb-4">
-              <Search className="w-16 h-16 text-gray-300 mx-auto" />
+              <Search className="w-16 h-16 text-primaryAccent mx-auto" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No concepts found</h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            <h3 className="text-xl font-bold text-primary mb-2">No concepts found</h3>
+            <p className="text-muted mb-6 max-w-md mx-auto">
               No concepts match your search criteria. Try adjusting your filters or search term.
             </p>
             <button
-              className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl
-                       hover:bg-blue-700 transition-colors"
+              className="px-6 py-3 bg-primaryAccent text-white font-semibold rounded-xl
+                       hover:bg-primaryAccent/90 transition-colors"
               onClick={() => {
                 setSelectedDepartment('All Departments')
                 setSearchQuery('')
