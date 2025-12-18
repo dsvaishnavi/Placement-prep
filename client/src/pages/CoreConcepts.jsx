@@ -254,17 +254,40 @@ function CoreConcepts() {
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12 text-center max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-orange-500 via-yellow-500 to-green-500 
-                           bg-clip-text text-transparent">
-              Core Concepts
-            </span>
+          <span className="bg-gradient-to-r 
+                 from-blue-900 
+                 via-blue-700 
+                 to-sky-500 
+                 bg-clip-text text-transparent">
+  Core Concepts
+</span>
+
           </h1>
           <p className="text-lg text-gray-600 leading-relaxed mb-8">
             Master the fundamental concepts across engineering disciplines. 
             Each module is designed to build your expertise from ground up.
           </p>
         </div>
-
+        <div className="mt-16 pt-8 border-t border-gray-200">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-gray-900">{totalSubjects}</div>
+                  <div className="text-sm text-gray-600">Core Concepts</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-gray-900">{totalTopics}</div>
+                  <div className="text-sm text-gray-600">Total Topics</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-gray-900">{completedSubjects}</div>
+                  <div className="text-sm text-gray-600">Completed</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-gray-900">{avgProgress}%</div>
+                  <div className="text-sm text-gray-600">Avg. Progress</div>
+                </div>
+              </div>
+            </div>
         <div className="mb-8 max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between 
                         bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -467,26 +490,7 @@ function CoreConcepts() {
               })}
             </div>
 
-            <div className="mt-16 pt-8 border-t border-gray-200">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900">{totalSubjects}</div>
-                  <div className="text-sm text-gray-600">Core Concepts</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900">{totalTopics}</div>
-                  <div className="text-sm text-gray-600">Total Topics</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900">{completedSubjects}</div>
-                  <div className="text-sm text-gray-600">Completed</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900">{avgProgress}%</div>
-                  <div className="text-sm text-gray-600">Avg. Progress</div>
-                </div>
-              </div>
-            </div>
+            
           </>
         ) : (
           <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-100">
