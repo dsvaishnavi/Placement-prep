@@ -39,14 +39,14 @@ function Home() {
   ]
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">
+          <h1 className="text-3xl font-bold text-primary mb-2">
             Welcome back, Alex! 👋
           </h1>
-          <p className="text-slate-600">
+          <p className="text-muted">
             Track your placement prep progress and keep improving.
           </p>
         </div>
@@ -61,8 +61,8 @@ function Home() {
         {/* Lower Section - 2 Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Activity */}
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-            <h2 className="text-xl font-bold text-slate-800 mb-4">
+          <div className="bg-primarySoft rounded-lg shadow-sm p-6 border border-border">
+            <h2 className="text-xl font-bold text-primary mb-4">
               Recent Activity
             </h2>
             <div className="space-y-3">
@@ -73,8 +73,8 @@ function Home() {
           </div>
 
           {/* Your Goals */}
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-            <h2 className="text-xl font-bold text-slate-800 mb-4">
+          <div className="bg-primarySoft rounded-lg shadow-sm p-6 border border-border">
+            <h2 className="text-xl font-bold text-primary mb-4">
               Your Goals
             </h2>
             <div>

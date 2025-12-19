@@ -20,13 +20,13 @@ function Aptitude() {
   ]
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">
+          <h1 className="text-3xl font-bold text-primary mb-2">
             Aptitude Exam
           </h1>
-          <p className="text-slate-600">
+          <p className="text-muted">
             Strengthen your quantitative, logical, and verbal skills with practice tests.
           </p>
         </div>
@@ -35,18 +35,18 @@ function Aptitude() {
           {topics.map((topic, index) => (
             <div
               key={index}
-              className="bg-white rounded-lg shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow"
+              className="bg-primarySoft rounded-lg shadow-sm p-6 border border-border hover:shadow-md transition-shadow"
             >
               <div className="mb-4">
-                <h3 className="text-xl font-bold text-slate-800 mb-2">
+                <h3 className="text-xl font-bold text-primary mb-2">
                   {topic.title}
                 </h3>
-                <span className="inline-block px-3 py-1 bg-blue-50 text-navy text-xs font-medium rounded-full">
+                <span className="inline-block px-3 py-1 bg-primaryAccent/10 text-primaryAccent text-xs font-medium rounded-full">
                   {topic.difficulty}
                 </span>
               </div>
-              <p className="text-slate-600 text-sm mb-6">{topic.description}</p>
-              <button className="w-full bg-navy text-white py-2.5 px-4 rounded-lg font-medium hover:bg-navy-dark transition-colors flex items-center justify-center gap-2">
+              <p className="text-muted text-sm mb-6">{topic.description}</p>
+              <button className="w-full bg-primary text-white py-2.5 px-4 rounded-lg font-medium hover:bg-primaryAccent transition-colors flex items-center justify-center gap-2">
                 <Play className="w-4 h-4" />
                 Start Test
               </button>
