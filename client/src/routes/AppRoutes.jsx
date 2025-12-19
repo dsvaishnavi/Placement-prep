@@ -6,6 +6,7 @@ import Progress from '../pages/Progress'
 import Login from '../pages/Login'
 import Signup from '../pages/Signup'
 import Admin from '../pages/Admin'
+import ResumeAnalyzer from '../pages/ResumeAnalyzer'
 
 function AppRoutes() {
   return (
@@ -17,6 +18,8 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/admin" element={<Admin />} />
+      <Route path="/resumeanalyzer" element={<ResumeAnalyzer />} />
+      
     </Routes>
   )
 }
