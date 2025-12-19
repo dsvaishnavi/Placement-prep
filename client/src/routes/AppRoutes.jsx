@@ -12,6 +12,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/home" element={<Home />} />
       <Route path="/aptitude" element={<Aptitude />} />
       <Route path="/core-concepts" element={<CoreConcepts />} />
       <Route path="/progress" element={<Progress />} />
@@ -19,7 +20,7 @@ function AppRoutes() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/admin" element={<Admin />} />
       <Route path="/resumeanalyzer" element={<ResumeAnalyzer />} />
-      
+     
     </Routes>
   )
 }
