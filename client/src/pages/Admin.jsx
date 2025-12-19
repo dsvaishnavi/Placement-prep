@@ -1,0 +1,1193 @@
+import { useState } from 'react'
+import { 
+  // Navigation & Layout Icons
+  Menu, Search, Bell, User, Home, Users, HelpCircle, 
+  BookOpen, Settings, LogOut, ChevronDown, Filter,
+  // Table & Action Icons
+  Edit, Trash2, Eye, CheckCircle, XCircle, MoreVertical,
+  Plus, Download, Upload, Calendar, Clock, Star,
+  // Form & Content Icons
+  Type, Hash, Tag, BarChart3, Lock, Globe
+} from 'lucide-react'
+
+function Admin() {
+  // State for active module and sidebar
+  const [activeModule, setActiveModule] = useState('users')
+  const [sidebarOpen, setSidebarOpen] = useState(true)
+  
+  // Mock data for users
+  const [users, setUsers] = useState([
+    {
+      id: 1,
+      fullName: 'Alex Johnson',
+      email: 'alex.johnson@example.com',
+      role: 'Admin',
+      lastLogin: '2024-01-15 14:30',
+      registrationDate: '2023-12-01',
+      status: 'Active',
+      avatar: 'AJ'
+    },
+    {
+      id: 2,
+      fullName: 'Sarah Miller',
+      email: 'sarah.m@example.com',
+      role: 'Content Manager',
+      lastLogin: '2024-01-14 11:20',
+      registrationDate: '2023-11-15',
+      status: 'Active',
+      avatar: 'SM'
+    },
+    {
+      id: 3,
+      fullName: 'Robert Chen',
+      email: 'robert.chen@example.com',
+      role: 'Student',
+      lastLogin: '2024-01-13 09:45',
+      registrationDate: '2024-01-01',
+      status: 'Active',
+      avatar: 'RC'
+    },
+    {
+      id: 4,
+      fullName: 'Maria Garcia',
+      email: 'maria.g@example.com',
+      role: 'Student',
+      lastLogin: '2024-01-10 16:20',
+      registrationDate: '2023-12-20',
+      status: 'Inactive',
+      avatar: 'MG'
+    },
+    {
+      id: 5,
+      fullName: 'David Wilson',
+      email: 'david.w@example.com',
+      role: 'Student',
+      lastLogin: '2024-01-12 13:15',
+      registrationDate: '2023-12-10',
+      status: 'Active',
+      avatar: 'DW'
+    }
+  ])
+  
+  // Mock data for aptitude questions
+  const [aptitudeQuestions, setAptitudeQuestions] = useState([
+    {
+      id: 1,
+      question: 'What is 25% of 200?',
+      options: {
+        A: '25',
+        B: '50',
+        C: '75',
+        D: '100'
+      },
+      correctAnswer: 'B',
+      difficulty: 'Easy',
+      topic: 'Percentage',
+      status: 'Published',
+      createdBy: 'Admin'
+    },
+    {
+      id: 2,
+      question: 'If a train travels 300km in 3 hours, what is its speed?',
+      options: {
+        A: '80 km/h',
+        B: '90 km/h',
+        C: '100 km/h',
+        D: '120 km/h'
+      },
+      correctAnswer: 'C',
+      difficulty: 'Medium',
+      topic: 'Speed & Time',
+      status: 'Draft',
+      createdBy: 'Content Manager'
+    },
+    {
+      id: 3,
+      question: 'What is the average of first 10 natural numbers?',
+      options: {
+        A: '4.5',
+        B: '5.5',
+        C: '6.5',
+        D: '7.5'
+      },
+      correctAnswer: 'B',
+      difficulty: 'Easy',
+      topic: 'Average',
+      status: 'Published',
+      createdBy: 'Admin'
+    }
+  ])
+  
+  // Mock data for core concepts
+  const [coreConcepts, setCoreConcepts] = useState([
+    {
+      id: 1,
+      title: 'Data Structures - Arrays',
+      description: 'Understanding array data structure, operations, and time complexity',
+      subject: 'Data Structures',
+      topics: 15,
+      difficulty: 'Beginner',
+      status: 'Published',
+      lastUpdated: '2024-01-10'
+    },
+    {
+      id: 2,
+      title: 'Operating Systems - Processes',
+      description: 'Process management, scheduling algorithms, and synchronization',
+      subject: 'Operating Systems',
+      topics: 22,
+      difficulty: 'Intermediate',
+      status: 'Draft',
+      lastUpdated: '2024-01-12'
+    },
+    {
+      id: 3,
+      title: 'Database Normalization',
+      description: 'Normal forms, functional dependencies, and database design principles',
+      subject: 'DBMS',
+      topics: 18,
+      difficulty: 'Advanced',
+      status: 'Published',
+      lastUpdated: '2024-01-08'
+    }
+  ])
+  
+  // Form states for adding/editing
+  const [newQuestion, setNewQuestion] = useState({
+    question: '',
+    options: { A: '', B: '', C: '', D: '' },
+    correctAnswer: '',
+    difficulty: 'Medium',
+    topic: ''
+  })
+  
+  const [newConcept, setNewConcept] = useState({
+    title: '',
+    description: '',
+    subject: '',
+    difficulty: 'Beginner',
+    status: 'Draft'
+  })
+  
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('')
+  const [userFilter, setUserFilter] = useState('all')
+  const [questionFilter, setQuestionFilter] = useState('all')
+  
+  // Navigation modules configuration
+  const modules = [
+    { id: 'dashboard', label: 'Dashboard', icon: Home },
+    { id: 'users', label: 'User Management', icon: Users },
+    { id: 'aptitude', label: 'Aptitude Questions', icon: HelpCircle },
+    { id: 'concepts', label: 'Core Concepts', icon: BookOpen },
+    { id: 'settings', label: 'Settings', icon: Settings }
+  ]
+  
+  // Reusable Table Component for Users
+  const UsersTable = () => {
+    const filteredUsers = users.filter(user => {
+      const matchesSearch = searchTerm === '' || 
+        user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesFilter = userFilter === 'all' || user.status === userFilter
+      return matchesSearch && matchesFilter
+    })
+    
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        {/* Table Header */}
+        <div className="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
+            <p className="text-sm text-gray-600">Manage user accounts, roles, and permissions</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search users..."
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                aria-label="Search users"
+              />
+            </div>
+            <select
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={userFilter}
+              onChange={(e) => setUserFilter(e.target.value)}
+              aria-label="Filter users by status"
+            >
+              <option value="all">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              Add User
+            </button>
+          </div>
+        </div>
+        
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full" role="table" aria-label="Users table">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">User</th>
+                <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Role</th>
+                <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Last Login</th>
+                <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Registration</th>
+                <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Status</th>
+                <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredUsers.map((user) => (
+                <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="py-4 px-6">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                        <span className="text-sm font-medium text-blue-600">{user.avatar}</span>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900">{user.fullName}</div>
+                        <div className="text-sm text-gray-500">{user.email}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      user.role === 'Admin' 
+                        ? 'bg-purple-100 text-purple-800' 
+                        : user.role === 'Content Manager'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm text-gray-900">{user.lastLogin}</span>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6 text-sm text-gray-900">{user.registrationDate}</td>
+                  <td className="py-4 px-6">
+                    <div className="flex items-center gap-2">
+                      {user.status === 'Active' ? (
+                        <>
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          <span className="text-green-700 font-medium">Active</span>
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="w-4 h-4 text-red-500" />
+                          <span className="text-red-700 font-medium">Inactive</span>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className="flex items-center gap-2">
+                      <button className="p-1 hover:bg-gray-100 rounded transition-colors" aria-label="View user">
+                        <Eye className="w-4 h-4 text-gray-600" />
+                      </button>
+                      <button className="p-1 hover:bg-gray-100 rounded transition-colors" aria-label="Edit user">
+                        <Edit className="w-4 h-4 text-blue-600" />
+                      </button>
+                      <button className="p-1 hover:bg-gray-100 rounded transition-colors" aria-label="Delete user">
+                        <Trash2 className="w-4 h-4 text-red-600" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Table Footer */}
+        <div className="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="text-sm text-gray-600">
+            Showing <span className="font-medium">{filteredUsers.length}</span> of <span className="font-medium">{users.length}</span> users
+          </div>
+          <div className="flex items-center gap-4">
+            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
+              <Download className="w-4 h-4" />
+              Export
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  
+  // Reusable Aptitude Question Form Component
+  const AptitudeQuestionForm = ({ onSubmit, initialData = newQuestion, mode = 'add' }) => {
+    const [formData, setFormData] = useState(initialData)
+    
+    const handleChange = (field, value) => {
+      setFormData(prev => ({ ...prev, [field]: value }))
+    }
+    
+    const handleOptionChange = (option, value) => {
+      setFormData(prev => ({
+        ...prev,
+        options: { ...prev.options, [option]: value }
+      }))
+    }
+    
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">
+          {mode === 'add' ? 'Add New Question' : 'Edit Question'}
+        </h3>
+        
+        <form onSubmit={(e) => {
+          e.preventDefault()
+          onSubmit(formData)
+        }}>
+          <div className="space-y-6">
+            {/* Question Text */}
+            <div>
+              <label htmlFor="question" className="block text-sm font-medium text-gray-700 mb-2">
+                Question Text
+              </label>
+              <textarea
+                id="question"
+                rows="3"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={formData.question}
+                onChange={(e) => handleChange('question', e.target.value)}
+                required
+                aria-describedby="question-help"
+              />
+              <p id="question-help" className="mt-1 text-sm text-gray-500">
+                Enter the aptitude question text
+              </p>
+            </div>
+            
+            {/* Options Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {['A', 'B', 'C', 'D'].map((option) => (
+                <div key={option}>
+                  <label htmlFor={`option-${option}`} className="block text-sm font-medium text-gray-700 mb-2">
+                    Option {option}
+                  </label>
+                  <input
+                    id={`option-${option}`}
+                    type="text"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    value={formData.options[option]}
+                    onChange={(e) => handleOptionChange(option, e.target.value)}
+                    required
+                  />
+                </div>
+              ))}
+            </div>
+            
+            {/* Correct Answer & Difficulty */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="correctAnswer" className="block text-sm font-medium text-gray-700 mb-2">
+                  Correct Answer
+                </label>
+                <select
+                  id="correctAnswer"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.correctAnswer}
+                  onChange={(e) => handleChange('correctAnswer', e.target.value)}
+                  required
+                >
+                  <option value="">Select correct option</option>
+                  <option value="A">Option A</option>
+                  <option value="B">Option B</option>
+                  <option value="C">Option C</option>
+                  <option value="D">Option D</option>
+                </select>
+              </div>
+              
+              <div>
+                <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 mb-2">
+                  Difficulty Level
+                </label>
+                <select
+                  id="difficulty"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.difficulty}
+                  onChange={(e) => handleChange('difficulty', e.target.value)}
+                >
+                  <option value="Easy">Easy</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Hard">Hard</option>
+                </select>
+              </div>
+            </div>
+            
+            {/* Topic */}
+            <div>
+              <label htmlFor="topic" className="block text-sm font-medium text-gray-700 mb-2">
+                Topic / Category
+              </label>
+              <input
+                id="topic"
+                type="text"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={formData.topic}
+                onChange={(e) => handleChange('topic', e.target.value)}
+                placeholder="e.g., Percentage, Algebra, Logical Reasoning"
+                required
+              />
+            </div>
+            
+            {/* Form Actions */}
+            <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+              <button
+                type="button"
+                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                onClick={() => setFormData(initialData)}
+              >
+                Reset
+              </button>
+              <button
+                type="submit"
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                {mode === 'add' ? 'Add Question' : 'Update Question'}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    )
+  }
+  
+  // Reusable Core Concept Form Component
+  const CoreConceptForm = ({ onSubmit, initialData = newConcept, mode = 'add' }) => {
+    const [formData, setFormData] = useState(initialData)
+    
+    const handleChange = (field, value) => {
+      setFormData(prev => ({ ...prev, [field]: value }))
+    }
+    
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">
+          {mode === 'add' ? 'Add New Core Concept' : 'Edit Core Concept'}
+        </h3>
+        
+        <form onSubmit={(e) => {
+          e.preventDefault()
+          onSubmit(formData)
+        }}>
+          <div className="space-y-6">
+            {/* Concept Title */}
+            <div>
+              <label htmlFor="concept-title" className="block text-sm font-medium text-gray-700 mb-2">
+                Concept Title
+              </label>
+              <input
+                id="concept-title"
+                type="text"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={formData.title}
+                onChange={(e) => handleChange('title', e.target.value)}
+                placeholder="e.g., Data Structures - Arrays"
+                required
+              />
+            </div>
+            
+            {/* Description */}
+            <div>
+              <label htmlFor="concept-description" className="block text-sm font-medium text-gray-700 mb-2">
+                Description
+              </label>
+              <textarea
+                id="concept-description"
+                rows="4"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={formData.description}
+                onChange={(e) => handleChange('description', e.target.value)}
+                placeholder="Detailed description of the core concept..."
+                required
+              />
+            </div>
+            
+            {/* Subject & Difficulty */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="concept-subject" className="block text-sm font-medium text-gray-700 mb-2">
+                  Subject
+                </label>
+                <select
+                  id="concept-subject"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.subject}
+                  onChange={(e) => handleChange('subject', e.target.value)}
+                  required
+                >
+                  <option value="">Select Subject</option>
+                  <option value="Data Structures">Data Structures</option>
+                  <option value="Algorithms">Algorithms</option>
+                  <option value="Operating Systems">Operating Systems</option>
+                  <option value="DBMS">DBMS</option>
+                  <option value="Computer Networks">Computer Networks</option>
+                  <option value="System Design">System Design</option>
+                </select>
+              </div>
+              
+              <div>
+                <label htmlFor="concept-difficulty" className="block text-sm font-medium text-gray-700 mb-2">
+                  Difficulty Level
+                </label>
+                <select
+                  id="concept-difficulty"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.difficulty}
+                  onChange={(e) => handleChange('difficulty', e.target.value)}
+                >
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+              </div>
+            </div>
+            
+            {/* Status */}
+            <div>
+              <label htmlFor="concept-status" className="block text-sm font-medium text-gray-700 mb-2">
+                Status
+              </label>
+              <select
+                id="concept-status"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={formData.status}
+                onChange={(e) => handleChange('status', e.target.value)}
+              >
+                <option value="Draft">Draft</option>
+                <option value="Published">Published</option>
+                <option value="Archived">Archived</option>
+              </select>
+            </div>
+            
+            {/* Form Actions */}
+            <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+              <button
+                type="button"
+                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                onClick={() => setFormData(initialData)}
+              >
+                Reset
+              </button>
+              <button
+                type="submit"
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                {mode === 'add' ? 'Add Concept' : 'Update Concept'}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    )
+  }
+  
+  // Dashboard Overview Component
+  const DashboardOverview = () => {
+    const stats = [
+      { label: 'Total Users', value: '1,248', change: '+12%', icon: Users, color: 'blue' },
+      { label: 'Active Questions', value: '856', change: '+8%', icon: HelpCircle, color: 'green' },
+      { label: 'Core Concepts', value: '124', change: '+15%', icon: BookOpen, color: 'purple' },
+      { label: 'Avg. User Score', value: '72%', change: '+5%', icon: BarChart3, color: 'orange' }
+    ]
+    
+    return (
+      <div className="space-y-6">
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat, index) => {
+            const Icon = stat.icon
+            return (
+              <div key={index} className="bg-white rounded-lg border border-gray-200 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-sm text-gray-600">{stat.label}</p>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+                  </div>
+                  <div className={`p-3 rounded-lg ${
+                    stat.color === 'blue' ? 'bg-blue-50' :
+                    stat.color === 'green' ? 'bg-green-50' :
+                    stat.color === 'purple' ? 'bg-purple-50' : 'bg-orange-50'
+                  }`}>
+                    <Icon className={`w-6 h-6 ${
+                      stat.color === 'blue' ? 'text-blue-600' :
+                      stat.color === 'green' ? 'text-green-600' :
+                      stat.color === 'purple' ? 'text-purple-600' : 'text-orange-600'
+                    }`} />
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-sm text-green-600 font-medium">{stat.change}</span>
+                  <span className="text-sm text-gray-500 ml-2">from last month</span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+        
+        {/* Recent Activity & Quick Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Activity */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+            <div className="space-y-4">
+              {[
+                { user: 'Admin', action: 'added new aptitude question', time: '2 hours ago' },
+                { user: 'Sarah Miller', action: 'updated core concept', time: '5 hours ago' },
+                { user: 'System', action: 'user registration completed', time: '1 day ago' },
+                { user: 'Admin', action: 'published new content', time: '2 days ago' }
+              ].map((activity, index) => (
+                <div key={index} className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                    <User className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-900">
+                      <span className="font-medium">{activity.user}</span> {activity.action}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <button 
+                className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center"
+                onClick={() => setActiveModule('aptitude')}
+              >
+                <HelpCircle className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+                <p className="text-sm font-medium text-gray-900">Add Question</p>
+                <p className="text-xs text-gray-500 mt-1">Create new aptitude question</p>
+              </button>
+              
+              <button 
+                className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center"
+                onClick={() => setActiveModule('concepts')}
+              >
+                <BookOpen className="w-6 h-6 text-green-600 mx-auto mb-2" />
+                <p className="text-sm font-medium text-gray-900">Add Concept</p>
+                <p className="text-xs text-gray-500 mt-1">Create new core concept</p>
+              </button>
+              
+              <button 
+                className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center"
+                onClick={() => setActiveModule('users')}
+              >
+                <Users className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+                <p className="text-sm font-medium text-gray-900">Add User</p>
+                <p className="text-xs text-gray-500 mt-1">Create new user account</p>
+              </button>
+              
+              <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                <Download className="w-6 h-6 text-orange-600 mx-auto mb-2" />
+                <p className="text-sm font-medium text-gray-900">Export Data</p>
+                <p className="text-xs text-gray-500 mt-1">Export reports & analytics</p>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  
+  // Aptitude Questions Management Component
+  const AptitudeQuestionsModule = () => {
+    return (
+      <div className="space-y-6">
+        {/* Stats & Actions */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Total Questions</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">856</p>
+              </div>
+              <HelpCircle className="w-8 h-8 text-blue-600" />
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Published</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">642</p>
+              </div>
+              <CheckCircle className="w-8 h-8 text-green-600" />
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">In Draft</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">187</p>
+              </div>
+              <Type className="w-8 h-8 text-yellow-600" />
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Avg. Difficulty</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">Medium</p>
+              </div>
+              <BarChart3 className="w-8 h-8 text-purple-600" />
+            </div>
+          </div>
+        </div>
+        
+        {/* Add Question Form */}
+        <AptitudeQuestionForm 
+          onSubmit={(data) => {
+            console.log('Adding question:', data)
+            // In production, this would call an API
+            alert('Question added successfully!')
+          }}
+        />
+        
+        {/* Questions List */}
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">All Questions</h3>
+              <p className="text-sm text-gray-600">Manage and review aptitude questions</p>
+            </div>
+            <select 
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={questionFilter}
+              onChange={(e) => setQuestionFilter(e.target.value)}
+            >
+              <option value="all">All Questions</option>
+              <option value="Published">Published</option>
+              <option value="Draft">Draft</option>
+              <option value="Easy">Easy</option>
+              <option value="Medium">Medium</option>
+              <option value="Hard">Hard</option>
+            </select>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Question</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Topic</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Difficulty</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Status</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {aptitudeQuestions.map((question) => (
+                  <tr key={question.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-6">
+                      <div className="max-w-xs">
+                        <p className="font-medium text-gray-900 line-clamp-2">{question.question}</p>
+                        <p className="text-sm text-gray-500 mt-1">Correct: Option {question.correctAnswer}</p>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                        {question.topic}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        question.difficulty === 'Easy' ? 'bg-green-100 text-green-800' :
+                        question.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {question.difficulty}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        question.status === 'Published' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {question.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-2">
+                        <button className="p-1 hover:bg-gray-100 rounded transition-colors" aria-label="Edit question">
+                          <Edit className="w-4 h-4 text-blue-600" />
+                        </button>
+                        <button className="p-1 hover:bg-gray-100 rounded transition-colors" aria-label="Delete question">
+                          <Trash2 className="w-4 h-4 text-red-600" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  
+  // Core Concepts Management Component
+  const CoreConceptsModule = () => {
+    return (
+      <div className="space-y-6">
+        {/* Add Concept Form */}
+        <CoreConceptForm 
+          onSubmit={(data) => {
+            console.log('Adding concept:', data)
+            // In production, this would call an API
+            alert('Core concept added successfully!')
+          }}
+        />
+        
+        {/* Concepts List */}
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">All Core Concepts</h3>
+              <p className="text-sm text-gray-600">Manage educational content and subjects</p>
+            </div>
+            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              Add Concept
+            </button>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Title</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Subject</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Difficulty</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Topics</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Status</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {coreConcepts.map((concept) => (
+                  <tr key={concept.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-6">
+                      <div>
+                        <p className="font-medium text-gray-900">{concept.title}</p>
+                        <p className="text-sm text-gray-500 mt-1 line-clamp-2">{concept.description}</p>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
+                        {concept.subject}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-2">
+                        <Star className={`w-4 h-4 ${
+                          concept.difficulty === 'Beginner' ? 'text-green-500' :
+                          concept.difficulty === 'Intermediate' ? 'text-yellow-500' : 'text-red-500'
+                        }`} />
+                        <span className="text-sm text-gray-900">{concept.difficulty}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-2">
+                        <Hash className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm font-medium text-gray-900">{concept.topics}</span>
+                        <span className="text-sm text-gray-500">topics</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        concept.status === 'Published' ? 'bg-green-100 text-green-800' :
+                        concept.status === 'Draft' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {concept.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-2">
+                        <button className="p-1 hover:bg-gray-100 rounded transition-colors" aria-label="Edit concept">
+                          <Edit className="w-4 h-4 text-blue-600" />
+                        </button>
+                        <button className="p-1 hover:bg-gray-100 rounded transition-colors" aria-label="Delete concept">
+                          <Trash2 className="w-4 h-4 text-red-600" />
+                        </button>
+                        <button className="p-1 hover:bg-gray-100 rounded transition-colors" aria-label="View concept">
+                          <Eye className="w-4 h-4 text-gray-600" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  
+  // Main content renderer based on active module
+  const renderContent = () => {
+    switch (activeModule) {
+      case 'dashboard':
+        return <DashboardOverview />
+      case 'users':
+        return <UsersTable />
+      case 'aptitude':
+        return <AptitudeQuestionsModule />
+      case 'concepts':
+        return <CoreConceptsModule />
+      case 'settings':
+        return (
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Settings</h2>
+            <p className="text-gray-600">Settings panel would be implemented here.</p>
+          </div>
+        )
+      default:
+        return <DashboardOverview />
+    }
+  }
+  
+  // Accessible page title based on active module
+  const getPageTitle = () => {
+    const module = modules.find(m => m.id === activeModule)
+    return module ? `${module.label} - Admin Panel` : 'Admin Panel'
+  }
+  
+  return (
+    // Main container with semantic structure
+    <div className="min-h-screen bg-gray-50">
+      {/* SEO-friendly page title (hidden for screen readers) */}
+      <div className="sr-only">
+        <h1>{getPageTitle()}</h1>
+      </div>
+      
+      {/* Top Navigation Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Left: Logo & Mobile Menu Toggle */}
+            <div className="flex items-center gap-4">
+              <button 
+                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+              >
+                <Menu className="w-5 h-5 text-gray-600" />
+              </button>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                  <Lock className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
+                  <p className="text-sm text-gray-500">Learning Platform Management</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Right: User Menu & Notifications */}
+            <div className="flex items-center gap-4">
+              {/* Search */}
+              <div className="relative hidden md:block">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="search"
+                  placeholder="Search..."
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  aria-label="Search in admin panel"
+                />
+              </div>
+              
+              {/* Notifications */}
+              <button 
+                className="p-2 hover:bg-gray-100 rounded-lg relative transition-colors"
+                aria-label="View notifications"
+              >
+                <Bell className="w-5 h-5 text-gray-600" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              </button>
+              
+              {/* User Profile Dropdown */}
+              <div className="relative">
+                <button 
+                  className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  aria-label="User profile menu"
+                >
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                    <User className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div className="text-left hidden md:block">
+                    <p className="text-sm font-medium text-gray-900">Admin User</p>
+                    <p className="text-xs text-gray-500">Super Administrator</p>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      {/* Main Layout Container */}
+      <div className="flex">
+        {/* Sidebar Navigation */}
+        <aside className={`${
+          sidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full w-0'
+        } lg:translate-x-0 lg:w-64 bg-white border-r border-gray-200 h-[calc(100vh-73px)] fixed lg:static transition-all duration-300 z-40 overflow-y-auto`}>
+          <nav className="p-4" aria-label="Main navigation">
+            {/* Navigation Modules */}
+            <ul className="space-y-2">
+              {modules.map((module) => {
+                const Icon = module.icon
+                return (
+                  <li key={module.id}>
+                    <button
+                      onClick={() => setActiveModule(module.id)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                        activeModule === module.id
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                      aria-current={activeModule === module.id ? 'page' : undefined}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="font-medium">{module.label}</span>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+            
+            {/* Divider */}
+            <div className="my-6 border-t border-gray-200"></div>
+            
+            {/* Quick Stats */}
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-900 mb-2">Quick Stats</h3>
+              <div className="space-y-3">
+                <div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Active Users</span>
+                    <span className="font-medium text-gray-900">1,042</span>
+                  </div>
+                  <div className="h-1 bg-gray-200 rounded-full overflow-hidden mt-1">
+                    <div className="h-full bg-green-500 rounded-full" style={{ width: '85%' }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Content Coverage</span>
+                    <span className="font-medium text-gray-900">72%</span>
+                  </div>
+                  <div className="h-1 bg-gray-200 rounded-full overflow-hidden mt-1">
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: '72%' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Logout Button */}
+            <button className="w-full mt-6 flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+              <LogOut className="w-5 h-5" />
+              <span className="font-medium">Log Out</span>
+            </button>
+          </nav>
+        </aside>
+        
+        {/* Overlay for mobile sidebar */}
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 lg:hidden z-30"
+            onClick={() => setSidebarOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+        
+        {/* Main Content Area */}
+        <main className="flex-1 p-6">
+          {/* Breadcrumb */}
+          <div className="mb-6">
+            <nav className="flex items-center text-sm text-gray-600" aria-label="Breadcrumb">
+              <span className="hover:text-blue-600 cursor-pointer">Admin Panel</span>
+              <ChevronDown className="w-4 h-4 mx-2 rotate-270" />
+              <span className="font-medium text-blue-700">
+                {modules.find(m => m.id === activeModule)?.label || 'Dashboard'}
+              </span>
+            </nav>
+          </div>
+          
+          {/* Page Heading */}
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {modules.find(m => m.id === activeModule)?.label || 'Dashboard'}
+            </h2>
+            <p className="text-gray-600 mt-2">
+              {activeModule === 'users' && 'Manage user accounts, roles, and permissions'}
+              {activeModule === 'aptitude' && 'Create and manage aptitude test questions'}
+              {activeModule === 'concepts' && 'Manage educational content and core concepts'}
+              {activeModule === 'dashboard' && 'Overview of platform analytics and metrics'}
+              {activeModule === 'settings' && 'Configure platform settings and preferences'}
+            </p>
+          </div>
+          
+          {/* Main Content */}
+          {renderContent()}
+          
+          {/* Footer */}
+          <footer className="mt-8 pt-6 border-t border-gray-200">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-sm text-gray-600">
+                © 2024 Learning Platform. All rights reserved.
+              </p>
+              <div className="flex items-center gap-6 text-sm text-gray-600">
+                <a href="#" className="hover:text-blue-600 transition-colors">Privacy Policy</a>
+                <a href="#" className="hover:text-blue-600 transition-colors">Terms of Service</a>
+                <a href="#" className="hover:text-blue-600 transition-colors">Help Center</a>
+              </div>
+            </div>
+          </footer>
+        </main>
+      </div>
+      
+      {/* Global Styles for responsive design */}
+      <style jsx>{`
+        @media (max-width: 640px) {
+          .rotate-270 {
+            transform: rotate(270deg);
+          }
+        }
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+      `}</style>
+    </div>
+  )
+}
+
+export default Admin

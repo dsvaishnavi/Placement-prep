@@ -5,6 +5,7 @@ import CoreConcepts from '../pages/CoreConcepts'
 import Progress from '../pages/Progress'
 import Login from '../pages/Login'
 import Signup from '../pages/Signup'
+import Admin from '../pages/Admin'
 
 function AppRoutes() {
   return (
@@ -15,6 +16,7 @@ function AppRoutes() {
       <Route path="/progress" element={<Progress />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/admin" element={<Admin />} />
     </Routes>
   )
 }

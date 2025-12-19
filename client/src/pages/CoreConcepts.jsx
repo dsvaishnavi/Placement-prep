@@ -108,15 +108,15 @@ function CoreConcepts() {
       popularity: 91
     },
     // Electronics & Communication
-    {
-      title: 'Digital Electronics',
-      description: 'Logic gates, flip-flops, and digital circuit design',
-      topicCount: 17,
-      icon: Circuit, // Using Cpu icon
-      department: 'Electronics & Communication',
-      status: 'Not Started',
-      popularity: 85
-    },
+    // {
+    //   title: 'Digital Electronics',
+    //   description: 'Logic gates, flip-flops, and digital circuit design',
+    //   topicCount: 17,
+    //   icon: Circuit, // Using Cpu icon
+    //   department: 'Electronics & Communication',
+    //   status: 'Not Started',
+    //   popularity: 85
+    // },
     {
       title: 'Microprocessors',
       description: '8085/8086 architecture, assembly programming, and interfacing',
@@ -127,35 +127,35 @@ function CoreConcepts() {
       popularity: 82
     },
     // Mechanical Engineering
-    {
-      title: 'Thermodynamics',
-      description: 'Laws of thermodynamics, heat transfer, and energy conversion',
-      topicCount: 14,
-      icon: Zap,
-      department: 'Mechanical Engineering',
-      status: 'Not Started',
-      popularity: 78
-    },
-    // Civil Engineering
-    {
-      title: 'Structural Analysis',
-      description: 'Stress, strain, beams, and structural design principles',
-      topicCount: 16,
-      icon: BarChart,
-      department: 'Civil Engineering',
-      status: 'Not Started',
-      popularity: 76
-    },
-    // Electrical Engineering
-    {
-      title: 'Power Systems',
-      description: 'Generation, transmission, and distribution of electrical power',
-      topicCount: 18,
-      icon: GitBranch,
-      department: 'Electrical Engineering',
-      status: 'Not Started',
-      popularity: 80
-    },
+    // {
+    //   title: 'Thermodynamics',
+    //   description: 'Laws of thermodynamics, heat transfer, and energy conversion',
+    //   topicCount: 14,
+    //   icon: Zap,
+    //   department: 'Mechanical Engineering',
+    //   status: 'Not Started',
+    //   popularity: 78
+    // },
+    // // Civil Engineering
+    // {
+    //   title: 'Structural Analysis',
+    //   description: 'Stress, strain, beams, and structural design principles',
+    //   topicCount: 16,
+    //   icon: BarChart,
+    //   department: 'Civil Engineering',
+    //   status: 'Not Started',
+    //   popularity: 76
+    // },
+    // // Electrical Engineering
+    // {
+    //   title: 'Power Systems',
+    //   description: 'Generation, transmission, and distribution of electrical power',
+    //   topicCount: 18,
+    //   icon: GitBranch,
+    //   department: 'Electrical Engineering',
+    //   status: 'Not Started',
+    //   popularity: 80
+    // },
     // Data Science
     {
       title: 'Machine Learning',
@@ -185,15 +185,15 @@ function CoreConcepts() {
       status: 'Not Started',
       popularity: 89
     },
-    {
-      title: 'Ethical Hacking',
-      description: 'Penetration testing, vulnerability assessment, and security auditing',
-      topicCount: 19,
-      icon: Lock,
-      department: 'Cybersecurity',
-      status: 'Not Started',
-      popularity: 87
-    },
+    // {
+    //   title: 'Ethical Hacking',
+    //   description: 'Penetration testing, vulnerability assessment, and security auditing',
+    //   topicCount: 19,
+    //   icon: Lock,
+    //   department: 'Cybersecurity',
+    //   status: 'Not Started',
+    //   popularity: 87
+    // },
   ]
 
   const [selectedDepartment, setSelectedDepartment] = useState('All Departments')
@@ -252,7 +252,7 @@ function CoreConcepts() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-surface">
       <div className="container mx-auto px-4 py-12">
-        <div className="mb-12 text-center max-w-3xl mx-auto">
+        {/* <div className="mb-12 text-center max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
             <span className="bg-gradient-to-r 
                  from-primary 
@@ -288,7 +288,7 @@ function CoreConcepts() {
           </div>
         <div className="mt-16 pt-8 border-t border-border">
           
-        </div>
+        </div> */}
         <div className="mb-8 max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between 
                         bg-surface p-6 rounded-2xl shadow-sm border border-border">

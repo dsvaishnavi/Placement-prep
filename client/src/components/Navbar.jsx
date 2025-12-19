@@ -18,7 +18,7 @@ function Navbar() {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <GraduationCap className="w-6 h-6" />
-            <span className="text-xl font-bold">Prepixify</span>
+            <span className="text-xl font-bold">SkillSync</span>
           </div>
 
           {/* Navigation Links */}
