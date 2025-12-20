@@ -6,7 +6,7 @@ function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const navItems = [
-    { path: '/', label: 'Home' },
+    { path: '/home', label: 'Home' },
     { path: '/aptitude', label: 'Aptitude Exam' },
     { path: '/core-concepts', label: 'Core Concepts' },
     { path: '/progress', label: 'Progress' },

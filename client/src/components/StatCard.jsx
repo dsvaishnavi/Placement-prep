@@ -14,4 +14,3 @@ function StatCard({ icon: Icon, title, value, subtitle }) {
 }
 
 export default StatCard
-

@@ -1,3 +1,4 @@
+// AppRoutes.jsx
 import { Routes, Route } from 'react-router-dom'
 import Home from '../pages/Home'
 import Aptitude from '../pages/Aptitude'
@@ -7,11 +8,12 @@ import Login from '../pages/Login'
 import Signup from '../pages/Signup'
 import Admin from '../pages/Admin'
 import ResumeAnalyzer from '../pages/ResumeAnalyzer'
+import LandingPage from '../pages/LandingPage'
 
-function AppRoutes() {
+function AppRoutes({ theme, setTheme }) {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<LandingPage theme={theme} setTheme={setTheme} />} />
       <Route path="/home" element={<Home />} />
       <Route path="/aptitude" element={<Aptitude />} />
       <Route path="/core-concepts" element={<CoreConcepts />} />
@@ -20,10 +22,9 @@ function AppRoutes() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/admin" element={<Admin />} />
       <Route path="/resumeanalyzer" element={<ResumeAnalyzer />} />
-     
+      
     </Routes>
   )
 }
 
 export default AppRoutes
-
