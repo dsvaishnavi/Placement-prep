@@ -8,7 +8,7 @@ import {
   Cpu as Microchip // Using Cpu for Microchip
 } from 'lucide-react'
 
-function CoreConcepts() {
+function CoreConcepts({ theme }) {
   // All departments/branches
   const departments = [
     'All Departments',
@@ -108,15 +108,15 @@ function CoreConcepts() {
       popularity: 91
     },
     // Electronics & Communication
-    {
-      title: 'Digital Electronics',
-      description: 'Logic gates, flip-flops, and digital circuit design',
-      topicCount: 17,
-      icon: Circuit, // Using Cpu icon
-      department: 'Electronics & Communication',
-      status: 'Not Started',
-      popularity: 85
-    },
+    // {
+    //   title: 'Digital Electronics',
+    //   description: 'Logic gates, flip-flops, and digital circuit design',
+    //   topicCount: 17,
+    //   icon: Circuit, // Using Cpu icon
+    //   department: 'Electronics & Communication',
+    //   status: 'Not Started',
+    //   popularity: 85
+    // },
     {
       title: 'Microprocessors',
       description: '8085/8086 architecture, assembly programming, and interfacing',
@@ -127,35 +127,35 @@ function CoreConcepts() {
       popularity: 82
     },
     // Mechanical Engineering
-    {
-      title: 'Thermodynamics',
-      description: 'Laws of thermodynamics, heat transfer, and energy conversion',
-      topicCount: 14,
-      icon: Zap,
-      department: 'Mechanical Engineering',
-      status: 'Not Started',
-      popularity: 78
-    },
-    // Civil Engineering
-    {
-      title: 'Structural Analysis',
-      description: 'Stress, strain, beams, and structural design principles',
-      topicCount: 16,
-      icon: BarChart,
-      department: 'Civil Engineering',
-      status: 'Not Started',
-      popularity: 76
-    },
-    // Electrical Engineering
-    {
-      title: 'Power Systems',
-      description: 'Generation, transmission, and distribution of electrical power',
-      topicCount: 18,
-      icon: GitBranch,
-      department: 'Electrical Engineering',
-      status: 'Not Started',
-      popularity: 80
-    },
+    // {
+    //   title: 'Thermodynamics',
+    //   description: 'Laws of thermodynamics, heat transfer, and energy conversion',
+    //   topicCount: 14,
+    //   icon: Zap,
+    //   department: 'Mechanical Engineering',
+    //   status: 'Not Started',
+    //   popularity: 78
+    // },
+    // // Civil Engineering
+    // {
+    //   title: 'Structural Analysis',
+    //   description: 'Stress, strain, beams, and structural design principles',
+    //   topicCount: 16,
+    //   icon: BarChart,
+    //   department: 'Civil Engineering',
+    //   status: 'Not Started',
+    //   popularity: 76
+    // },
+    // // Electrical Engineering
+    // {
+    //   title: 'Power Systems',
+    //   description: 'Generation, transmission, and distribution of electrical power',
+    //   topicCount: 18,
+    //   icon: GitBranch,
+    //   department: 'Electrical Engineering',
+    //   status: 'Not Started',
+    //   popularity: 80
+    // },
     // Data Science
     {
       title: 'Machine Learning',
@@ -185,15 +185,15 @@ function CoreConcepts() {
       status: 'Not Started',
       popularity: 89
     },
-    {
-      title: 'Ethical Hacking',
-      description: 'Penetration testing, vulnerability assessment, and security auditing',
-      topicCount: 19,
-      icon: Lock,
-      department: 'Cybersecurity',
-      status: 'Not Started',
-      popularity: 87
-    },
+    // {
+    //   title: 'Ethical Hacking',
+    //   description: 'Penetration testing, vulnerability assessment, and security auditing',
+    //   topicCount: 19,
+    //   icon: Lock,
+    //   department: 'Cybersecurity',
+    //   status: 'Not Started',
+    //   popularity: 87
+    // },
   ]
 
   const [selectedDepartment, setSelectedDepartment] = useState('All Departments')
@@ -250,9 +250,16 @@ function CoreConcepts() {
     : 0
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-surface">
+    <div className={`min-h-screen pt-16 ${theme === 'dark'
+      ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
+      : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
+      }`}>
       <div className="container mx-auto px-4 py-12">
-        <div className="mb-12 text-center max-w-3xl mx-auto">
+        <div className="mb-8">
+          <h1 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Core Concepts</h1>
+          <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Master fundamental concepts across engineering disciplines</p>
+        </div>
+        {/* <div className="mb-12 text-center max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
             <span className="bg-gradient-to-r 
                  from-primary 
@@ -288,10 +295,9 @@ function CoreConcepts() {
           </div>
         <div className="mt-16 pt-8 border-t border-border">
           
-        </div>
+        </div> */}
         <div className="mb-8 max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between 
-                        bg-surface p-6 rounded-2xl shadow-sm border border-border">
+          <div className={`flex flex-col md:flex-row gap-4 items-center justify-between rounded-2xl p-6 shadow-sm backdrop-blur-md ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-white/70 border-gray-200/60'}`}>
             <div className="flex-1 w-full md:w-auto">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 
@@ -299,9 +305,7 @@ function CoreConcepts() {
                 <input
                   type="text"
                   placeholder="Search concepts, subjects, or departments..."
-                  className="w-full pl-12 pr-4 py-3 border border-border rounded-xl
-                           focus:outline-none focus:ring-2 focus:ring-primary 
-                           focus:border-transparent text-primary"
+                  className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${theme === 'dark' ? 'bg-gray-800/50 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'}`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -313,10 +317,7 @@ function CoreConcepts() {
                 <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 
                                 text-muted w-5 h-5" />
                 <select
-                  className="pl-12 pr-10 py-3 border border-border rounded-xl
-                           focus:outline-none focus:ring-2 focus:ring-primary 
-                           focus:border-transparent appearance-none bg-surface
-                           text-primary cursor-pointer"
+                  className={`pl-12 pr-10 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer ${theme === 'dark' ? 'bg-gray-800/50 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'}`}
                   value={selectedDepartment}
                   onChange={(e) => setSelectedDepartment(e.target.value)}
                 >
@@ -330,10 +331,7 @@ function CoreConcepts() {
 
               <div className="relative">
                 <select
-                  className="pl-4 pr-10 py-3 border border-border rounded-xl
-                           focus:outline-none focus:ring-2 focus:ring-primary 
-                           focus:border-transparent appearance-none bg-surface
-                           text-primary cursor-pointer"
+                  className={`pl-4 pr-10 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer ${theme === 'dark' ? 'bg-gray-800/50 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'}`}
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                 >
@@ -402,10 +400,7 @@ function CoreConcepts() {
                 return (
                   <div
                     key={index}
-                    className="group relative bg-surface rounded-2xl p-6 border border-border 
-                             shadow-sm hover:shadow-xl transition-all duration-300 
-                             hover:-translate-y-1 cursor-pointer
-                             hover:border-primaryAccent active:scale-[0.99]"
+                    className={`group relative rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer hover:border-blue-500/50 active:scale-[0.99] backdrop-blur-md ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-white/70 border-gray-200/60'}`}
                   >
                     <div className="flex items-start justify-between mb-6">
                       <div className="flex items-center gap-4">
