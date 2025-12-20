@@ -31,40 +31,40 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-// Mouse Follower Pink Circle
-const MouseFollower = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0 })
-  const circleRef = useRef(null)
+// // Mouse Follower Pink Circle - DISABLED
+// const MouseFollower = () => {
+//   const [position, setPosition] = useState({ x: 0, y: 0 })
+//   const circleRef = useRef(null)
 
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      const x = e.clientX
-      const y = e.clientY
-      setPosition({ x, y })
-    }
+//   useEffect(() => {
+//     const handleMouseMove = (e) => {
+//       const x = e.clientX
+//       const y = e.clientY
+//       setPosition({ x, y })
+//     }
 
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
+//     window.addEventListener('mousemove', handleMouseMove)
+//     return () => window.removeEventListener('mousemove', handleMouseMove)
+//   }, [])
 
-  return (
-    <div
-      ref={circleRef}
-      className="fixed pointer-events-none z-30 mix-blend-screen"
-      style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        transform: 'translate(-50%, -50%)',
-        transition: 'left 0.1s ease-out, top 0.1s ease-out',
-        willChange: 'transform'
-      }}
-    >
-      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 blur-sm" />
-      <div className="absolute inset-0 w-6 h-6 rounded-full bg-gradient-to-r from-pink-400/40 to-purple-400/40 blur-sm" />
-      <div className="absolute inset-0 w-4 h-4 rounded-full bg-pink-400/60 blur-sm" />
-    </div>
-  )
-}
+//   return (
+//     <div
+//       ref={circleRef}
+//       className="fixed pointer-events-none z-30 mix-blend-screen"
+//       style={{
+//         left: `${position.x}px`,
+//         top: `${position.y}px`,
+//         transform: 'translate(-50%, -50%)',
+//         transition: 'left 0.1s ease-out, top 0.1s ease-out',
+//         willChange: 'transform'
+//       }}
+//     >
+//       <div className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 blur-sm" />
+//       <div className="absolute inset-0 w-6 h-6 rounded-full bg-gradient-to-r from-pink-400/40 to-purple-400/40 blur-sm" />
+//       <div className="absolute inset-0 w-4 h-4 rounded-full bg-pink-400/60 blur-sm" />
+//     </div>
+//   )
+// }
 
 // Fixed Circuit Green Particles Animation
 const CircuitGreenParticles = ({ theme }) => {
@@ -79,7 +79,7 @@ const CircuitGreenParticles = ({ theme }) => {
     const ctx = canvas.getContext('2d')
     const particles = []
     const particleCount = 50 // Optimized for mobile
-    
+
     let width = 0, height = 0
     let devicePixelRatio = 1
 
@@ -88,17 +88,17 @@ const CircuitGreenParticles = ({ theme }) => {
       // Ensure we have valid dimensions
       const safeWidth = Math.max(width, 100)
       const safeHeight = Math.max(height, 100)
-      
+
       return [
-        { x: safeWidth * 0.1, y: safeHeight * 0.2 }, 
+        { x: safeWidth * 0.1, y: safeHeight * 0.2 },
         { x: safeWidth * 0.3, y: safeHeight * 0.1 },
-        { x: safeWidth * 0.5, y: safeHeight * 0.3 }, 
+        { x: safeWidth * 0.5, y: safeHeight * 0.3 },
         { x: safeWidth * 0.7, y: safeHeight * 0.2 },
-        { x: safeWidth * 0.9, y: safeHeight * 0.4 }, 
+        { x: safeWidth * 0.9, y: safeHeight * 0.4 },
         { x: safeWidth * 0.8, y: safeHeight * 0.6 },
-        { x: safeWidth * 0.6, y: safeHeight * 0.7 }, 
+        { x: safeWidth * 0.6, y: safeHeight * 0.7 },
         { x: safeWidth * 0.4, y: safeHeight * 0.6 },
-        { x: safeWidth * 0.2, y: safeHeight * 0.8 }, 
+        { x: safeWidth * 0.2, y: safeHeight * 0.8 },
         { x: safeWidth * 0.1, y: safeHeight * 0.5 }
       ]
     }
@@ -107,7 +107,7 @@ const CircuitGreenParticles = ({ theme }) => {
 
     const initParticles = () => {
       particles.length = 0
-      
+
       for (let i = 0; i < particleCount; i++) {
         const pathIndex = Math.floor(Math.random() * (circuitPoints.length - 1))
         particles.push({
@@ -127,15 +127,15 @@ const CircuitGreenParticles = ({ theme }) => {
 
     const setCanvasSize = () => {
       if (!containerRef.current) return
-      
+
       const rect = containerRef.current.getBoundingClientRect()
       width = rect.width
       height = rect.height
-      
+
       // Set canvas size exactly to container size
       canvas.width = width
       canvas.height = height
-      
+
       // Update circuit points
       circuitPoints = getCircuitPoints()
       initParticles()
@@ -155,7 +155,7 @@ const CircuitGreenParticles = ({ theme }) => {
       }
 
       // Clear with minimal fade
-      ctx.fillStyle = theme === 'dark' 
+      ctx.fillStyle = theme === 'dark'
         ? 'rgba(0, 0, 0, 0.02)'
         : 'rgba(255, 255, 255, 0.01)'
       ctx.fillRect(0, 0, width, height)
@@ -172,17 +172,17 @@ const CircuitGreenParticles = ({ theme }) => {
         // Calculate position along circuit path
         const startPoint = circuitPoints[particle.currentPath]
         const endPoint = circuitPoints[particle.currentPath + 1] || circuitPoints[0]
-        
+
         const t = particle.progress
         const baseX = startPoint.x + (endPoint.x - startPoint.x) * t
         const baseY = startPoint.y + (endPoint.y - startPoint.y) * t
-        
+
         // Add smooth sinusoidal movement
         const maxOffset = Math.min(width, height) * 0.02
         const circuitOffset = Math.sin(particle.progress * Math.PI * 2) * maxOffset
         const finalX = baseX + Math.cos(particle.pulsePhase) * circuitOffset
         const finalY = baseY + Math.sin(particle.pulsePhase) * circuitOffset
-        
+
         // Update pulse for glowing effect
         particle.pulsePhase += particle.pulseSpeed
         particle.glow = Math.sin(particle.pulsePhase) * 0.5 + 0.5
@@ -195,13 +195,13 @@ const CircuitGreenParticles = ({ theme }) => {
 
         // Draw trail (circuit trace)
         if (particle.trail.length > 1) {
-          ctx.strokeStyle = theme === 'dark' 
+          ctx.strokeStyle = theme === 'dark'
             ? `rgba(34, 197, 94, ${0.15 * particle.glow})`
             : `rgba(21, 128, 61, ${0.1 * particle.glow})`
           ctx.lineWidth = 1.2
           ctx.lineCap = 'round'
           ctx.lineJoin = 'round'
-          
+
           ctx.beginPath()
           ctx.moveTo(particle.trail[0].x, particle.trail[0].y)
           for (let i = 1; i < particle.trail.length; i++) {
@@ -215,28 +215,28 @@ const CircuitGreenParticles = ({ theme }) => {
         const size = particle.size * (0.8 + 0.4 * particle.glow)
 
         // Glow effect - visible in dark mode
-        ctx.fillStyle = theme === 'dark' 
+        ctx.fillStyle = theme === 'dark'
           ? `rgba(34, 197, 94, ${opacity * 0.5})` // Increased opacity for dark mode
           : `rgba(21, 128, 61, ${opacity * 0.3})`
-        
+
         ctx.beginPath()
         ctx.arc(finalX, finalY, size * 2.5, 0, Math.PI * 2)
         ctx.fill()
 
         // Particle core - brighter in dark mode
-        ctx.fillStyle = theme === 'dark' 
+        ctx.fillStyle = theme === 'dark'
           ? `rgba(34, 197, 94, ${0.9 * particle.glow})`
           : `rgba(21, 128, 61, ${0.8 * particle.glow})`
-        
+
         ctx.beginPath()
         ctx.arc(finalX, finalY, size, 0, Math.PI * 2)
         ctx.fill()
 
         // Particle highlight
-        ctx.fillStyle = theme === 'dark' 
+        ctx.fillStyle = theme === 'dark'
           ? `rgba(255, 255, 255, ${0.8 * particle.glow})`
           : `rgba(255, 255, 255, ${0.6 * particle.glow})`
-        
+
         ctx.beginPath()
         ctx.arc(finalX - size * 0.3, finalY - size * 0.3, size * 0.4, 0, Math.PI * 2)
         ctx.fill()
@@ -258,7 +258,7 @@ const CircuitGreenParticles = ({ theme }) => {
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ 
+        style={{
           opacity: theme === 'dark' ? 0.7 : 0.5,
           imageRendering: 'crisp-edges'
         }}
@@ -287,7 +287,7 @@ const ShortCircuitSparks = ({ theme }) => {
       const rect = canvas.getBoundingClientRect()
       width = rect.width
       height = rect.height
-      
+
       canvas.width = width
       canvas.height = height
     }
@@ -300,7 +300,7 @@ const ShortCircuitSparks = ({ theme }) => {
       const angle = Math.random() * Math.PI * 2
       const speed = 2 + Math.random() * 4
       const life = 25 + Math.random() * 40
-      
+
       sparks.push({
         x,
         y,
@@ -309,7 +309,7 @@ const ShortCircuitSparks = ({ theme }) => {
         life,
         maxLife: life,
         size: 1.5 + Math.random() * 2.5,
-        color: theme === 'dark' 
+        color: theme === 'dark'
           ? `rgba(251, 191, 36, ${0.9})` // Brighter yellow for dark mode
           : `rgba(245, 158, 11, ${0.8})`
       })
@@ -319,7 +319,7 @@ const ShortCircuitSparks = ({ theme }) => {
       const centerX = Math.random() * width
       const centerY = Math.random() * height
       const sparkCount = 10 + Math.floor(Math.random() * 15)
-      
+
       for (let i = 0; i < sparkCount; i++) {
         createSpark(centerX, centerY)
       }
@@ -332,7 +332,7 @@ const ShortCircuitSparks = ({ theme }) => {
       }
 
       // Clear with fade
-      ctx.fillStyle = theme === 'dark' 
+      ctx.fillStyle = theme === 'dark'
         ? 'rgba(0, 0, 0, 0.03)'
         : 'rgba(255, 255, 255, 0.01)'
       ctx.fillRect(0, 0, width, height)
@@ -347,22 +347,22 @@ const ShortCircuitSparks = ({ theme }) => {
       // Update and draw sparks
       for (let i = sparks.length - 1; i >= 0; i--) {
         const spark = sparks[i]
-        
+
         spark.x += spark.vx
         spark.y += spark.vy
         spark.life--
-        
+
         // Fade out
         const opacity = spark.life / spark.maxLife
-        
+
         // Draw spark with glow
         ctx.fillStyle = spark.color.replace(')', `, ${opacity})`).replace('rgb', 'rgba')
         ctx.beginPath()
         ctx.arc(spark.x, spark.y, spark.size, 0, Math.PI * 2)
         ctx.fill()
-        
+
         // Spark trail - visible in dark mode
-        ctx.strokeStyle = theme === 'dark' 
+        ctx.strokeStyle = theme === 'dark'
           ? `rgba(251, 191, 36, ${opacity * 0.6})`
           : `rgba(245, 158, 11, ${opacity * 0.4})`
         ctx.lineWidth = 1
@@ -370,7 +370,7 @@ const ShortCircuitSparks = ({ theme }) => {
         ctx.moveTo(spark.x - spark.vx * 2, spark.y - spark.vy * 2)
         ctx.lineTo(spark.x, spark.y)
         ctx.stroke()
-        
+
         // Remove dead sparks
         if (spark.life <= 0) {
           sparks.splice(i, 1)
@@ -392,7 +392,7 @@ const ShortCircuitSparks = ({ theme }) => {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ 
+      style={{
         opacity: theme === 'dark' ? 0.8 : 0.6,
         mixBlendMode: 'screen'
       }}
@@ -409,63 +409,83 @@ const ThemeToggle = ({ theme, setTheme }) => {
     setShowOptions(false)
   }
 
+  const getThemeLabel = () => {
+    if (theme === 'system') return 'System'
+    return theme === 'dark' ? 'Dark' : 'Light'
+  }
+
+  const getThemeIcon = () => {
+    if (theme === 'system') return <MonitorSmartphone className="w-4 h-4 sm:w-5 sm:h-5" />
+    return theme === 'dark' ? <Moon className="w-4 h-4 sm:w-5 sm:h-5" /> : <Sun className="w-4 h-4 sm:w-5 sm:h-5" />
+  }
+
   return (
     <div className="relative">
       <button
         onClick={() => setShowOptions(!showOptions)}
         className={`
-          flex items-center space-x-2 px-3 py-1.5 rounded-lg
-          transition-all duration-300 ease-out
-          ${theme === 'dark' 
-            ? 'bg-gray-800/50 hover:bg-gray-700/50 text-white border border-white/10' 
-            : 'bg-gray-200/50 hover:bg-gray-300/50 text-gray-800 border border-gray-300/50'
+          flex items-center justify-center space-x-1 sm:space-x-2
+          min-h-[2.75rem] sm:min-h-[2.5rem] px-2 sm:px-3 py-2 sm:py-1.5
+          rounded-lg transition-all duration-300 ease-out
+          touch-manipulation select-none
+          ${theme === 'dark'
+            ? 'bg-gray-800/50 hover:bg-gray-700/50 active:bg-gray-600/50 text-white border border-white/10'
+            : 'bg-gray-200/50 hover:bg-gray-300/50 active:bg-gray-400/50 text-gray-800 border border-gray-300/50'
           }
         `}
+        aria-label={`Current theme: ${getThemeLabel()}. Click to change theme.`}
       >
-        {theme === 'dark' ? (
-          <Moon className="w-4 h-4" />
-        ) : (
-          <Sun className="w-4 h-4" />
-        )}
-        <span className="text-xs font-medium">
-          {theme === 'dark' ? 'Dark' : 'Light'}
+        {getThemeIcon()}
+        <span className="text-xs sm:text-sm font-medium hidden sm:inline">
+          {getThemeLabel()}
         </span>
       </button>
 
       {showOptions && (
-        <div className={`absolute top-full left-0 mt-2 w-32 rounded-lg shadow-xl backdrop-blur-xl border ${
-          theme === 'dark' 
-            ? 'bg-black/80 border-white/20' 
-            : 'bg-white/90 border-gray-200'
-        }`}>
+        <div className={`absolute top-full left-0 mt-2 w-36 sm:w-40 rounded-lg shadow-xl backdrop-blur-xl border z-50 ${theme === 'dark'
+          ? 'bg-gray-800/95 border-white/20'
+          : 'bg-white/95 border-gray-200'
+          }`}>
           <button
             onClick={() => handleThemeChange('light')}
-            className={`flex items-center justify-between w-full px-3 py-2 text-sm transition-colors ${
-              theme === 'light' 
-                ? 'bg-blue-500/20 text-blue-400' 
-                : 'hover:bg-white/10'
-            }`}
+            className={`flex items-center justify-between w-full px-3 py-3 sm:py-2.5 text-sm sm:text-base transition-colors touch-manipulation ${theme === 'light'
+                ? 'bg-blue-500/20 text-blue-400'
+                : theme === 'dark' ? 'hover:bg-gray-700/50 active:bg-gray-600/50 text-gray-200' : 'hover:bg-gray-100/50 active:bg-gray-200/50 text-gray-700'
+              }`}
           >
             <div className="flex items-center space-x-2">
-              <Sun className="w-4 h-4" />
-              <span>Light</span>
+              <Sun className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+              <span className="font-medium">Light</span>
             </div>
-            {theme === 'light' && <div className="w-2 h-2 rounded-full bg-blue-400" />}
+            {theme === 'light' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
           </button>
-          
+
           <button
             onClick={() => handleThemeChange('dark')}
-            className={`flex items-center justify-between w-full px-3 py-2 text-sm transition-colors ${
-              theme === 'dark' 
-                ? 'bg-blue-500/20 text-blue-400' 
-                : 'hover:bg-white/10'
-            }`}
+            className={`flex items-center justify-between w-full px-3 py-3 sm:py-2.5 text-sm sm:text-base transition-colors touch-manipulation ${theme === 'dark'
+                ? 'bg-blue-500/20 text-blue-400'
+                : theme === 'dark' ? 'hover:bg-gray-700/50 active:bg-gray-600/50 text-gray-200' : 'hover:bg-gray-100/50 active:bg-gray-200/50 text-gray-700'
+              }`}
           >
             <div className="flex items-center space-x-2">
-              <Moon className="w-4 h-4" />
-              <span>Dark</span>
+              <Moon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+              <span className="font-medium">Dark</span>
             </div>
-            {theme === 'dark' && <div className="w-2 h-2 rounded-full bg-blue-400" />}
+            {theme === 'dark' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
+          </button>
+
+          <button
+            onClick={() => handleThemeChange('system')}
+            className={`flex items-center justify-between w-full px-3 py-3 sm:py-2.5 text-sm sm:text-base transition-colors touch-manipulation ${theme === 'system'
+                ? 'bg-blue-500/20 text-blue-400'
+                : theme === 'dark' ? 'hover:bg-gray-700/50 active:bg-gray-600/50 text-gray-200' : 'hover:bg-gray-100/50 active:bg-gray-200/50 text-gray-700'
+              }`}
+          >
+            <div className="flex items-center space-x-2">
+              <MonitorSmartphone className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+              <span className="font-medium">System</span>
+            </div>
+            {theme === 'system' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
           </button>
         </div>
       )}
@@ -602,25 +622,23 @@ function LandingPage({ theme, setTheme }) {
   ]
 
   return (
-    <div className={`min-h-screen transition-all duration-300 relative hide-scrollbar ${
-      theme === 'dark' 
-        ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black' 
-        : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
-    }`}>
+    <div className={`min-h-screen transition-all duration-300 relative hide-scrollbar ${theme === 'dark'
+      ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
+      : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
+      }`}>
 
-      {/* Mouse Follower Pink Circle */}
-      <MouseFollower />
+      {/* Mouse Follower Pink Circle - DISABLED */}
+      {/* <MouseFollower /> */}
 
       {/* Background Animations */}
       <CircuitGreenParticles theme={theme} />
       <ShortCircuitSparks theme={theme} />
 
       {/* Glass Overlay */}
-      <div className={`fixed inset-0 pointer-events-none ${
-        theme === 'dark' 
-          ? 'bg-gradient-to-b from-transparent via-transparent to-black/10' 
-          : 'bg-gradient-to-b from-transparent via-transparent to-white/10'
-      }`} />
+      <div className={`fixed inset-0 pointer-events-none ${theme === 'dark'
+        ? 'bg-gradient-to-b from-transparent via-transparent to-black/10'
+        : 'bg-gradient-to-b from-transparent via-transparent to-white/10'
+        }`} />
 
       {/* Sticky Get Started Button */}
       <StickyGetStartedButton theme={theme} />
@@ -630,24 +648,23 @@ function LandingPage({ theme, setTheme }) {
         fixed top-0 left-0 right-0 z-40 
         transition-all duration-300 ease-out
         py-3 sm:py-4
-        ${theme === 'dark' 
-          ? 'backdrop-blur-lg sm:backdrop-blur-xl bg-black/30 border-b border-white/10' 
+        ${theme === 'dark'
+          ? 'backdrop-blur-lg sm:backdrop-blur-xl bg-black/30 border-b border-white/10'
           : 'backdrop-blur-lg sm:backdrop-blur-xl bg-white/40 border-b border-gray-200/50'
         }
       `}>
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-1.5 sm:space-x-2">
-              <div className={`p-1 sm:p-1.5 rounded-md ${
-                theme === 'dark' 
-                  ? 'bg-gradient-to-br from-blue-500/15 to-green-500/15' 
-                  : 'bg-gradient-to-br from-blue-100 to-green-100'
-              }`}>
+            <Link to="/" className="flex items-center space-x-1 sm:space-x-1.5 md:space-x-2 flex-shrink-0">
+              <div className={`p-1 sm:p-1.5 rounded-md ${theme === 'dark'
+                ? 'bg-gradient-to-br from-blue-500/15 to-green-500/15'
+                : 'bg-gradient-to-br from-blue-100 to-green-100'
+                }`}>
                 <Rocket className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
               </div>
               <div>
-                <span className="text-base sm:text-lg font-bold bg-gradient-to-r from-blue-500 to-green-500 bg-clip-text text-transparent">
+                <span className="text-sm sm:text-base md:text-lg font-bold bg-gradient-to-r from-blue-500 to-green-500 bg-clip-text text-transparent">
                   Skill Sync
                 </span>
                 <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -657,14 +674,13 @@ function LandingPage({ theme, setTheme }) {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-4 lg:space-x-6 absolute left-1/2 transform -translate-x-1/2">
+            <div className="hidden md:flex items-center space-x-2 lg:space-x-4 xl:space-x-6 absolute left-1/2 transform -translate-x-1/2">
               {navItems.map((item) => (
                 <a
                   key={item.label}
                   href={item.href}
-                  className={`text-xs lg:text-sm font-medium transition-colors hover:text-blue-400 ${
-                    theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                  }`}
+                  className={`text-xs lg:text-sm font-medium transition-colors hover:text-blue-400 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                    }`}
                 >
                   {item.label}
                 </a>
@@ -672,19 +688,20 @@ function LandingPage({ theme, setTheme }) {
             </div>
 
             {/* Right Section */}
-            <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="flex items-center gap-1 sm:gap-2 md:gap-3 flex-shrink-0">
               <ThemeToggle theme={theme} setTheme={setTheme} />
 
               <Link to="/login">
                 <div className={`
-                  px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-lg backdrop-blur-lg
-                  transition-all duration-300 ease-out
-                  ${theme === 'dark' 
-                    ? 'bg-white/5 border border-white/10 hover:bg-white/10' 
-                    : 'bg-white/70 border border-gray-200/60 hover:bg-white/80'
+                  min-h-[2.75rem] sm:min-h-[2.5rem] px-3 sm:px-4 py-2 sm:py-1.5 rounded-lg backdrop-blur-lg border
+                  flex items-center justify-center transition-all duration-300 ease-out
+                  touch-manipulation select-none
+                  ${theme === 'dark'
+                    ? 'bg-white/5 border-white/10 hover:bg-white/10 active:bg-white/15'
+                    : 'bg-white/70 border-gray-200/60 hover:bg-white/80 active:bg-white/90'
                   }
                 `}>
-                  <span className={`text-xs font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <span className={`text-sm sm:text-base font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                     Login
                   </span>
                 </div>
@@ -704,8 +721,8 @@ function LandingPage({ theme, setTheme }) {
             <div className="md:hidden mt-3">
               <div className={`
                 p-3 rounded-lg backdrop-blur-xl border
-                ${theme === 'dark' 
-                  ? 'bg-black/70 border-white/10' 
+                ${theme === 'dark'
+                  ? 'bg-black/70 border-white/10'
                   : 'bg-white/80 border-gray-200'
                 }
               `}>
@@ -714,19 +731,17 @@ function LandingPage({ theme, setTheme }) {
                     <a
                       key={item.label}
                       href={item.href}
-                      className={`py-1.5 px-3 rounded transition-colors hover:bg-white/10 text-sm ${
-                        theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                      }`}
+                      className={`py-1.5 px-3 rounded transition-colors hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                        }`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {item.label}
                     </a>
                   ))}
-                  <Link 
-                    to="/login" 
-                    className={`py-1.5 px-3 rounded transition-colors hover:bg-white/10 text-sm ${
-                      theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                    }`}
+                  <Link
+                    to="/login"
+                    className={`py-1.5 px-3 rounded transition-colors hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                      }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Login
@@ -765,10 +780,9 @@ function LandingPage({ theme, setTheme }) {
             </h1>
 
             {/* Description */}
-            <p className={`text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed ${
-              theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-            }`}>
-              Transform your career with comprehensive placement preparation. 
+            <p className={`text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+              }`}>
+              Transform your career with comprehensive placement preparation.
               From aptitude tests to technical interviews.
             </p>
 
@@ -779,8 +793,8 @@ function LandingPage({ theme, setTheme }) {
                   px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl backdrop-blur-lg border
                   flex items-center justify-center sm:justify-start space-x-1.5 sm:space-x-2 group min-w-[140px]
                   transition-all duration-300 ease-out
-                  ${theme === 'dark' 
-                    ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20' 
+                  ${theme === 'dark'
+                    ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
                     : 'bg-white/70 border-gray-200/60 hover:bg-white/80 hover:border-gray-200'
                   }
                   hover:scale-[1.02] active:scale-95
@@ -796,8 +810,8 @@ function LandingPage({ theme, setTheme }) {
                 <div className={`
                   px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl backdrop-blur-lg border min-w-[140px]
                   transition-all duration-300 ease-out text-center
-                  ${theme === 'dark' 
-                    ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20' 
+                  ${theme === 'dark'
+                    ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
                     : 'bg-white/70 border-gray-200/60 hover:bg-white/80 hover:border-gray-200'
                   }
                   hover:scale-[1.02] active:scale-95
@@ -813,11 +827,10 @@ function LandingPage({ theme, setTheme }) {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-md mx-auto">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
-                  <div className={`inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg mb-2 sm:mb-3 ${
-                    theme === 'dark' 
-                      ? 'bg-gradient-to-br from-blue-500/10 to-green-500/10' 
-                      : 'bg-gradient-to-br from-blue-100 to-green-100'
-                  }`}>
+                  <div className={`inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg mb-2 sm:mb-3 ${theme === 'dark'
+                    ? 'bg-gradient-to-br from-blue-500/10 to-green-500/10'
+                    : 'bg-gradient-to-br from-blue-100 to-green-100'
+                    }`}>
                     <stat.icon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
                   </div>
                   <div className="text-lg sm:text-xl font-bold text-blue-400 mb-0.5 sm:mb-1">{stat.value}</div>
@@ -840,9 +853,8 @@ function LandingPage({ theme, setTheme }) {
                 Comprehensive Platform
               </span>
             </h2>
-            <p className={`text-sm sm:text-base max-w-xl mx-auto ${
-              theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-            }`}>
+            <p className={`text-sm sm:text-base max-w-xl mx-auto ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+              }`}>
               Everything for successful placement preparation
             </p>
           </div>
@@ -853,17 +865,16 @@ function LandingPage({ theme, setTheme }) {
                 <div className={`
                   p-4 sm:p-5 rounded-xl backdrop-blur-lg border h-full
                   transition-all duration-300 ease-out
-                  ${theme === 'dark' 
-                    ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20' 
+                  ${theme === 'dark'
+                    ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
                     : 'bg-white/70 border-gray-200/60 hover:bg-white/80 hover:border-gray-200'
                   }
                   hover:scale-[1.02] active:scale-95
                 `}>
-                  <div className={`inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg mb-3 sm:mb-4 ${
-                    theme === 'dark' 
-                      ? 'bg-gradient-to-br from-blue-500/10 to-green-500/10' 
-                      : 'bg-gradient-to-br from-blue-100 to-green-100'
-                  }`}>
+                  <div className={`inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg mb-3 sm:mb-4 ${theme === 'dark'
+                    ? 'bg-gradient-to-br from-blue-500/10 to-green-500/10'
+                    : 'bg-gradient-to-br from-blue-100 to-green-100'
+                    }`}>
                     <feature.icon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
                   </div>
                   <h3 className={`font-semibold mb-1.5 sm:mb-2 text-sm sm:text-base ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
@@ -884,8 +895,8 @@ function LandingPage({ theme, setTheme }) {
         <div className="container mx-auto max-w-4xl">
           <div className={`
             p-4 sm:p-6 rounded-xl backdrop-blur-lg border
-            ${theme === 'dark' 
-              ? 'bg-white/5 border-white/10' 
+            ${theme === 'dark'
+              ? 'bg-white/5 border-white/10'
               : 'bg-white/70 border-gray-200/60'
             }
           `}>
@@ -896,9 +907,8 @@ function LandingPage({ theme, setTheme }) {
                   Why Choose Skill Sync?
                 </span>
               </h2>
-              <p className={`text-sm sm:text-base max-w-lg mx-auto ${
-                theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-              }`}>
+              <p className={`text-sm sm:text-base max-w-lg mx-auto ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                }`}>
                 Accelerate your placement journey with proven results
               </p>
             </div>
@@ -919,9 +929,8 @@ function LandingPage({ theme, setTheme }) {
       </section>
 
       {/* Footer */}
-      <footer id="contact" className={`py-6 sm:py-8 px-3 sm:px-4 border-t ${
-        theme === 'dark' ? 'border-white/10' : 'border-gray-200'
-      }`}>
+      <footer id="contact" className={`py-6 sm:py-8 px-3 sm:px-4 border-t ${theme === 'dark' ? 'border-white/10' : 'border-gray-200'
+        }`}>
         <div className="container mx-auto max-w-4xl">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
             <div className="col-span-2 sm:col-span-1">
@@ -935,9 +944,8 @@ function LandingPage({ theme, setTheme }) {
             </div>
 
             <div>
-              <h4 className={`font-medium mb-1 sm:mb-2 text-sm ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
-              }`}>
+              <h4 className={`font-medium mb-1 sm:mb-2 text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-900'
+                }`}>
                 Company
               </h4>
               <div className="space-y-0.5 sm:space-y-1">
@@ -954,28 +962,23 @@ function LandingPage({ theme, setTheme }) {
             </div>
 
             <div>
-              <h4 className={`font-medium mb-1 sm:mb-2 text-sm ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
-              }`}>
+              <h4 className={`font-medium mb-1 sm:mb-2 text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-900'
+                }`}>
                 Connect
               </h4>
               <div className="flex space-x-1.5 sm:space-x-2">
-                <Github className={`w-3 h-3 sm:w-4 sm:h-4 cursor-pointer hover:text-green-400 transition-colors ${
-                  theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                }`} />
-                <Linkedin className={`w-3 h-3 sm:w-4 sm:h-4 cursor-pointer hover:text-green-400 transition-colors ${
-                  theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                }`} />
-                <Mail className={`w-3 h-3 sm:w-4 sm:h-4 cursor-pointer hover:text-green-400 transition-colors ${
-                  theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                }`} />
+                <Github className={`w-3 h-3 sm:w-4 sm:h-4 cursor-pointer hover:text-green-400 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                  }`} />
+                <Linkedin className={`w-3 h-3 sm:w-4 sm:h-4 cursor-pointer hover:text-green-400 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                  }`} />
+                <Mail className={`w-3 h-3 sm:w-4 sm:h-4 cursor-pointer hover:text-green-400 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                  }`} />
               </div>
             </div>
 
             <div>
-              <h4 className={`font-medium mb-1 sm:mb-2 text-sm ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
-              }`}>
+              <h4 className={`font-medium mb-1 sm:mb-2 text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-900'
+                }`}>
                 Legal
               </h4>
               <div className="space-y-0.5 sm:space-y-1">
@@ -989,11 +992,10 @@ function LandingPage({ theme, setTheme }) {
             </div>
           </div>
 
-          <div className={`border-t pt-3 sm:pt-4 text-center ${
-            theme === 'dark' 
-              ? 'border-white/10 text-gray-400' 
-              : 'border-gray-200 text-gray-500'
-          }`}>
+          <div className={`border-t pt-3 sm:pt-4 text-center ${theme === 'dark'
+            ? 'border-white/10 text-gray-400'
+            : 'border-gray-200 text-gray-500'
+            }`}>
             <p className="text-xs">© 2024 Skill Sync. All rights reserved.</p>
           </div>
         </div>

@@ -10,19 +10,19 @@ import Admin from '../pages/Admin'
 import ResumeAnalyzer from '../pages/ResumeAnalyzer'
 import LandingPage from '../pages/LandingPage'
 
-function AppRoutes({ theme, setTheme }) {
+function AppRoutes({ landingTheme, setLandingTheme, appTheme, setAppTheme }) {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage theme={theme} setTheme={setTheme} />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/aptitude" element={<Aptitude />} />
-      <Route path="/core-concepts" element={<CoreConcepts />} />
-      <Route path="/progress" element={<Progress />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/admin" element={<Admin />} />
-      <Route path="/resumeanalyzer" element={<ResumeAnalyzer />} />
-      
+      <Route path="/" element={<LandingPage theme={landingTheme} setTheme={setLandingTheme} />} />
+      <Route path="/home" element={<Home theme={appTheme} />} />
+      <Route path="/aptitude" element={<Aptitude theme={appTheme} />} />
+      <Route path="/core-concepts" element={<CoreConcepts theme={appTheme} />} />
+      <Route path="/progress" element={<Progress theme={appTheme} />} />
+      <Route path="/login" element={<Login theme={appTheme} />} />
+      <Route path="/signup" element={<Signup theme={appTheme} />} />
+      <Route path="/admin" element={<Admin theme={appTheme} />} />
+      <Route path="/resumeanalyzer" element={<ResumeAnalyzer theme={appTheme} />} />
+
     </Routes>
   )
 }

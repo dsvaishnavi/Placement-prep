@@ -9,12 +9,12 @@ import {
   Book, Code, Database, Server, Network
 } from 'lucide-react'
 
-function Progress() {
+function Progress({ theme }) {
   const [preparationLevel, setPreparationLevel] = useState(0)
   const [animatedCompletion, setAnimatedCompletion] = useState(0)
   const radarRef = useRef(null)
 
-  // Progress data for overview section - updated to blue theme
+  // Progress data for overview section - updated to blue-green theme
   const progressOverview = [
     {
       title: 'Aptitude Performance',
@@ -23,8 +23,8 @@ function Progress() {
       completed: 38,
       total: 50,
       icon: Brain,
-      gradient: 'linear-gradient(135deg, #0047AB, #6D8196)',
-      strokeColor: '#0047AB',
+      gradient: 'linear-gradient(135deg, #3B82F6, #10B981)',
+      strokeColor: '#3B82F6',
       animationDelay: 0
     },
     {
@@ -34,8 +34,8 @@ function Progress() {
       completed: 29,
       total: 50,
       icon: BookOpen,
-      gradient: 'linear-gradient(135deg, #6D8196, #000080)',
-      strokeColor: '#6D8196',
+      gradient: 'linear-gradient(135deg, #10B981, #059669)',
+      strokeColor: '#10B981',
       animationDelay: 100
     },
     {
@@ -45,8 +45,8 @@ function Progress() {
       completed: 4,
       total: 5,
       icon: Target,
-      gradient: 'linear-gradient(135deg, #82C8E5, #0047AB)',
-      strokeColor: '#82C8E5',
+      gradient: 'linear-gradient(135deg, #8B5CF6, #3B82F6)',
+      strokeColor: '#8B5CF6',
       animationDelay: 200
     },
     {
@@ -56,8 +56,8 @@ function Progress() {
       completed: 13,
       total: 20,
       icon: FileText,
-      gradient: 'linear-gradient(135deg, #6D8196, #82C8E5)',
-      strokeColor: '#6D8196',
+      gradient: 'linear-gradient(135deg, #10B981, #3B82F6)',
+      strokeColor: '#10B981',
       animationDelay: 300
     },
   ]
@@ -66,13 +66,13 @@ function Progress() {
   const weeklyScores = [64, 72, 75, 70, 78, 82, 85]
   const weekDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
-  // Skills data for radar chart - updated to blue theme
+  // Skills data for radar chart - updated to blue-green theme
   const skillsData = [
-    { skill: 'Problem Solving', value: 75, icon: Cpu, color: '#0047AB' },
-    { skill: 'Management', value: 70, icon: ManagementIcon, color: '#6D8196' },
-    { skill: 'Speed', value: 60, icon: SpeedIcon, color: '#82C8E5' },
-    { skill: 'Consistency', value: 55, icon: ConsistencyIcon, color: '#000080' },
-    { skill: 'Accuracy', value: 80, icon: AccuracyIcon, color: '#0047AB' },
+    { skill: 'Problem Solving', value: 75, icon: Cpu, color: '#3B82F6' },
+    { skill: 'Management', value: 70, icon: ManagementIcon, color: '#10B981' },
+    { skill: 'Speed', value: 60, icon: SpeedIcon, color: '#8B5CF6' },
+    { skill: 'Consistency', value: 55, icon: ConsistencyIcon, color: '#059669' },
+    { skill: 'Accuracy', value: 80, icon: AccuracyIcon, color: '#3B82F6' },
   ]
 
   // Subject icons mapping
@@ -84,13 +84,13 @@ function Progress() {
     'Computer Networks': Network,
   }
 
-  // Topics completion data - updated to blue theme
+  // Topics completion data - updated to blue-green theme
   const topicsData = [
-    { subject: 'Data Structures', completed: 24, total: 28, gradient: 'linear-gradient(90deg, #0047AB, #6D8196)' },
-    { subject: 'Algorithms', completed: 16, total: 32, gradient: 'linear-gradient(90deg, #6D8196, #000080)' },
-    { subject: 'DBMS', completed: 24, total: 24, gradient: 'linear-gradient(90deg, #82C8E5, #0047AB)' },
-    { subject: 'Operating Systems', completed: 10, total: 18, gradient: 'linear-gradient(90deg, #6D8196, #82C8E5)' },
-    { subject: 'Computer Networks', completed: 12, total: 22, gradient: 'linear-gradient(90deg, #000080, #6D8196)' },
+    { subject: 'Data Structures', completed: 24, total: 28, gradient: 'linear-gradient(90deg, #3B82F6, #10B981)' },
+    { subject: 'Algorithms', completed: 16, total: 32, gradient: 'linear-gradient(90deg, #10B981, #059669)' },
+    { subject: 'DBMS', completed: 24, total: 24, gradient: 'linear-gradient(90deg, #8B5CF6, #3B82F6)' },
+    { subject: 'Operating Systems', completed: 10, total: 18, gradient: 'linear-gradient(90deg, #10B981, #8B5CF6)' },
+    { subject: 'Computer Networks', completed: 12, total: 22, gradient: 'linear-gradient(90deg, #059669, #10B981)' },
   ]
 
   // Calculate overall stats
@@ -383,33 +383,23 @@ function Progress() {
         </div>
       </div>
     )
+
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-surface">
+    <div className={`min-h-screen pt-16 ${theme === 'dark'
+      ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
+      : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
+      }`}>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Header */}
-        <div className="mb-10 text-center">
-          <div className="inline-flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 rounded-full bg-primary/10">
-              <Activity className="w-8 h-8 text-primary" />
-            </div>
-            <h1 className="
-              text-4xl md:text-5xl font-bold leading-[1.15] pb-3
-              bg-gradient-to-r  from-primary  via-primaryAccent  to-primary  bg-clip-text text-transparent
-            ">
-              Progress Dashboard
-            </h1>
-
-          </div>
-          <p className="text-lg text-slate-600  max-w-2xl mx-auto">
-            Track your learning progress and analyze performance metrics
-          </p>
+        <div className="mb-8">
+          <h1 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Progress Dashboard</h1>
+          <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Track your learning progress and analyze performance metrics</p>
         </div>
 
         {/* Overall Progress Section */}
         <div className="mb-10">
-          <div className="bg-white rounded-xl p-6 border border-blue-100 mb-8">
+          <div className={`rounded-xl p-6 border backdrop-blur-md mb-8 ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200/60'}`}>
             <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
               {/* Main Circular Progress */}
               <div className="text-center lg:text-left">
@@ -496,7 +486,7 @@ function Progress() {
         {/* Detailed Progress Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
           {/* Topics Completion */}
-          <div className="lg:col-span-2 bg-white rounded-xl p-6 border border-blue-100">
+          <div className={`lg:col-span-2 rounded-xl p-6 border backdrop-blur-md ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200/60'}`}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-blue-50">
@@ -543,7 +533,7 @@ function Progress() {
           </div>
 
           {/* Weekly Performance */}
-          <div className="bg-white rounded-xl p-6 border border-blue-100">
+          <div className={`rounded-xl p-6 border backdrop-blur-md ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200/60'}`}>
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 rounded-lg bg-blue-50">
                 <BarChart3 className="w-5 h-5 text-blue-600" />
@@ -586,7 +576,7 @@ function Progress() {
         </div>
 
         {/* Skills Analysis Section */}
-        <div className="bg-white rounded-xl p-6 border border-blue-100 mb-8">
+        <div className={`rounded-xl p-6 border backdrop-blur-md mb-8 ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200/60'}`}>
           <div className="flex flex-col lg:flex-row items-start justify-between mb-6">
             <div className="mb-4 lg:mb-0">
               <div className="flex items-center gap-3 mb-2">

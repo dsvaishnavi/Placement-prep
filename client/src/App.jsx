@@ -1,48 +1,54 @@
 // App.jsx
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import AppRoutes from './routes/AppRoutes'
-import SplashScreen from './components/SplashScreen'
+import LoadingSpinner from './components/LoadingSpinner'
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true)
-  const [isMounted, setIsMounted] = useState(false)
-  const [theme, setTheme] = useState('dark')
+  const [landingTheme, setLandingTheme] = useState('dark')
+  const [appTheme, setAppTheme] = useState(() => {
+    // Load theme from localStorage or default to 'light' for app pages
+    return localStorage.getItem('appTheme') || 'light'
+  })
+  const [isLoading, setIsLoading] = useState(false)
   const location = useLocation()
 
   useEffect(() => {
-    // Mark as mounted
-    setIsMounted(true)
+    // Show loading on route change
+    setIsLoading(true)
+    const timer = setTimeout(() => setIsLoading(false), 500) // Simulate loading time
+    return () => clearTimeout(timer)
+  }, [location.pathname])
 
-    // Check if we should skip splash screen (for development)
-    const skipSplash = localStorage.getItem('skipSplash') === 'true'
-
-    // Simulate minimum loading time (for smooth animation completion)
-    const minLoadingTime = 3200 // 3.2 seconds
-
-    if (skipSplash) {
-      setIsLoading(false)
+  useEffect(() => {
+    // Save theme to localStorage
+    if (location.pathname === '/') {
+      localStorage.setItem('landingTheme', landingTheme)
     } else {
-      const timer = setTimeout(() => {
-        setIsLoading(false)
-        // Optional: Mark splash as shown for this session
-        sessionStorage.setItem('splashShown', 'true')
-      }, minLoadingTime)
-
-      return () => clearTimeout(timer)
+      localStorage.setItem('appTheme', appTheme)
     }
-  }, [])
+  }, [landingTheme, appTheme, location.pathname])
 
-  // Show splash screen only when mounted and loading
-  if (!isMounted || isLoading) {
-    return <SplashScreen />
+  const currentTheme = location.pathname === '/' ? landingTheme : appTheme
+  const setCurrentTheme = (newTheme) => {
+    if (location.pathname === '/') {
+      setLandingTheme(newTheme)
+    } else {
+      setAppTheme(newTheme)
+    }
   }
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 ${theme === 'dark' ? 'bg-gray-900' : 'bg-background'}`}>
-      {location.pathname !== '/' && <Navbar theme={theme} setTheme={setTheme} />}
-      <AppRoutes theme={theme} setTheme={setTheme} />
+    <div className={`min-h-screen transition-all duration-300 relative ${currentTheme === 'dark'
+      ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
+      : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
+      }`}>
+      {location.pathname !== '/' && <Navbar theme={currentTheme} setTheme={setCurrentTheme} />}
+      <Suspense fallback={<LoadingSpinner theme={currentTheme} />}>
+        <AppRoutes landingTheme={landingTheme} setLandingTheme={setLandingTheme} appTheme={appTheme} setAppTheme={setAppTheme} />
+      </Suspense>
+      {isLoading && <LoadingSpinner theme={currentTheme} />}
     </div>
   )
 }
