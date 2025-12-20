@@ -4,28 +4,42 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
- theme: {
-  extend: {
-    colors: {
-      /* Brand Core */
-      primary: '#0B3C8A',        // Main brand blue (headers, icons)
-      primarySoft: '#EAF2FF',    // Light blue card backgrounds
-      primaryAccent: '#2F6BFF', // Progress bars, highlights
+  theme: {
+    extend: {
+      colors: {
+        /* Brand Core */
+        primary: '#0B3C8A',        // Main brand blue (headers, icons)
+        primarySoft: '#EAF2FF',    // Light blue card backgrounds
+        primaryAccent: '#2F6BFF', // Progress bars, highlights
 
-      /* Neutrals */
-      background: '#F6F8FC',    // Page background
-      surface: '#FFFFFF',       // Card surface
-      border: '#E3E8F2',         // Card borders
-      muted: '#6B7280',         // Secondary text
+        /* Neutrals */
+        background: '#F6F8FC',    // Page background
+        surface: '#FFFFFF',       // Card surface
+        border: '#E3E8F2',         // Card borders
+        muted: '#6B7280',         // Secondary text
 
-      /* Status */
-      success: '#16A34A',
-      warning: '#F59E0B',
-      info: '#2563EB'
-    }
-  }
-}
-,
+        /* Status */
+        success: '#16A34A',
+        warning: '#F59E0B',
+        info: '#2563EB'
+      },
+      keyframes: {
+        slideDown: {
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(-10px)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)',
+          },
+        },
+      },
+      animation: {
+        slideDown: 'slideDown 0.3s ease-out',
+      },
+    },
+  },
   plugins: [],
 }
 
