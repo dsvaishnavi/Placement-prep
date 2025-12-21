@@ -449,8 +449,8 @@ const ThemeToggle = ({ theme, setTheme }) => {
           <button
             onClick={() => handleThemeChange('light')}
             className={`flex items-center justify-between w-full px-3 py-3 sm:py-2.5 text-sm sm:text-base transition-colors touch-manipulation ${theme === 'light'
-                ? 'bg-blue-500/20 text-blue-400'
-                : theme === 'dark' ? 'hover:bg-gray-700/50 active:bg-gray-600/50 text-gray-200' : 'hover:bg-gray-100/50 active:bg-gray-200/50 text-gray-700'
+              ? 'bg-blue-500/20 text-blue-400'
+              : theme === 'dark' ? 'hover:bg-gray-700/50 active:bg-gray-600/50 text-gray-200' : 'hover:bg-gray-100/50 active:bg-gray-200/50 text-gray-700'
               }`}
           >
             <div className="flex items-center space-x-2">
@@ -463,8 +463,8 @@ const ThemeToggle = ({ theme, setTheme }) => {
           <button
             onClick={() => handleThemeChange('dark')}
             className={`flex items-center justify-between w-full px-3 py-3 sm:py-2.5 text-sm sm:text-base transition-colors touch-manipulation ${theme === 'dark'
-                ? 'bg-blue-500/20 text-blue-400'
-                : theme === 'dark' ? 'hover:bg-gray-700/50 active:bg-gray-600/50 text-gray-200' : 'hover:bg-gray-100/50 active:bg-gray-200/50 text-gray-700'
+              ? 'bg-blue-500/20 text-blue-400'
+              : theme === 'dark' ? 'hover:bg-gray-700/50 active:bg-gray-600/50 text-gray-200' : 'hover:bg-gray-100/50 active:bg-gray-200/50 text-gray-700'
               }`}
           >
             <div className="flex items-center space-x-2">
@@ -477,8 +477,8 @@ const ThemeToggle = ({ theme, setTheme }) => {
           <button
             onClick={() => handleThemeChange('system')}
             className={`flex items-center justify-between w-full px-3 py-3 sm:py-2.5 text-sm sm:text-base transition-colors touch-manipulation ${theme === 'system'
-                ? 'bg-blue-500/20 text-blue-400'
-                : theme === 'dark' ? 'hover:bg-gray-700/50 active:bg-gray-600/50 text-gray-200' : 'hover:bg-gray-100/50 active:bg-gray-200/50 text-gray-700'
+              ? 'bg-blue-500/20 text-blue-400'
+              : theme === 'dark' ? 'hover:bg-gray-700/50 active:bg-gray-600/50 text-gray-200' : 'hover:bg-gray-100/50 active:bg-gray-200/50 text-gray-700'
               }`}
           >
             <div className="flex items-center space-x-2">
@@ -640,8 +640,8 @@ function LandingPage({ theme, setTheme }) {
         : 'bg-gradient-to-b from-transparent via-transparent to-white/10'
         }`} />
 
-      {/* Sticky Get Started Button */}
-      <StickyGetStartedButton theme={theme} />
+      {/* Sticky Get Started Button - REMOVED */}
+      {/* <StickyGetStartedButton theme={theme} /> */}
 
       {/* Navigation */}
       <nav className={`

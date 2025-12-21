@@ -191,34 +191,40 @@ const AnalysisCategory = ({ title, score, issues, suggestions, theme }) => (
   </div>
 );
 
-// Subcomponent: Resume Template Card
+// Subcomponent: Resume Template Card - UPDATED
 const TemplateCard = ({ template, isSelected, onSelect, theme }) => (
   <div
-    className={`border-2 rounded-xl p-4 cursor-pointer transition-all hover:shadow-lg backdrop-blur-md ${isSelected ? 'border-blue-500 bg-blue-50' : `${theme === 'dark' ? 'border-white/20 bg-white/5 hover:border-white/30' : 'border-gray-200 bg-white/70 hover:border-gray-300'}`}`}
+    className={`border-2 rounded-xl p-4 cursor-pointer transition-all duration-300 transform ${isSelected 
+      ? 'scale-[1.02] border-blue-500 ring-2 ring-blue-500/30 ' + (theme === 'dark' 
+        ? 'bg-gradient-to-br from-blue-500/10 to-green-500/10 shadow-lg shadow-blue-500/20' 
+        : 'bg-gradient-to-br from-blue-50 to-green-50 shadow-lg shadow-blue-500/20')
+      : theme === 'dark' 
+        ? 'border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10 hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/10' 
+        : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50/50 hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/10'
+    }`}
     onClick={() => onSelect(template.id)}
     role="button"
     tabIndex={0}
     aria-label={`Select ${template.name} template`}
     onKeyPress={(e) => e.key === 'Enter' && onSelect(template.id)}
   >
-    <div className={`aspect-[3/4] rounded-lg mb-4 overflow-hidden ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
-      <div className={`w-full h-full flex items-center justify-center ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+    <div className={`aspect-[3/4] rounded-lg mb-4 overflow-hidden border ${theme === 'dark' && isSelected ? 'border-blue-500/30 bg-gray-900' : theme === 'dark' ? 'border-white/10 bg-gray-800' : 'border-gray-200 bg-gray-100'}`}>
+      <div className={`w-full h-full flex items-center justify-center ${theme === 'dark' && isSelected ? 'text-gray-400' : theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
         {/* Template preview placeholder */}
         <div className="text-center">
-          <div className={`w-12 h-12 mx-auto mb-2 rounded ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
-          <span className="text-sm">Template Preview</span>
+          <div className={`w-12 h-12 mx-auto mb-2 rounded ${theme === 'dark' && isSelected ? 'bg-gray-800' : theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+          <span className={`text-sm ${theme === 'dark' && isSelected ? 'text-gray-300' : theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Template Preview</span>
         </div>
       </div>
     </div>
-    <h4 className={`font-semibold mb-1 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>{template.name}</h4>
-    <p className={`text-sm mb-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>{template.description}</p>
+    <h4 className={`font-semibold mb-1 ${theme === 'dark' && isSelected ? 'text-white' : theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>{template.name}</h4>
+    <p className={`text-sm mb-3 ${theme === 'dark' && isSelected ? 'text-gray-300' : theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>{template.description}</p>
     <div className="flex justify-between items-center">
-      <span className="text-sm font-medium text-blue-600">{template.category}</span>
-      <span className={`text-xs px-2 py-1 rounded ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100'}`}>{template.pages} page</span>
+      <span className={`text-sm font-medium ${isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-blue-600'}`}>{template.category}</span>
+      <span className={`text-xs px-2 py-1 rounded ${theme === 'dark' && isSelected ? 'bg-gray-800 text-gray-300' : theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-700'}`}>{template.pages} page</span>
     </div>
   </div>
 );
-
 // Subcomponent: Skill Match Indicator
 const SkillMatchIndicator = ({ skill, matchPercentage, isRequired, theme }) => (
   <div className={`flex items-center justify-between py-3 last:border-0 ${theme === 'dark' ? 'border-b border-gray-700' : 'border-b border-gray-100'}`}>
@@ -348,27 +354,6 @@ const ResumeAnalyzer = ({ theme }) => {
           </div>
         )}
 
-        {/* Resume Templates */}
-        <section aria-labelledby="templates-heading" className={`rounded-xl shadow-md p-6 backdrop-blur-md mb-8 ${theme === 'dark' ? 'bg-white/5 border border-white/10' : 'bg-white/70 border border-gray-200/60'}`}>
-          <h2 id="templates-heading" className={`text-2xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
-            Resume Templates
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {templates.map((template) => (
-              <TemplateCard
-                key={template.id}
-                template={template}
-                isSelected={selectedTemplate === template.id}
-                onSelect={handleTemplateSelect}
-                theme={theme}
-              />
-            ))}
-          </div>
-          <button className={`w-full mt-6 px-4 py-3 font-medium rounded-lg transition-colors ${theme === 'dark' ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'}`}>
-            View All Templates
-          </button>
-        </section>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Score & Analysis */}
           <div className="lg:col-span-2 space-y-8">
@@ -470,7 +455,7 @@ const ResumeAnalyzer = ({ theme }) => {
             </section>
 
             {/* Placement Readiness Tips */}
-            <section aria-labelledby="tips-heading" className={`rounded-xl shadow-md p-6 backdrop-blur-md ${theme === 'dark' ? 'bg-gradient-to-br from-blue-900/20 to-indigo-900/20 border border-blue-500/20' : 'bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/60'}`}>
+            <section aria-labelledby="tips-heading" className={`rounded-xl shadow-md p-6 backdrop-blur-md ${theme === 'dark' ? 'bg-gradient-to-br from-blue-500/10 to-green-500/10 border border-blue-500/20' : 'bg-gradient-to-br from-blue-50 to-green-50 border border-blue-200/60'}`}>
               <h2 id="tips-heading" className={`text-2xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
                 Placement Readiness Tips
               </h2>
@@ -485,7 +470,7 @@ const ResumeAnalyzer = ({ theme }) => {
                 ))}
               </div>
               <div className={`mt-6 pt-6 ${theme === 'dark' ? 'border-t border-blue-500/20' : 'border-t border-blue-100'}`}>
-                <button className="w-full px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                <button className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-green-500 text-white font-medium rounded-lg hover:from-blue-600 hover:to-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                   Generate Improvement Plan
                 </button>
               </div>
@@ -493,8 +478,52 @@ const ResumeAnalyzer = ({ theme }) => {
           </div>
         </div>
 
+        {/* Resume Templates */}
+        <section 
+          aria-labelledby="templates-heading" 
+          className={`rounded-xl shadow-md p-6 backdrop-blur-md mx-auto max-w-7xl mt-12 mb-12 ${theme === 'dark' ? 'bg-white/5 border border-white/10' : 'bg-white/70 border border-gray-200/60'}`}
+        >
+          <div className="text-center mb-10">
+            <h2 
+              id="templates-heading" 
+              className={`text-3xl font-bold mb-3 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}
+            >
+              Resume Templates
+            </h2>
+            <p className={`text-sm max-w-2xl mx-auto ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+              Choose from our professionally designed templates to create a resume that stands out
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-10">
+            {templates.map((template) => (
+              <TemplateCard
+                key={template.id}
+                template={template}
+                isSelected={selectedTemplate === template.id}
+                onSelect={handleTemplateSelect}
+                theme={theme}
+              />
+            ))}
+          </div>
+          
+          <div className="text-center">
+            <button 
+              className={`px-8 py-3.5 font-medium rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 ${
+                theme === 'dark' 
+                  ? 'bg-gradient-to-r from-blue-600 to-green-600 text-white hover:from-blue-500 hover:to-green-500 hover:shadow-xl hover:shadow-blue-500/30' 
+                  : 'bg-gradient-to-r from-blue-500 to-green-500 text-white hover:from-blue-600 hover:to-green-600 hover:shadow-xl hover:shadow-blue-500/40'
+              }`}
+            >
+              View All Templates
+            </button>
+          </div>
+        </section>
+
+
+
         {/* CTA Section */}
-        <section className="mt-12 text-center bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-8 text-white">
+        <section className="mt-12 text-center bg-gradient-to-r from-blue-500 to-green-500 rounded-2xl p-8 text-white">
           <h2 className="text-2xl font-bold mb-4">Ready to Optimize Your Resume?</h2>
           <p className="mb-6 opacity-90">
             Get personalized suggestions and increase your interview chances by 3x
@@ -503,15 +532,16 @@ const ResumeAnalyzer = ({ theme }) => {
             <button className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors">
               Download Analysis Report
             </button>
-            <button className="px-6 py-3 bg-transparent border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-blue-600 transition-colors">
+            <button className="px-6 py-3 bg-transparent border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-green-600 transition-colors">
               Try Premium Features
             </button>
           </div>
         </section>
       </main>
 
+
       {/* Footer */}
-      <footer className={`mt-12 py-6 ${theme === 'dark' ? 'border-t border-gray-700' : 'border-t border-gray-200'}`}>
+      < footer className={`mt-12 py-6 ${theme === 'dark' ? 'border-t border-gray-700' : 'border-t border-gray-200'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -524,8 +554,8 @@ const ResumeAnalyzer = ({ theme }) => {
             </div>
           </div>
         </div>
-      </footer>
-    </div>
+      </footer >
+    </div >
   );
 };
 
