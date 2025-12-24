@@ -14,7 +14,7 @@ function Progress({ theme }) {
   const [animatedCompletion, setAnimatedCompletion] = useState(0)
   const radarRef = useRef(null)
 
-  // Progress data for overview section - updated to blue-green theme
+  // Progress data for overview section - updated to landing page color palette
   const progressOverview = [
     {
       title: 'Aptitude Performance',
@@ -34,7 +34,7 @@ function Progress({ theme }) {
       completed: 29,
       total: 50,
       icon: BookOpen,
-      gradient: 'linear-gradient(135deg, #10B981, #059669)',
+      gradient: 'linear-gradient(135deg, #10B981, #8B5CF6)',
       strokeColor: '#10B981',
       animationDelay: 100
     },
@@ -66,7 +66,7 @@ function Progress({ theme }) {
   const weeklyScores = [64, 72, 75, 70, 78, 82, 85]
   const weekDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
-  // Skills data for radar chart - updated to blue-green theme
+  // Skills data for radar chart - updated to landing page color palette
   const skillsData = [
     { skill: 'Problem Solving', value: 75, icon: Cpu, color: '#3B82F6' },
     { skill: 'Management', value: 70, icon: ManagementIcon, color: '#10B981' },
@@ -84,10 +84,10 @@ function Progress({ theme }) {
     'Computer Networks': Network,
   }
 
-  // Topics completion data - updated to blue-green theme
+  // Topics completion data - updated to landing page color palette
   const topicsData = [
     { subject: 'Data Structures', completed: 24, total: 28, gradient: 'linear-gradient(90deg, #3B82F6, #10B981)' },
-    { subject: 'Algorithms', completed: 16, total: 32, gradient: 'linear-gradient(90deg, #10B981, #059669)' },
+    { subject: 'Algorithms', completed: 16, total: 32, gradient: 'linear-gradient(90deg, #10B981, #8B5CF6)' },
     { subject: 'DBMS', completed: 24, total: 24, gradient: 'linear-gradient(90deg, #8B5CF6, #3B82F6)' },
     { subject: 'Operating Systems', completed: 10, total: 18, gradient: 'linear-gradient(90deg, #10B981, #8B5CF6)' },
     { subject: 'Computer Networks', completed: 12, total: 22, gradient: 'linear-gradient(90deg, #059669, #10B981)' },

@@ -256,17 +256,15 @@ function CoreConcepts({ theme }) {
       }`}>
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
-          <h1 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Core Concepts</h1>
+          <h1 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Core Concepts Mastery Platform</h1>
           <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Master fundamental concepts across engineering disciplines</p>
         </div>
         {/* <div className="mb-12 text-center max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
             <span className="bg-gradient-to-r 
-                 from-primary 
-                 via-primaryAccent 
-                 to-primary 
+                 from-blue-400 via-green-400 to-purple-400
                  bg-clip-text text-transparent">
-              Core Concepts
+              Core Concepts Mastery Platform
             </span>
 
           </h1>
