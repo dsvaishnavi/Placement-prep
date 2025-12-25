@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import AppRoutes from './routes/AppRoutes'
 import LoadingSpinner from './components/LoadingSpinner'
-
+import Snowfall from 'react-snowfall'
 function App() {
   const [landingTheme, setLandingTheme] = useState('dark')
   const [appTheme, setAppTheme] = useState(() => {
@@ -44,11 +44,13 @@ function App() {
       ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
       : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
       }`}>
+        
       {location.pathname !== '/' && <Navbar theme={currentTheme} setTheme={setCurrentTheme} />}
       <Suspense fallback={<LoadingSpinner theme={currentTheme} />}>
         <AppRoutes landingTheme={landingTheme} setLandingTheme={setLandingTheme} appTheme={appTheme} setAppTheme={setAppTheme} />
       </Suspense>
       {isLoading && <LoadingSpinner theme={currentTheme} />}
+      
     </div>
   )
 }

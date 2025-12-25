@@ -30,6 +30,7 @@ import {
   Moon
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import Snowfall from 'react-snowfall'
 
 // // Mouse Follower Pink Circle - DISABLED
 // const MouseFollower = () => {
@@ -622,11 +623,26 @@ function LandingPage({ theme, setTheme }) {
   ]
 
   return (
+    
     <div className={`min-h-screen transition-all duration-300 relative hide-scrollbar ${theme === 'dark'
       ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
       : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
       }`}>
-
+         {/* Add Snowfall as a background element */}
+      <Snowfall 
+        style={{
+          position: 'fixed',
+          width: '100vw',
+          height: '100vh',
+          pointerEvents: 'none',
+          zIndex: 1
+        }}
+        snowflakeCount={100}
+        color={theme === 'dark' ? '#ffffff' : '#cbd5e1'}
+        speed={[0.5, 1.5]}
+        wind={[-0.5, 0.5]}
+        radius={[0.5, 3]}
+      />
       {/* Mouse Follower Pink Circle - DISABLED */}
       {/* <MouseFollower /> */}
 
@@ -1000,6 +1016,7 @@ function LandingPage({ theme, setTheme }) {
           </div>
         </div>
       </footer>
+    
     </div>
   )
 }

@@ -17,6 +17,16 @@ app.get("/", (req, res) => {
     res.send("Our Server Is In Running Position");
   });
 
+app.get("/home", (req, res) => {
+    res.send("Server is on Home Page");
+  });
+
+
+
+
+
+
+
 const PORT = process.env.PORT;
   app.listen(PORT, () => {
     console.log(`Server is running on port: http://localhost:${PORT}`);

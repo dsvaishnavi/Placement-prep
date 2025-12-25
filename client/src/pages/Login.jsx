@@ -1,7 +1,7 @@
 import { LogIn } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
-
+import Snowfall from 'react-snowfall'
 // Mouse Follower Pink Circle
 const MouseFollower = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -45,6 +45,20 @@ function Login({ theme }) {
 
   return (
     <>
+     <Snowfall 
+        style={{
+          position: 'fixed',
+          width: '100vw',
+          height: '100vh',
+          pointerEvents: 'none',
+          zIndex: 1
+        }}
+        snowflakeCount={100}
+        color={theme === 'dark' ? '#ffffff' : '#cbd5e1'}
+        speed={[0.5, 1.5]}
+        wind={[-0.5, 0.5]}
+        radius={[0.5, 3]}
+      />
       <MouseFollower />
       <div className={`min-h-screen flex items-center justify-center ${theme === 'dark'
         ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'

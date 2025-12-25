@@ -2,7 +2,7 @@ import { Trophy, Target, Clock } from 'lucide-react'
 import StatCard from '../components/StatCard'
 import ActivityItem from '../components/ActivityItem'
 import GoalProgress from '../components/GoalProgress'
-
+import Snowfall from 'react-snowfall'
 function Home({ theme }) {
   // Dummy data
   const stats = [
@@ -43,6 +43,21 @@ function Home({ theme }) {
       ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
       : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
       }`}>
+       <Snowfall 
+        style={{
+          position: 'fixed',
+          width: '100vw',
+          height: '100vh',
+          pointerEvents: 'none',
+          zIndex: 1
+        }}
+        snowflakeCount={100 }
+        color={theme === 'dark' ? '#ffffff' : '#b5b5b5'}
+        speed={[0.5, 1.5]}
+        wind={[-0.5, 0.5]}
+        radius={[0.5, 3]}
+      />
+
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
