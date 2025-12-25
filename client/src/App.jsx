@@ -2,27 +2,26 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
+import Footer from './components/Footer' // Import the Footer
 import AppRoutes from './routes/AppRoutes'
 import LoadingSpinner from './components/LoadingSpinner'
 import Snowfall from 'react-snowfall'
+
 function App() {
   const [landingTheme, setLandingTheme] = useState('dark')
   const [appTheme, setAppTheme] = useState(() => {
-    // Load theme from localStorage or default to 'light' for app pages
     return localStorage.getItem('appTheme') || 'light'
   })
   const [isLoading, setIsLoading] = useState(false)
   const location = useLocation()
 
   useEffect(() => {
-    // Show loading on route change
     setIsLoading(true)
-    const timer = setTimeout(() => setIsLoading(false), 500) // Simulate loading time
+    const timer = setTimeout(() => setIsLoading(false), 500)
     return () => clearTimeout(timer)
   }, [location.pathname])
 
   useEffect(() => {
-    // Save theme to localStorage
     if (location.pathname === '/') {
       localStorage.setItem('landingTheme', landingTheme)
     } else {
@@ -39,18 +38,32 @@ function App() {
     }
   }
 
+  // Check if we should show footer (not on landing page)
+  const showFooter = location.pathname !== '/'
+
   return (
-    <div className={`min-h-screen transition-all duration-300 relative ${currentTheme === 'dark'
+    <div className={`min-h-screen transition-all duration-300 relative flex flex-col ${currentTheme === 'dark'
       ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
       : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
       }`}>
-        
-      {location.pathname !== '/' && <Navbar theme={currentTheme} setTheme={setCurrentTheme} />}
-      <Suspense fallback={<LoadingSpinner theme={currentTheme} />}>
-        <AppRoutes landingTheme={landingTheme} setLandingTheme={setLandingTheme} appTheme={appTheme} setAppTheme={setAppTheme} />
-      </Suspense>
-      {isLoading && <LoadingSpinner theme={currentTheme} />}
       
+      {location.pathname !== '/' && <Navbar theme={currentTheme} setTheme={setCurrentTheme} />}
+      
+      <main className="flex-1">
+        <Suspense fallback={<LoadingSpinner theme={currentTheme} />}>
+          <AppRoutes 
+            landingTheme={landingTheme} 
+            setLandingTheme={setLandingTheme} 
+            appTheme={appTheme} 
+            setAppTheme={setAppTheme} 
+          />
+        </Suspense>
+      </main>
+
+      {/* Conditionally render Footer */}
+      {showFooter && <Footer theme={appTheme} />}
+      
+      {isLoading && <LoadingSpinner theme={currentTheme} />}
     </div>
   )
 }
