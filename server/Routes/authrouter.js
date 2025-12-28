@@ -1,22 +1,13 @@
 import express from "express";
+import {signupValidation} from "../middlewares/Authvalidation"
 
 const router = express.Router();
 
-router
-  .route("/signup")
-  .get((req, res) => {
-    res.send("signup page welcome");
-  })
-  
-router
-  .route("/login")
-  .get((req, res) => {
-    res.send("login page welcome");
-  })
- 
-  .post((req, res) => {
-    res.send("POST request");
-  });
+router.get("/signup", signupValidation)
 
+
+router.get("/login", (req, res) => {
+  res.send("login working");
+});
 
 export default router;
