@@ -1,71 +1,74 @@
-// App.jsx
-import { useState, useEffect, Suspense } from 'react'
-import { useLocation } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer' // Import the Footer
-import AppRoutes from './routes/AppRoutes'
-import LoadingSpinner from './components/LoadingSpinner'
-import Snowfall from 'react-snowfall'
+import { useState, useEffect, Suspense } from "react";
+import { useLocation } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import AppRoutes from "./routes/AppRoutes";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 function App() {
-  const [landingTheme, setLandingTheme] = useState('dark')
-  const [appTheme, setAppTheme] = useState(() => {
-    return localStorage.getItem('appTheme') || 'light'
-  })
-  const [isLoading, setIsLoading] = useState(false)
-  const location = useLocation()
+  const location = useLocation();
 
+  const [landingTheme, setLandingTheme] = useState("dark");
+  const [appTheme, setAppTheme] = useState(
+    localStorage.getItem("appTheme") || "light"
+  );
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Page loading effect
   useEffect(() => {
-    setIsLoading(true)
-    const timer = setTimeout(() => setIsLoading(false), 500)
-    return () => clearTimeout(timer)
-  }, [location.pathname])
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
+  // Persist theme
   useEffect(() => {
-    if (location.pathname === '/') {
-      localStorage.setItem('landingTheme', landingTheme)
+    if (location.pathname === "/") {
+      localStorage.setItem("landingTheme", landingTheme);
     } else {
-      localStorage.setItem('appTheme', appTheme)
+      localStorage.setItem("appTheme", appTheme);
     }
-  }, [landingTheme, appTheme, location.pathname])
+  }, [landingTheme, appTheme, location.pathname]);
 
-  const currentTheme = location.pathname === '/' ? landingTheme : appTheme
-  const setCurrentTheme = (newTheme) => {
-    if (location.pathname === '/') {
-      setLandingTheme(newTheme)
+  const currentTheme = location.pathname === "/" ? landingTheme : appTheme;
+
+  const setCurrentTheme = (theme) => {
+    if (location.pathname === "/") {
+      setLandingTheme(theme);
     } else {
-      setAppTheme(newTheme)
+      setAppTheme(theme);
     }
-  }
+  };
 
-  // Check if we should show footer (not on landing page)
-  const showFooter = location.pathname !== '/'
+  const showNavbar = location.pathname !== "/";
+  const showFooter = location.pathname !== "/";
 
   return (
-    <div className={`min-h-screen transition-all duration-300 relative flex flex-col ${currentTheme === 'dark'
-      ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
-      : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
-      }`}>
-      
-      {location.pathname !== '/' && <Navbar theme={currentTheme} setTheme={setCurrentTheme} />}
-      
+    <div
+      className={`min-h-screen flex flex-col transition-all duration-300 ${
+        currentTheme === "dark"
+          ? "bg-gradient-to-b from-gray-900 via-gray-900 to-black"
+          : "bg-gradient-to-b from-gray-50 via-blue-50/30 to-white"
+      }`}
+    >
+      {showNavbar && <Navbar theme={currentTheme} setTheme={setCurrentTheme} />}
+
       <main className="flex-1">
         <Suspense fallback={<LoadingSpinner theme={currentTheme} />}>
-          <AppRoutes 
-            landingTheme={landingTheme} 
-            setLandingTheme={setLandingTheme} 
-            appTheme={appTheme} 
-            setAppTheme={setAppTheme} 
+          <AppRoutes
+            landingTheme={landingTheme}
+            setLandingTheme={setLandingTheme}
+            appTheme={appTheme}
+            setAppTheme={setAppTheme}
           />
         </Suspense>
       </main>
 
-      {/* Conditionally render Footer */}
       {showFooter && <Footer theme={appTheme} />}
-      
+
       {isLoading && <LoadingSpinner theme={currentTheme} />}
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
