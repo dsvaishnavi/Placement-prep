@@ -375,14 +375,9 @@ const ThemeToggle = ({ theme, setTheme }) => {
     setShowOptions(false)
   }
 
-  const getThemeLabel = () => {
-    if (theme === 'system') return 'System'
-    return theme === 'dark' ? 'Dark' : 'Light'
-  }
-
   const getThemeIcon = () => {
-    if (theme === 'system') return <MonitorSmartphone className="w-4 h-4 sm:w-5 sm:h-5" />
-    return theme === 'dark' ? <Moon className="w-4 h-4 sm:w-5 sm:h-5" /> : <Sun className="w-4 h-4 sm:w-5 sm:h-5" />
+    if (theme === 'system') return <MonitorSmartphone className="w-4 h-4" />
+    return theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />
   }
 
   return (
@@ -390,66 +385,62 @@ const ThemeToggle = ({ theme, setTheme }) => {
       <button
         onClick={() => setShowOptions(!showOptions)}
         className={`
-          flex items-center justify-center space-x-1 sm:space-x-2
-          min-h-[2.75rem] sm:min-h-[2.5rem] px-2 sm:px-3 py-2 sm:py-1.5
-          rounded-lg transition-all duration-300 ease-out
-          touch-manipulation select-none
+          flex items-center justify-center w-10 h-10 rounded-lg
+          transition-all duration-300 ease-out
           ${theme === 'dark'
-            ? 'bg-gray-800/50 hover:bg-gray-700/50 active:bg-gray-600/50 text-white border border-white/10'
-            : 'bg-gray-200/50 hover:bg-gray-300/50 active:bg-gray-400/50 text-gray-800 border border-gray-300/50'
+            ? 'bg-gray-800/50 hover:bg-gray-700/50 text-white border border-white/10'
+            : 'bg-white/70 hover:bg-white/80 text-gray-800 border border-gray-200/50'
           }
+          backdrop-blur-sm
         `}
-        aria-label={`Current theme: ${getThemeLabel()}. Click to change theme.`}
+        aria-label="Toggle theme"
       >
         {getThemeIcon()}
-        <span className="text-xs sm:text-sm font-medium hidden sm:inline">
-          {getThemeLabel()}
-        </span>
       </button>
 
       {showOptions && (
-        <div className={`absolute top-full left-0 mt-2 w-36 sm:w-40 rounded-lg shadow-xl backdrop-blur-xl border z-50 ${theme === 'dark'
+        <div className={`absolute top-full right-0 mt-2 w-36 rounded-lg shadow-xl backdrop-blur-xl border z-50 ${theme === 'dark'
           ? 'bg-gray-800/95 border-white/20'
           : 'bg-white/95 border-gray-200'
           }`}>
           <button
             onClick={() => handleThemeChange('light')}
-            className={`flex items-center justify-between w-full px-3 py-3 sm:py-2.5 text-sm sm:text-base transition-colors touch-manipulation ${theme === 'light'
+            className={`flex items-center justify-between w-full px-3 py-2.5 text-sm transition-colors ${theme === 'light'
               ? 'bg-blue-500/20 text-blue-400'
-              : theme === 'dark' ? 'hover:bg-gray-700/50 active:bg-gray-600/50 text-gray-200' : 'hover:bg-gray-100/50 active:bg-gray-200/50 text-gray-700'
+              : theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
               }`}
           >
             <div className="flex items-center space-x-2">
-              <Sun className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-              <span className="font-medium">Light</span>
+              <Sun className="w-4 h-4 flex-shrink-0" />
+              <span>Light</span>
             </div>
             {theme === 'light' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
           </button>
 
           <button
             onClick={() => handleThemeChange('dark')}
-            className={`flex items-center justify-between w-full px-3 py-3 sm:py-2.5 text-sm sm:text-base transition-colors touch-manipulation ${theme === 'dark'
+            className={`flex items-center justify-between w-full px-3 py-2.5 text-sm transition-colors ${theme === 'dark'
               ? 'bg-blue-500/20 text-blue-400'
-              : theme === 'dark' ? 'hover:bg-gray-700/50 active:bg-gray-600/50 text-gray-200' : 'hover:bg-gray-100/50 active:bg-gray-200/50 text-gray-700'
+              : theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
               }`}
           >
             <div className="flex items-center space-x-2">
-              <Moon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-              <span className="font-medium">Dark</span>
+              <Moon className="w-4 h-4 flex-shrink-0" />
+              <span>Dark</span>
             </div>
             {theme === 'dark' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
           </button>
 
           <button
             onClick={() => handleThemeChange('system')}
-            className={`flex items-center justify-between w-full px-3 py-3 sm:py-2.5 text-sm sm:text-base transition-colors touch-manipulation ${theme === 'system'
+            className={`flex items-center justify-between w-full px-3 py-2.5 text-sm transition-colors ${theme === 'system'
               ? 'bg-blue-500/20 text-blue-400'
-              : theme === 'dark' ? 'hover:bg-gray-700/50 active:bg-gray-600/50 text-gray-200' : 'hover:bg-gray-100/50 active:bg-gray-200/50 text-gray-700'
+              : theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
               }`}
           >
             <div className="flex items-center space-x-2">
-              <MonitorSmartphone className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-              <span className="font-medium">System</span>
+              <MonitorSmartphone className="w-4 h-4 flex-shrink-0" />
+              <span>System</span>
             </div>
             {theme === 'system' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
           </button>
@@ -491,11 +482,7 @@ function LandingPage({ theme, setTheme }) {
   }, [])
 
   const navItems = [
-    { label: 'Home', href: '#home' },
     { label: 'Features', href: '#features' },
-    { label: 'Courses', href: '#courses' },
-    { label: 'Practice', href: '#practice' },
-    { label: 'Interview Prep', href: '#interview' },
     { label: 'Pricing', href: '#pricing' },
     { label: 'About', href: '#about' },
     { label: 'Contact', href: '#contact' },
@@ -733,7 +720,7 @@ function LandingPage({ theme, setTheme }) {
           : 'backdrop-blur-lg sm:backdrop-blur-xl bg-white/40 border-b border-gray-200/50'
         }
       `}>
-        <div className="container mx-auto px-3 sm:px-4">
+        <div className="container mx-auto px-3 sm:px-4 max-w-7xl">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center space-x-1 sm:space-x-1.5 md:space-x-2 flex-shrink-0">
               <div className={`p-1 sm:p-1.5 rounded-md ${theme === 'dark'
@@ -752,12 +739,13 @@ function LandingPage({ theme, setTheme }) {
               </div>
             </Link>
 
-            <div className="hidden lg:flex items-center space-x-2 xl:space-x-6 absolute left-1/2 transform -translate-x-1/2">
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-4 xl:space-x-8 absolute left-1/2 transform -translate-x-1/2">
               {navItems.map((item) => (
                 <a
                   key={item.label}
                   href={item.href}
-                  className={`text-xs lg:text-sm font-medium transition-colors hover:text-blue-400 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                  className={`text-sm xl:text-base font-medium transition-colors hover:text-blue-400 px-2 py-1 rounded-md ${theme === 'dark' ? 'text-gray-300 hover:bg-white/5' : 'text-gray-600 hover:bg-gray-100/50'
                     }`}
                 >
                   {item.label}
@@ -765,47 +753,36 @@ function LandingPage({ theme, setTheme }) {
               ))}
             </div>
 
-            <div className="flex items-center gap-1 sm:gap-2 md:gap-3 flex-shrink-0">
+            {/* Right Section - Only Login Button */}
+            <div className="flex items-center gap-3 flex-shrink-0">
               <ThemeToggle theme={theme} setTheme={setTheme} />
 
               <Link to="/login">
                 <div className={`
-                  min-h-[2.75rem] sm:min-h-[2.5rem] px-3 sm:px-4 py-2 sm:py-1.5 rounded-lg backdrop-blur-lg border
+                  px-4 py-2 rounded-lg backdrop-blur-lg border
                   flex items-center justify-center transition-all duration-300 ease-out
-                  touch-manipulation select-none
                   ${theme === 'dark'
-                    ? 'bg-white/5 border-white/10 hover:bg-white/10 active:bg-white/15'
-                    : 'bg-white/70 border-gray-200/60 hover:bg-white/80 active:bg-white/90'
+                    ? 'bg-white/5 border-white/10 hover:bg-white/10'
+                    : 'bg-white/70 border-gray-200/60 hover:bg-white/80'
                   }
                 `}>
-                  <span className={`text-sm sm:text-base font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                     Login
                   </span>
                 </div>
               </Link>
 
-              <Link to="/signup">
-                <div className={`
-                  min-h-[2.75rem] sm:min-h-[2.5rem] px-3 sm:px-4 py-2 sm:py-1.5 rounded-lg backdrop-blur-lg border
-                  flex items-center justify-center transition-all duration-300 ease-out
-                  touch-manipulation select-none hidden sm:flex
-                  bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600
-                `}>
-                  <span className="text-sm sm:text-base font-medium text-white">
-                    Get Started
-                  </span>
-                </div>
-              </Link>
-
+              {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden p-1 sm:p-1.5 rounded-md hover:bg-white/10 transition-colors"
+                className="lg:hidden p-2 rounded-md hover:bg-white/10 transition-colors"
               >
-                {isMenuOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5" />}
+                {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
           </div>
 
+          {/* Mobile Menu */}
           {isMenuOpen && (
             <div className="lg:hidden mt-3">
               <div className={`
@@ -820,29 +797,23 @@ function LandingPage({ theme, setTheme }) {
                     <a
                       key={item.label}
                       href={item.href}
-                      className={`py-1.5 px-3 rounded transition-colors hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                      className={`py-2 px-3 rounded transition-colors hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
                         }`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {item.label}
                     </a>
                   ))}
-                  <Link
-                    to="/login"
-                    className={`py-1.5 px-3 rounded transition-colors hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                      }`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className={`py-1.5 px-3 rounded transition-colors bg-gradient-to-r from-blue-500 to-green-500 text-white text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                      }`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Get Started
-                  </Link>
+                  <div className="border-t border-gray-200/20 pt-2 mt-2">
+                    <Link
+                      to="/login"
+                      className={`block py-2 px-3 rounded transition-colors hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                        }`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>

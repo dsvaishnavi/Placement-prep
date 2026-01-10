@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import userModel from "../models/userSchema.js";
+import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -222,7 +223,7 @@ router.post("/verify-otp", async (req, res) => {
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET || "your-secret-key",
-      { expiresIn: "24h" }
+      { expiresIn: "7d" }
     );
 
     res.status(201).json({
@@ -291,7 +292,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET || "your-secret-key",
-      { expiresIn: "24h" }
+      { expiresIn: "7d" }
     );
 
     // Update last login
@@ -381,7 +382,7 @@ router.post("/create-admin", async (req, res) => {
     const token = jwt.sign(
       { userId: adminUser._id, email: adminUser.email },
       process.env.JWT_SECRET || "your-secret-key",
-      { expiresIn: "24h" }
+      { expiresIn: "7d" }
     );
 
     res.status(201).json({
@@ -403,6 +404,25 @@ router.post("/create-admin", async (req, res) => {
     res.status(500).json({ 
       success: false, 
       message: "Internal server error" 
+    });
+  }
+});
+
+// Refresh session endpoint
+router.post('/refresh-session', auth, async (req, res) => {
+  try {
+    // If the middleware passes, the token is valid
+    // Just return success to allow client to reset session timer
+    res.json({
+      success: true,
+      message: 'Session refreshed successfully',
+      user: req.user
+    });
+  } catch (error) {
+    console.error('Session refresh error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to refresh session'
     });
   }
 });

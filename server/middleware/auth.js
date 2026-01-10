@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import userModel from "../models/userSchema.js";
 
 // Verify JWT token
-export const verifyToken = async (req, res, next) => {
+const auth = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
@@ -61,3 +61,7 @@ export const requireModerator = (req, res, next) => {
   }
   next();
 };
+
+// Export auth as default and named exports for flexibility
+export { auth as verifyToken };
+export default auth;

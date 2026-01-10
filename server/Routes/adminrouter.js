@@ -1,11 +1,11 @@
 import express from "express";
 import userModel from "../models/userSchema.js";
-import { verifyToken, requireAdmin, requireModerator } from "../middleware/auth.js";
+import auth, { requireAdmin, requireModerator } from "../middleware/auth.js";
 
 const router = express.Router();
 
 // Apply authentication middleware to all admin routes
-router.use(verifyToken);
+router.use(auth);
 
 // Get all users (Admin/Moderator only)
 router.get("/users", requireModerator, async (req, res) => {
