@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import { Schema } from "mongoose";
 
 const userSchema = new Schema({
-
     name : {
         type : String,
         required : true,
@@ -17,11 +16,38 @@ const userSchema = new Schema({
         required : true,
     },
     emailverified : {
-
         type : Boolean,
-        required : true
+        default: false
+    },
+    role: {
+        type: String,
+        enum: ['user', 'admin', 'moderator'],
+        default: 'user'
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    lastLogin: {
+        type: Date,
+        default: null
+    },
+    otp: {
+        type: String,
+        default: null
+    },
+    otpExpires: {
+        type: Date,
+        default: null
     }
+}, {
+    timestamps: true
 })
+
 const userModel = mongoose.model("usersData",userSchema)
 
 export default userModel;

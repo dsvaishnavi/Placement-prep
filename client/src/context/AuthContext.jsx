@@ -54,14 +54,32 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (name, email, password) => {
+  const sendOTP = async (name, email) => {
     try {
-      const response = await fetch('http://localhost:3000/auth/signup', {
+      const response = await fetch('http://localhost:3000/auth/send-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email }),
+      });
+
+      const data = await response.json();
+      return { success: data.success, message: data.message };
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      return { success: false, message: 'Network error. Please try again.' };
+    }
+  };
+
+  const verifyOTP = async (email, otp, password) => {
+    try {
+      const response = await fetch('http://localhost:3000/auth/verify-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, otp, password }),
       });
 
       const data = await response.json();
@@ -76,7 +94,7 @@ export const AuthProvider = ({ children }) => {
         return { success: false, message: data.message };
       }
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error('Verify OTP error:', error);
       return { success: false, message: 'Network error. Please try again.' };
     }
   };
@@ -93,9 +111,84 @@ export const AuthProvider = ({ children }) => {
     token,
     loading,
     login,
-    signup,
+    sendOTP,
+    verifyOTP,
     logout,
     isAuthenticated: !!user,
+    isAdmin: user?.role === 'admin',
+    isModerator: user?.role === 'moderator' || user?.role === 'admin',
+    fetchUsers: async (page = 1, limit = 10, search = '', role = '') => {
+      try {
+        const response = await fetch(`http://localhost:3000/admin/users?page=${page}&limit=${limit}&search=${search}&role=${role}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        return await response.json();
+      } catch (error) {
+        return { success: false, message: 'Network error. Please try again.' };
+      }
+    },
+    fetchStats: async () => {
+      try {
+        const response = await fetch('http://localhost:3000/admin/stats', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        return await response.json();
+      } catch (error) {
+        return { success: false, message: 'Network error. Please try again.' };
+      }
+    },
+    updateUserRole: async (userId, role) => {
+      try {
+        const response = await fetch(`http://localhost:3000/admin/users/${userId}/role`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ role }),
+        });
+        return await response.json();
+      } catch (error) {
+        return { success: false, message: 'Network error. Please try again.' };
+      }
+    },
+    updateUserStatus: async (userId, isActive) => {
+      try {
+        const response = await fetch(`http://localhost:3000/admin/users/${userId}/status`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ isActive }),
+        });
+        return await response.json();
+      } catch (error) {
+        return { success: false, message: 'Network error. Please try again.' };
+      }
+    },
+    deleteUser: async (userId) => {
+      try {
+        const response = await fetch(`http://localhost:3000/admin/users/${userId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        return await response.json();
+      } catch (error) {
+        return { success: false, message: 'Network error. Please try again.' };
+      }
+    }
   };
 
   return (

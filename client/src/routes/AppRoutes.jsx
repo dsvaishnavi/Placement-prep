@@ -10,6 +10,7 @@ import Progress from '../pages/Progress'
 import Login from '../pages/Login'
 import Signup from '../pages/Signup'
 import Admin from '../pages/Admin'
+import AdminSetup from '../pages/AdminSetup'
 import ResumeAnalyzer from '../pages/ResumeAnalyzer'
 import LandingPage from '../pages/LandingPage'
 
@@ -31,6 +32,7 @@ function AppRoutes({ landingTheme, setLandingTheme, appTheme, setAppTheme }) {
       {/* Public Auth Pages */}
       <Route path="/login" element={<Login theme={appTheme} />} />
       <Route path="/signup" element={<Signup theme={appTheme} />} />
+      <Route path="/admin-setup" element={<AdminSetup theme={appTheme} />} />
       
       {/* Protected Main App Pages */}
       <Route path="/home" element={
