@@ -1,7 +1,8 @@
 import { LogIn } from 'lucide-react'
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from 'react'
 import Snowfall from 'react-snowfall';
+import { useAuth } from '../context/AuthContext';
 
 // Mouse Follower Pink Circle
 const MouseFollower = () => {
@@ -39,6 +40,67 @@ const MouseFollower = () => {
 }
 
 const Signup = ({ theme }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  
+  const { signup, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/home');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+    // Clear error when user starts typing
+    if (error) setError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    // Validate password length
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      setLoading(false);
+      return;
+    }
+
+    const result = await signup(formData.name, formData.email, formData.password);
+    
+    if (result.success) {
+      setSuccess(result.message);
+      // Navigation will happen automatically due to useEffect above
+    } else {
+      setError(result.message);
+    }
+    
+    setLoading(false);
+  };
+
   return (
     <>
        <Snowfall 
@@ -56,11 +118,11 @@ const Signup = ({ theme }) => {
         radius={[0.5, 3]}
       />
       <MouseFollower />
-      <div className={`min-h-screen flex items-center justify-center ${theme === 'dark'
+      <div className={`min-h-screen flex items-center justify-center pt-16 px-4 ${theme === 'dark'
         ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
         : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
         }`}>
-        <div className={`rounded-xl shadow-sm p-8 backdrop-blur-md border ${theme === 'dark'
+        <div className={`rounded-xl shadow-sm p-8 backdrop-blur-md border w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl ${theme === 'dark'
           ? 'bg-white/5 border-white/10'
           : 'bg-white/70 border-gray-200/60'
           }`}>
@@ -74,14 +136,30 @@ const Signup = ({ theme }) => {
             </p>
           </div>
 
+          {error && (
+            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+              <p className="text-red-500 text-sm">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+              <p className="text-green-500 text-sm">{success}</p>
+            </div>
+          )}
+
           {/* Form */}
-          <form className="mt-6 space-y-4">
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div>
               <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                 Full Name
               </label>
               <input
                 type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
                 placeholder="Enter your name"
                 className={`mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent ${theme === 'dark' ? 'border-white/20 bg-white/5 text-white focus:ring-blue-400' : 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'}`}
               />
@@ -93,6 +171,10 @@ const Signup = ({ theme }) => {
               </label>
               <input
                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
                 placeholder="you@example.com"
                 className={`mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent ${theme === 'dark' ? 'border-white/20 bg-white/5 text-white focus:ring-blue-400' : 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'}`}
               />
@@ -104,7 +186,11 @@ const Signup = ({ theme }) => {
               </label>
               <input
                 type="password"
-                placeholder="Create a password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                placeholder="Create a password (min 6 characters)"
                 className={`mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent ${theme === 'dark' ? 'border-white/20 bg-white/5 text-white focus:ring-blue-400' : 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'}`}
               />
             </div>
@@ -115,17 +201,11 @@ const Signup = ({ theme }) => {
               </label>
               <input
                 type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
                 placeholder="Confirm password"
-                className={`mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent ${theme === 'dark' ? 'border-white/20 bg-white/5 text-white focus:ring-blue-400' : 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'}`}
-              />
-            </div>
-            <div>
-              <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                Enter OTP
-              </label>
-              <input
-                type="password"
-                placeholder="Enter OTP"
                 className={`mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent ${theme === 'dark' ? 'border-white/20 bg-white/5 text-white focus:ring-blue-400' : 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'}`}
               />
             </div>
@@ -133,9 +213,10 @@ const Signup = ({ theme }) => {
             {/* Button */}
             <button
               type="submit"
-              className={`w-full mt-2 py-2 rounded-md font-medium transition-colors ${theme === 'dark' ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+              disabled={loading}
+              className={`w-full mt-2 py-2 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${theme === 'dark' ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
             >
-              Sign up
+              {loading ? 'Creating account...' : 'Sign up'}
             </button>
           </form>
 

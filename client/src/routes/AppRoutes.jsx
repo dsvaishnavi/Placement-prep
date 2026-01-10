@@ -1,5 +1,6 @@
 // AppRoutes.jsx
 import { Routes, Route } from 'react-router-dom'
+import ProtectedRoute from '../components/ProtectedRoute'
 
 // Main Pages
 import Home from '../pages/Home'
@@ -21,25 +22,49 @@ import Contact from '../legalpages/Contact'
 import Blog from '../legalpages/Blog'
 import Careers from '../legalpages/Careers'
 
-
-
 function AppRoutes({ landingTheme, setLandingTheme, appTheme, setAppTheme }) {
   return (
     <Routes>
       {/* Landing Page */}
       <Route path="/" element={<LandingPage theme={landingTheme} setTheme={setLandingTheme} />} />
       
-      {/* Main App Pages */}
-      <Route path="/home" element={<Home theme={appTheme} />} />
-      <Route path="/aptitude" element={<Aptitude theme={appTheme} />} />
-      <Route path="/core-concepts" element={<CoreConcepts theme={appTheme} />} />
-      <Route path="/progress" element={<Progress theme={appTheme} />} />
+      {/* Public Auth Pages */}
       <Route path="/login" element={<Login theme={appTheme} />} />
       <Route path="/signup" element={<Signup theme={appTheme} />} />
-      <Route path="/admin" element={<Admin theme={appTheme} />} />
-      <Route path="/resumeanalyzer" element={<ResumeAnalyzer theme={appTheme} />} />
       
-      {/* Legal/Footer Pages */}
+      {/* Protected Main App Pages */}
+      <Route path="/home" element={
+        <ProtectedRoute theme={appTheme}>
+          <Home theme={appTheme} />
+        </ProtectedRoute>
+      } />
+      <Route path="/aptitude" element={
+        <ProtectedRoute theme={appTheme}>
+          <Aptitude theme={appTheme} />
+        </ProtectedRoute>
+      } />
+      <Route path="/core-concepts" element={
+        <ProtectedRoute theme={appTheme}>
+          <CoreConcepts theme={appTheme} />
+        </ProtectedRoute>
+      } />
+      <Route path="/progress" element={
+        <ProtectedRoute theme={appTheme}>
+          <Progress theme={appTheme} />
+        </ProtectedRoute>
+      } />
+      <Route path="/admin" element={
+        <ProtectedRoute theme={appTheme}>
+          <Admin theme={appTheme} />
+        </ProtectedRoute>
+      } />
+      <Route path="/resumeanalyzer" element={
+        <ProtectedRoute theme={appTheme}>
+          <ResumeAnalyzer theme={appTheme} />
+        </ProtectedRoute>
+      } />
+      
+      {/* Public Legal/Footer Pages */}
       <Route path="/privacy" element={<PrivacyPolicy theme={appTheme} />} />
       <Route path="/terms" element={<TermsOfService theme={appTheme} />} />
       <Route path="/cookies" element={<CookiePolicy theme={appTheme} />} />
@@ -53,3 +78,5 @@ function AppRoutes({ landingTheme, setLandingTheme, appTheme, setAppTheme }) {
 }
 
 export default AppRoutes
+
+

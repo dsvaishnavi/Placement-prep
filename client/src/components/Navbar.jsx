@@ -1,11 +1,15 @@
-import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, Rocket, Sun, Moon, MonitorSmartphone } from 'lucide-react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Menu, X, Rocket, Sun, Moon, MonitorSmartphone, LogOut, User } from 'lucide-react'
 import { useState } from 'react'
+import { useAuth } from '../context/AuthContext'
 
 const Navbar = ({ theme, setTheme }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showThemeOptions, setShowThemeOptions] = useState(false)
+  const [showUserMenu, setShowUserMenu] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout, isAuthenticated } = useAuth()
 
   const navItems = [
     { label: 'Home', href: '/home' },
@@ -19,6 +23,12 @@ const Navbar = ({ theme, setTheme }) => {
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme)
     setShowThemeOptions(false)
+  }
+
+  const handleLogout = () => {
+    logout()
+    setShowUserMenu(false)
+    navigate('/login')
   }
 
   const getThemeIcon = () => {
@@ -147,20 +157,66 @@ const Navbar = ({ theme, setTheme }) => {
               )}
             </div>
 
-            <Link to="/login">
-              <div className={`
-                px-3 py-2 rounded-lg backdrop-blur-lg border
-                transition-all duration-300 ease-out
-                ${theme === 'dark'
-                  ? 'bg-white/5 border-white/10 hover:bg-white/10'
-                  : 'bg-white/70 border-gray-200/60 hover:bg-white/80'
-                }
-              `}>
-                <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                  Login
-                </span>
+            {/* User Menu or Login Button */}
+            {isAuthenticated ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className={`
+                    flex items-center space-x-2 px-3 py-2 rounded-lg backdrop-blur-lg border
+                    transition-all duration-300 ease-out
+                    ${theme === 'dark'
+                      ? 'bg-white/5 border-white/10 hover:bg-white/10'
+                      : 'bg-white/70 border-gray-200/60 hover:bg-white/80'
+                    }
+                  `}
+                >
+                  <User className="w-4 h-4" />
+                  <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                    {user?.name || 'User'}
+                  </span>
+                </button>
+
+                {showUserMenu && (
+                  <div className={`absolute top-full right-0 mt-2 w-48 rounded-lg shadow-xl backdrop-blur-xl border z-50 ${theme === 'dark'
+                    ? 'bg-gray-800/95 border-white/20'
+                    : 'bg-white/95 border-gray-200'
+                    }`}>
+                    <div className="p-3 border-b border-gray-200/20">
+                      <p className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                        {user?.name}
+                      </p>
+                      <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                        {user?.email}
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className={`flex items-center space-x-2 w-full px-3 py-2.5 text-sm transition-colors ${theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
+                        }`}
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                )}
               </div>
-            </Link>
+            ) : (
+              <Link to="/login">
+                <div className={`
+                  px-3 py-2 rounded-lg backdrop-blur-lg border
+                  transition-all duration-300 ease-out
+                  ${theme === 'dark'
+                    ? 'bg-white/5 border-white/10 hover:bg-white/10'
+                    : 'bg-white/70 border-gray-200/60 hover:bg-white/80'
+                  }
+                `}>
+                  <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                    Login
+                  </span>
+                </div>
+              </Link>
+            )}
 
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -195,13 +251,25 @@ const Navbar = ({ theme, setTheme }) => {
                     {item.label}
                   </Link>
                 ))}
-                <Link
-                  to="/login"
-                  className={`py-2 px-3 rounded transition-colors hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Login
-                </Link>
+                {isAuthenticated ? (
+                  <button
+                    onClick={() => {
+                      handleLogout()
+                      setIsMenuOpen(false)
+                    }}
+                    className={`py-2 px-3 rounded transition-colors hover:bg-white/10 text-sm text-left ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}
+                  >
+                    Logout ({user?.name})
+                  </button>
+                ) : (
+                  <Link
+                    to="/login"
+                    className={`py-2 px-3 rounded transition-colors hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                )}
               </div>
             </div>
           </div>

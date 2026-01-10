@@ -1,7 +1,9 @@
 import { LogIn } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import Snowfall from 'react-snowfall'
+import { useAuth } from '../context/AuthContext'
+
 // Mouse Follower Pink Circle
 const MouseFollower = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -38,10 +40,50 @@ const MouseFollower = () => {
 }
 
 function Login({ theme }) {
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // No authentication logic - UI only
-  }
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  
+  const { login, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/home');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+    // Clear error when user starts typing
+    if (error) setError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    const result = await login(formData.email, formData.password);
+    
+    if (result.success) {
+      setSuccess(result.message);
+      // Navigation will happen automatically due to useEffect above
+    } else {
+      setError(result.message);
+    }
+    
+    setLoading(false);
+  };
 
   return (
     <>
@@ -78,6 +120,18 @@ function Login({ theme }) {
             </p>
           </div>
 
+          {error && (
+            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+              <p className="text-red-500 text-sm">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+              <p className="text-green-500 text-sm">{success}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
@@ -89,6 +143,9 @@ function Login({ theme }) {
               <input
                 type="email"
                 id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 required
                 placeholder="you@example.com"
                 className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${theme === 'dark' ? 'border-white/20 bg-white/5 text-white focus:ring-blue-400' : 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'}`}
@@ -105,6 +162,9 @@ function Login({ theme }) {
               <input
                 type="password"
                 id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 required
                 placeholder="••••••••"
                 className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${theme === 'dark' ? 'border-white/20 bg-white/5 text-white focus:ring-blue-400' : 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'}`}
@@ -113,9 +173,10 @@ function Login({ theme }) {
 
             <button
               type="submit"
-              className={`w-full py-2.5 px-4 rounded-lg font-medium transition-colors mt-6 ${theme === 'dark' ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+              disabled={loading}
+              className={`w-full py-2.5 px-4 rounded-lg font-medium transition-colors mt-6 disabled:opacity-50 disabled:cursor-not-allowed ${theme === 'dark' ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
             >
-              Login
+              {loading ? 'Logging in...' : 'Login'}
             </button>
             <p className={`mt-6 text-center text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
               Don't have an account?{' '}
