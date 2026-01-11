@@ -2,6 +2,7 @@ import { LogIn } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import Snowfall from 'react-snowfall'
+import { showToast } from '../utils/toast'
 import { useAuth } from '../context/AuthContext'
 
 // Mouse Follower Pink Circle
@@ -45,8 +46,6 @@ function Login({ theme }) {
     password: ''
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -63,23 +62,19 @@ function Login({ theme }) {
       ...formData,
       [e.target.name]: e.target.value
     });
-    // Clear error when user starts typing
-    if (error) setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    setSuccess('');
 
     const result = await login(formData.email, formData.password);
     
     if (result.success) {
-      setSuccess(result.message);
+      showToast.success(result.message);
       // Navigation will happen automatically due to useEffect above
     } else {
-      setError(result.message);
+      showToast.error(result.message);
     }
     
     setLoading(false);
@@ -119,18 +114,6 @@ function Login({ theme }) {
               Access your dashboard to continue your placement preparation journey.
             </p>
           </div>
-
-          {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-              <p className="text-red-500 text-sm">{error}</p>
-            </div>
-          )}
-
-          {success && (
-            <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-              <p className="text-green-500 text-sm">{success}</p>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -178,6 +161,7 @@ function Login({ theme }) {
             >
               {loading ? 'Logging in...' : 'Login'}
             </button>
+            
             <p className={`mt-6 text-center text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
               Don't have an account?{' '}
               <Link

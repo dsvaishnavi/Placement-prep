@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { showToast } from '../utils/toast';
 
 const AuthContext = createContext();
 
@@ -11,8 +12,34 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Initialize user state immediately if we have valid session data
+  const initializeUserState = () => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      // Quick synchronous validation
+      const loginTime = localStorage.getItem('loginTime');
+      if (loginTime) {
+        const now = new Date().getTime();
+        const sessionAge = now - parseInt(loginTime);
+        const SESSION_TIMEOUT = 7 * 24 * 60 * 60 * 1000; // 7 days
+        
+        // If session is still valid, initialize user immediately
+        if (sessionAge < SESSION_TIMEOUT) {
+          try {
+            return JSON.parse(userData);
+          } catch (e) {
+            console.error('Error parsing user data:', e);
+          }
+        }
+      }
+    }
+    return null;
+  };
+
+  const [user, setUser] = useState(initializeUserState());
+  const [loading, setLoading] = useState(!user); // Start with false if we have user data
   const [token, setToken] = useState(localStorage.getItem('token'));
   
   // Session management
@@ -41,37 +68,78 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('loginTime');
-    sessionStorage.clear(); // Clear session storage as well
+    localStorage.removeItem('lastActivityTime');
     
     if (reason === 'timeout') {
-      alert('Your session has expired after 7 days. Please log in again.');
+      showToast.error('Your session has expired after 7 days. Please log in again.');
     } else if (reason === 'inactivity') {
-      alert('You have been logged out due to inactivity (2 hours).');
+      showToast.warning('You have been logged out due to inactivity (2 hours).');
     }
   };
 
-  // Start session timeout
+  // Update last activity time
+  const updateLastActivity = () => {
+    const now = new Date().getTime();
+    localStorage.setItem('lastActivityTime', now.toString());
+  };
+
+  // Start session timeout with improved activity tracking
   const startSessionTimeout = () => {
     clearTimeouts();
     
-    // Absolute session timeout (7 days from login)
-    sessionTimeoutRef.current = setTimeout(() => {
-      logout('timeout');
-    }, SESSION_TIMEOUT);
+    const loginTime = localStorage.getItem('loginTime');
+    if (!loginTime) return;
 
-    // Activity timeout (2 hours of inactivity)
+    const now = new Date().getTime();
+    const sessionAge = now - parseInt(loginTime);
+    const remainingSessionTime = SESSION_TIMEOUT - sessionAge;
+
+    // Only set session timeout if there's time remaining
+    if (remainingSessionTime > 0) {
+      sessionTimeoutRef.current = setTimeout(() => {
+        logout('timeout');
+      }, remainingSessionTime);
+    } else {
+      // Session already expired
+      logout('timeout');
+      return;
+    }
+
+    // Activity timeout management
     const resetActivityTimeout = () => {
       if (activityTimeoutRef.current) {
         clearTimeout(activityTimeoutRef.current);
       }
+      
+      // Update activity time
+      updateLastActivity();
+      
       activityTimeoutRef.current = setTimeout(() => {
         logout('inactivity');
       }, ACTIVITY_TIMEOUT);
     };
 
+    // Check if we need to restore activity timeout based on last activity
+    const lastActivityTime = localStorage.getItem('lastActivityTime');
+    if (lastActivityTime) {
+      const timeSinceActivity = now - parseInt(lastActivityTime);
+      if (timeSinceActivity >= ACTIVITY_TIMEOUT) {
+        // User has been inactive too long
+        logout('inactivity');
+        return;
+      } else {
+        // Set timeout for remaining time
+        const remainingActivityTime = ACTIVITY_TIMEOUT - timeSinceActivity;
+        activityTimeoutRef.current = setTimeout(() => {
+          logout('inactivity');
+        }, remainingActivityTime);
+      }
+    } else {
+      // No previous activity recorded, start fresh
+      resetActivityTimeout();
+    }
+
     // Reset activity timeout on user interaction
-    resetActivityTimeout();
-    
     const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
     const resetTimeout = () => resetActivityTimeout();
     
@@ -87,57 +155,124 @@ export const AuthProvider = ({ children }) => {
     };
   };
 
-  // Check if session is still valid
-  const isSessionValid = () => {
+  // Check if session should continue (improved logic)
+  const shouldContinueSession = () => {
     const loginTime = localStorage.getItem('loginTime');
-    if (!loginTime) return false;
+    const lastActivityTime = localStorage.getItem('lastActivityTime');
+    
+    if (!loginTime) {
+      console.log('No login time found');
+      return false;
+    }
     
     const now = new Date().getTime();
     const sessionAge = now - parseInt(loginTime);
     
-    return sessionAge < SESSION_TIMEOUT;
+    // Check if session hasn't expired (7 days)
+    if (sessionAge >= SESSION_TIMEOUT) {
+      console.log('Session expired due to age');
+      return false;
+    }
+    
+    // If we have last activity time, check if user was recently active
+    if (lastActivityTime) {
+      const timeSinceActivity = now - parseInt(lastActivityTime);
+      if (timeSinceActivity >= ACTIVITY_TIMEOUT) {
+        console.log('Session expired due to inactivity');
+        return false;
+      }
+    }
+    
+    console.log('Session should continue');
+    return true;
   };
 
   useEffect(() => {
+    console.log('AuthContext: Initializing with token:', !!token, 'User already set:', !!user);
+    
+    // If user is already set from initialization, just start session management
+    if (user && token) {
+      console.log('AuthContext: User already initialized, starting session management');
+      updateLastActivity();
+      const cleanupActivity = startSessionTimeout();
+      setLoading(false);
+      return cleanupActivity;
+    }
+    
     // Check if user is logged in on app start
     if (token) {
       const userData = localStorage.getItem('user');
-      if (userData && isSessionValid()) {
+      console.log('AuthContext: Found user data:', !!userData);
+      
+      if (userData && shouldContinueSession()) {
+        console.log('AuthContext: Continuing session for user');
         setUser(JSON.parse(userData));
+        setLoading(false); // Set loading to false immediately when session is valid
+        
+        // Update activity time on page load
+        updateLastActivity();
+        
         const cleanupActivity = startSessionTimeout();
         
         // Cleanup on unmount
         return cleanupActivity;
       } else {
-        // Session expired, clear everything
+        // Session expired or shouldn't continue, clear everything
+        console.log('AuthContext: Session should not continue, logging out');
         logout('timeout');
+        setLoading(false); // Set loading to false after logout
       }
+    } else {
+      console.log('AuthContext: No token found');
+      setLoading(false); // Set loading to false when no token
     }
-    setLoading(false);
   }, [token]);
 
-  // Handle page visibility change (tab switching, minimizing)
+  // Periodic session validation (every 5 minutes)
+  useEffect(() => {
+    if (!user) return;
+
+    const sessionCheckInterval = setInterval(() => {
+      if (!shouldContinueSession()) {
+        const loginTime = localStorage.getItem('loginTime');
+        const lastActivityTime = localStorage.getItem('lastActivityTime');
+        
+        if (loginTime) {
+          const sessionAge = new Date().getTime() - parseInt(loginTime);
+          if (sessionAge >= SESSION_TIMEOUT) {
+            logout('timeout');
+            return;
+          }
+        }
+        
+        if (lastActivityTime) {
+          const timeSinceActivity = new Date().getTime() - parseInt(lastActivityTime);
+          if (timeSinceActivity >= ACTIVITY_TIMEOUT) {
+            logout('inactivity');
+            return;
+          }
+        }
+      }
+    }, 5 * 60 * 1000); // Check every 5 minutes
+
+    return () => clearInterval(sessionCheckInterval);
+  }, [user]);
+
+  // Handle page visibility change (improved - no aggressive logout)
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        // User switched away from tab or minimized window
-        // Store the time when they left
+        // User switched away from tab - just update activity time
         if (user) {
-          sessionStorage.setItem('tabHiddenTime', new Date().getTime().toString());
+          updateLastActivity();
         }
       } else {
-        // User came back to tab
-        const hiddenTime = sessionStorage.getItem('tabHiddenTime');
-        if (hiddenTime && user) {
-          const now = new Date().getTime();
-          const timeAway = now - parseInt(hiddenTime);
-          
-          // If away for more than 30 minutes, logout
-          if (timeAway > 30 * 60 * 1000) {
-            logout('inactivity');
-          }
-          
-          sessionStorage.removeItem('tabHiddenTime');
+        // User came back to tab - update activity and reset timeout if needed
+        if (user) {
+          updateLastActivity();
+          // Restart session timeout to ensure proper timing
+          const cleanupActivity = startSessionTimeout();
+          return cleanupActivity;
         }
       }
     };
@@ -148,36 +283,6 @@ export const AuthProvider = ({ children }) => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [user]);
-
-  // Handle beforeunload (tab/window closing)
-  useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      if (user) {
-        // Clear session storage to force re-login
-        sessionStorage.clear();
-        
-        // Note: We can't reliably clear localStorage here due to browser restrictions
-        // But we can set a flag to check on next load
-        localStorage.setItem('tabClosed', 'true');
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [user]);
-
-  // Check if tab was closed on app initialization
-  useEffect(() => {
-    const tabClosed = localStorage.getItem('tabClosed');
-    if (tabClosed === 'true') {
-      // Tab was closed, force logout
-      localStorage.removeItem('tabClosed');
-      logout('session_ended');
-    }
-  }, []);
 
   const login = async (email, password) => {
     try {
@@ -199,6 +304,9 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('loginTime', loginTime.toString());
+        
+        // Initialize activity tracking
+        updateLastActivity();
         
         // Start session management
         startSessionTimeout();
@@ -252,6 +360,9 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('loginTime', loginTime.toString());
         
+        // Initialize activity tracking
+        updateLastActivity();
+        
         // Start session management
         startSessionTimeout();
         
@@ -265,6 +376,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Extend session (useful for keeping active users logged in)
+  const extendSession = () => {
+    if (user && shouldContinueSession()) {
+      updateLastActivity();
+      // Restart timeouts with fresh timing
+      const cleanupActivity = startSessionTimeout();
+      return cleanupActivity;
+    }
+  };
+
   const value = {
     user,
     token,
@@ -273,6 +394,7 @@ export const AuthProvider = ({ children }) => {
     sendOTP,
     verifyOTP,
     logout,
+    extendSession,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin',
     isModerator: user?.role === 'moderator' || user?.role === 'admin',

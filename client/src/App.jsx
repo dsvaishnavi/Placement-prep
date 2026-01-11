@@ -1,6 +1,7 @@
 // App.jsx
 import { useState, useEffect, Suspense } from 'react'
 import { useLocation } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer' // Import the Footer
 import AppRoutes from './routes/AppRoutes'
@@ -20,8 +21,18 @@ function App() {
   useSessionManager()
 
   useEffect(() => {
+    // Only show loading animation for actual navigation, not for refresh
+    // Check if this is a page refresh by looking at performance navigation type
+    const isPageRefresh = performance.navigation?.type === 1 || 
+                         performance.getEntriesByType('navigation')[0]?.type === 'reload';
+    
+    // Don't show loading on refresh if user has a token (likely authenticated)
+    if (isPageRefresh && localStorage.getItem('token')) {
+      return; // Skip loading animation on refresh for authenticated users
+    }
+    
     setIsLoading(true)
-    const timer = setTimeout(() => setIsLoading(false), 500)
+    const timer = setTimeout(() => setIsLoading(false), 300) // Reduced from 500ms to 300ms
     return () => clearTimeout(timer)
   }, [location.pathname])
 
@@ -42,6 +53,13 @@ function App() {
     }
   }
 
+  // Check if we should show navbar (exclude landing page, auth pages, admin pages, and test pages)
+  const authPages = ['/login', '/signup', '/admin-setup']
+  const adminPages = ['/admin']
+  const testPages = ['/toast-test']
+  const excludedPages = ['/', ...authPages, ...adminPages, ...testPages]
+  const showNavbar = !excludedPages.includes(location.pathname)
+  
   // Check if we should show footer (not on landing page)
   const showFooter = location.pathname !== '/'
 
@@ -51,7 +69,7 @@ function App() {
       : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
       }`}>
       
-      {location.pathname !== '/' && <Navbar theme={currentTheme} setTheme={setCurrentTheme} />}
+      {showNavbar && <Navbar theme={currentTheme} setTheme={setCurrentTheme} />}
       
       <main className="flex-1">
         <Suspense fallback={<LoadingSpinner theme={currentTheme} />}>

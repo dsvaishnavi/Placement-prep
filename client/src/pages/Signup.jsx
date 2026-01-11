@@ -2,6 +2,7 @@ import { LogIn } from 'lucide-react'
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from 'react'
 import Snowfall from 'react-snowfall';
+import { showToast } from '../utils/toast';
 import { useAuth } from '../context/AuthContext';
 
 // Mouse Follower Pink Circle
@@ -49,8 +50,6 @@ const Signup = ({ theme }) => {
     otp: ''
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   
   const { sendOTP, verifyOTP, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -67,26 +66,22 @@ const Signup = ({ theme }) => {
       ...formData,
       [e.target.name]: e.target.value
     });
-    // Clear error when user starts typing
-    if (error) setError('');
   };
 
   const handleSendOTP = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    setSuccess('');
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      showToast.error('Passwords do not match');
       setLoading(false);
       return;
     }
 
     // Validate password length
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      showToast.error('Password must be at least 6 characters long');
       setLoading(false);
       return;
     }
@@ -94,10 +89,10 @@ const Signup = ({ theme }) => {
     const result = await sendOTP(formData.name, formData.email);
     
     if (result.success) {
-      setSuccess(result.message);
+      showToast.success(result.message);
       setStep(2); // Move to OTP verification step
     } else {
-      setError(result.message);
+      showToast.error(result.message);
     }
     
     setLoading(false);
@@ -106,11 +101,9 @@ const Signup = ({ theme }) => {
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    setSuccess('');
 
     if (!formData.otp || formData.otp.length !== 6) {
-      setError('Please enter a valid 6-digit OTP');
+      showToast.error('Please enter a valid 6-digit OTP');
       setLoading(false);
       return;
     }
@@ -118,10 +111,10 @@ const Signup = ({ theme }) => {
     const result = await verifyOTP(formData.email, formData.otp, formData.password);
     
     if (result.success) {
-      setSuccess(result.message);
+      showToast.success(result.message);
       // Navigation will happen automatically due to useEffect above
     } else {
-      setError(result.message);
+      showToast.error(result.message);
     }
     
     setLoading(false);
@@ -129,15 +122,13 @@ const Signup = ({ theme }) => {
 
   const handleResendOTP = async () => {
     setLoading(true);
-    setError('');
-    setSuccess('');
 
     const result = await sendOTP(formData.name, formData.email);
     
     if (result.success) {
-      setSuccess('OTP resent successfully');
+      showToast.success('OTP resent successfully');
     } else {
-      setError(result.message);
+      showToast.error(result.message);
     }
     
     setLoading(false);
@@ -179,18 +170,6 @@ const Signup = ({ theme }) => {
               {step === 1 ? 'Start your placement preparation journey' : `Enter the 6-digit OTP sent to ${formData.email}`}
             </p>
           </div>
-
-          {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-              <p className="text-red-500 text-sm">{error}</p>
-            </div>
-          )}
-
-          {success && (
-            <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-              <p className="text-green-500 text-sm">{success}</p>
-            </div>
-          )}
 
           {step === 1 ? (
             /* Step 1: Registration Form */

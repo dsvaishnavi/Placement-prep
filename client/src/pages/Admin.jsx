@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { showToast } from '../utils/toast'
 import { 
   // Navigation & Layout Icons
   Menu, Search, Bell, User, Home, Users, HelpCircle, 
-  BookOpen, Settings, LogOut, ChevronDown, Filter,
+  BookOpen, Settings, LogOut, ChevronDown, Filter, ArrowLeft,
   // Table & Action Icons
   Edit, Trash2, Eye, CheckCircle, XCircle, MoreVertical,
   Plus, Download, Upload, Calendar, Clock, Star,
@@ -13,6 +15,7 @@ import {
 function Admin({ theme = 'light' }) {
   // Theme helper functions
   const isDark = theme === 'dark';
+  const navigate = useNavigate();
   
   // Theme-based color classes (following Aptitude.jsx pattern)
   const themeClasses = {
@@ -817,7 +820,7 @@ function Admin({ theme = 'light' }) {
         <AptitudeQuestionForm 
           onSubmit={(data) => {
             console.log('Adding question:', data)
-            alert('Question added successfully!')
+            showToast.success('Question added successfully!')
           }}
         />
         
@@ -911,7 +914,7 @@ function Admin({ theme = 'light' }) {
         <CoreConceptForm 
           onSubmit={(data) => {
             console.log('Adding concept:', data)
-            alert('Core concept added successfully!')
+            showToast.success('Core concept added successfully!')
           }}
         />
         
@@ -1114,6 +1117,33 @@ function Admin({ theme = 'light' }) {
           sidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full w-0'
         } lg:translate-x-0 lg:w-64 ${themeClasses.sidebarBg} h-[calc(100vh-73px)] fixed lg:static transition-all duration-300 z-40 overflow-y-auto`}>
           <nav className="p-4" aria-label="Main navigation">
+            {/* Back Button */}
+            <div className="mb-4">
+              <button
+                onClick={() => {
+                  // Try to go back to previous page, or default to home
+                  if (window.history.length > 1) {
+                    navigate(-1); // Go back to previous page
+                  } else {
+                    navigate('/home'); // Default to home if no history
+                  }
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors border ${
+                  isDark 
+                    ? 'border-gray-600 bg-gray-800/50 text-gray-300 hover:bg-gray-700/50 hover:border-gray-500' 
+                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                }`}
+                aria-label="Back to previous page"
+                title="Return to main application"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span className="font-medium">Back to App</span>
+              </button>
+            </div>
+            
+            {/* Divider */}
+            <div className={`mb-4 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}></div>
+            
             {/* Navigation Modules */}
             <ul className="space-y-2">
               {modules.map((module) => {

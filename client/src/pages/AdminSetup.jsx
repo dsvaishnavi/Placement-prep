@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { showToast } from '../utils/toast'
 import { Shield, User, Mail, Lock, Key } from 'lucide-react'
 
 function AdminSetup({ theme = 'light' }) {
@@ -11,7 +12,6 @@ function AdminSetup({ theme = 'light' }) {
     adminKey: ''
   })
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const navigate = useNavigate()
 
   const isDark = theme === 'dark'
@@ -21,24 +21,22 @@ function AdminSetup({ theme = 'light' }) {
       ...formData,
       [e.target.name]: e.target.value
     })
-    if (error) setError('')
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    setError('')
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match')
+      showToast.error('Passwords do not match')
       setLoading(false)
       return
     }
 
     // Validate password length
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long')
+      showToast.error('Password must be at least 6 characters long')
       setLoading(false)
       return
     }
@@ -64,13 +62,15 @@ function AdminSetup({ theme = 'light' }) {
         localStorage.setItem('token', data.token)
         localStorage.setItem('user', JSON.stringify(data.user))
         
+        showToast.success('Admin account created successfully!')
+        
         // Redirect to admin panel
         navigate('/admin')
       } else {
-        setError(data.message)
+        showToast.error(data.message)
       }
     } catch (error) {
-      setError('Network error. Please try again.')
+      showToast.error('Network error. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -96,12 +96,6 @@ function AdminSetup({ theme = 'light' }) {
             Create the first administrator account for Skill Sync
           </p>
         </div>
-
-        {error && (
-          <div className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-            <p className="text-red-500 text-sm">{error}</p>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

@@ -13,6 +13,7 @@ import Admin from '../pages/Admin'
 import AdminSetup from '../pages/AdminSetup'
 import ResumeAnalyzer from '../pages/ResumeAnalyzer'
 import LandingPage from '../pages/LandingPage'
+import ToastTestPage from '../pages/ToastTestPage'
 
 // Legal/Footer Pages (now in legalpages folder at same level as pages folder)
 import PrivacyPolicy from '../legalpages/PrivacyPolicy'
@@ -33,6 +34,7 @@ function AppRoutes({ landingTheme, setLandingTheme, appTheme, setAppTheme }) {
       <Route path="/login" element={<Login theme={appTheme} />} />
       <Route path="/signup" element={<Signup theme={appTheme} />} />
       <Route path="/admin-setup" element={<AdminSetup theme={appTheme} />} />
+      <Route path="/toast-test" element={<ToastTestPage />} />
       
       {/* Protected Main App Pages */}
       <Route path="/home" element={
