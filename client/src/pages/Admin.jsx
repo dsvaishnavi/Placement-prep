@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { showToast } from '../utils/toast'
 import { 
   // Navigation & Layout Icons
@@ -12,10 +13,29 @@ import {
   Type, Hash, Tag, BarChart3, Lock, Globe
 } from 'lucide-react'
 
-function Admin({ theme = 'light' }) {
+function Admin({ theme = 'light', contentManagerMode = false }) {
   // Theme helper functions
   const isDark = theme === 'dark';
   const navigate = useNavigate();
+  const { user, isAdmin, isContentManager, hasContentAccess } = useAuth();
+  
+  // Check access permissions
+  if (!user) {
+    navigate('/login');
+    return null;
+  }
+  
+  // If in content manager mode, ensure user has content access
+  if (contentManagerMode && !hasContentAccess) {
+    navigate('/unauthorized');
+    return null;
+  }
+  
+  // If not in content manager mode, ensure user is admin
+  if (!contentManagerMode && !isAdmin) {
+    navigate('/unauthorized');
+    return null;
+  }
   
   // Theme-based color classes (following Aptitude.jsx pattern)
   const themeClasses = {
@@ -92,7 +112,14 @@ function Admin({ theme = 'light' }) {
   };
 
   // State for active module and sidebar
-  const [activeModule, setActiveModule] = useState('users')
+  const getDefaultModule = () => {
+    if (contentManagerMode) {
+      return 'aptitude'; // Content managers start with aptitude questions
+    }
+    return 'dashboard'; // Admins start with dashboard
+  };
+  
+  const [activeModule, setActiveModule] = useState(getDefaultModule())
   const [sidebarOpen, setSidebarOpen] = useState(true)
   
   // Mock data for users
@@ -254,14 +281,34 @@ function Admin({ theme = 'light' }) {
   const [userFilter, setUserFilter] = useState('all')
   const [questionFilter, setQuestionFilter] = useState('all')
   
-  // Navigation modules configuration
-  const modules = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home, color: 'blue' },
-    { id: 'users', label: 'User Management', icon: Users, color: 'purple' },
-    { id: 'aptitude', label: 'Aptitude Questions', icon: HelpCircle, color: 'green' },
-    { id: 'concepts', label: 'Core Concepts', icon: BookOpen, color: 'orange' },
-    { id: 'settings', label: 'Settings', icon: Settings, color: 'gray' }
-  ]
+  // Navigation modules configuration based on user role
+  const getAvailableModules = () => {
+    // Content modules available to both admin and content manager
+    const contentModules = [
+      { id: 'aptitude', label: 'Aptitude Questions', icon: HelpCircle, color: 'green' },
+      { id: 'concepts', label: 'Core Concepts', icon: BookOpen, color: 'orange' }
+    ];
+    
+    // Admin-only modules
+    const adminModules = [
+      { id: 'dashboard', label: 'Dashboard', icon: Home, color: 'blue' },
+      { id: 'users', label: 'User Management', icon: Users, color: 'purple' },
+      { id: 'settings', label: 'Settings', icon: Settings, color: 'gray' }
+    ];
+    
+    if (contentManagerMode) {
+      // Content Manager: Content modules only (no dashboard)
+      return contentModules;
+    } else if (isAdmin) {
+      // Admin: All modules
+      return [...adminModules, ...contentModules];
+    } else {
+      // Fallback: Dashboard only
+      return [{ id: 'dashboard', label: 'Dashboard', icon: Home, color: 'blue' }];
+    }
+  };
+  
+  const modules = getAvailableModules();
   
   // Reusable Table Component for Users
   const UsersTable = () => {
@@ -744,32 +791,39 @@ function Admin({ theme = 'light' }) {
           <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
             <h3 className={`text-lg font-semibold mb-4 ${themeClasses.text.primary}`}>Quick Actions</h3>
             <div className="grid grid-cols-2 gap-4">
-              <button 
-                className={`p-4 border rounded-lg transition-colors text-center ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
-                onClick={() => setActiveModule('aptitude')}
-              >
-                <HelpCircle className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-                <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Add Question</p>
-                <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>Create new aptitude question</p>
-              </button>
+              {/* Show different quick actions based on role */}
+              {hasContentAccess && (
+                <>
+                  <button 
+                    className={`p-4 border rounded-lg transition-colors text-center ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
+                    onClick={() => setActiveModule('aptitude')}
+                  >
+                    <HelpCircle className="w-6 h-6 text-blue-500 mx-auto mb-2" />
+                    <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Add Question</p>
+                    <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>Create new aptitude question</p>
+                  </button>
+                  
+                  <button 
+                    className={`p-4 border rounded-lg transition-colors text-center ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
+                    onClick={() => setActiveModule('concepts')}
+                  >
+                    <BookOpen className="w-6 h-6 text-green-500 mx-auto mb-2" />
+                    <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Add Concept</p>
+                    <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>Create new core concept</p>
+                  </button>
+                </>
+              )}
               
-              <button 
-                className={`p-4 border rounded-lg transition-colors text-center ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
-                onClick={() => setActiveModule('concepts')}
-              >
-                <BookOpen className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Add Concept</p>
-                <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>Create new core concept</p>
-              </button>
-              
-              <button 
-                className={`p-4 border rounded-lg transition-colors text-center ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
-                onClick={() => setActiveModule('users')}
-              >
-                <Users className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-                <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Add User</p>
-                <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>Create new user account</p>
-              </button>
+              {isAdmin && (
+                <button 
+                  className={`p-4 border rounded-lg transition-colors text-center ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
+                  onClick={() => setActiveModule('users')}
+                >
+                  <Users className="w-6 h-6 text-purple-500 mx-auto mb-2" />
+                  <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Add User</p>
+                  <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>Create new user account</p>
+                </button>
+              )}
               
               <button className={`p-4 border rounded-lg transition-colors text-center ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}>
                 <Download className="w-6 h-6 text-amber-500 mx-auto mb-2" />
@@ -1005,22 +1059,45 @@ function Admin({ theme = 'light' }) {
     )
   }
   
-  // Main content renderer based on active module
+  // Main content renderer based on active module and user permissions
   const renderContent = () => {
+    // Check if user has access to the requested module
+    const hasModuleAccess = modules.some(m => m.id === activeModule);
+    if (!hasModuleAccess) {
+      return (
+        <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
+          <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text.primary}`}>Access Denied</h2>
+          <p className={themeClasses.text.secondary}>You don't have permission to access this module.</p>
+        </div>
+      );
+    }
+    
     switch (activeModule) {
       case 'dashboard':
         return <DashboardOverview />
       case 'users':
-        return <UsersTable />
+        // Only admins can access user management
+        return isAdmin ? <UsersTable /> : (
+          <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
+            <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text.primary}`}>Access Denied</h2>
+            <p className={themeClasses.text.secondary}>User management is only available to administrators.</p>
+          </div>
+        )
       case 'aptitude':
         return <AptitudeQuestionsModule />
       case 'concepts':
         return <CoreConceptsModule />
       case 'settings':
-        return (
+        // Only admins can access settings
+        return isAdmin ? (
           <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
             <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text.primary}`}>Settings</h2>
             <p className={themeClasses.text.secondary}>Settings panel would be implemented here.</p>
+          </div>
+        ) : (
+          <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
+            <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text.primary}`}>Access Denied</h2>
+            <p className={themeClasses.text.secondary}>System settings are only available to administrators.</p>
           </div>
         )
       default:
@@ -1061,8 +1138,12 @@ function Admin({ theme = 'light' }) {
                   <Lock className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className={`text-xl font-bold ${themeClasses.text.primary}`}>Admin Panel</h1>
-                  <p className={`text-sm ${themeClasses.text.secondary}`}>Learning Platform Management</p>
+                  <h1 className={`text-xl font-bold ${themeClasses.text.primary}`}>
+                    {contentManagerMode ? 'Content Management' : 'Admin Panel'}
+                  </h1>
+                  <p className={`text-sm ${themeClasses.text.secondary}`}>
+                    {contentManagerMode ? 'Educational Content Management' : 'Learning Platform Management'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -1099,8 +1180,11 @@ function Admin({ theme = 'light' }) {
                     <User className="w-5 h-5 text-blue-500" />
                   </div>
                   <div className="text-left hidden md:block">
-                    <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Admin User</p>
-                    <p className={`text-xs ${themeClasses.text.secondary}`}>Super Administrator</p>
+                    <p className={`text-sm font-medium ${themeClasses.text.primary}`}>{user?.name || 'User'}</p>
+                    <p className={`text-xs ${themeClasses.text.secondary}`}>
+                      {user?.role === 'admin' ? 'Administrator' : 
+                       user?.role === 'content-manager' ? 'Content Manager' : 'User'}
+                    </p>
                   </div>
                   <ChevronDown className={`w-4 h-4 ${themeClasses.text.secondary}`} />
                 </button>

@@ -187,7 +187,7 @@ function AdminSetup({ theme = 'light' }) {
               }`}
             />
             <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-              Use: SKILL_SYNC_ADMIN_2024
+              {/* Use: SKILL_SYNC_ADMIN_2024 */}
             </p>
           </div>
 

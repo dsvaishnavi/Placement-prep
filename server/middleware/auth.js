@@ -51,7 +51,18 @@ export const requireAdmin = (req, res, next) => {
   next();
 };
 
-// Check if user is admin or moderator
+// Check if user is admin or content manager
+export const requireContentManager = (req, res, next) => {
+  if (req.user.role !== 'admin' && req.user.role !== 'content-manager') {
+    return res.status(403).json({ 
+      success: false, 
+      message: "Access denied. Content management privileges required." 
+    });
+  }
+  next();
+};
+
+// Check if user is admin or moderator (keeping for backward compatibility)
 export const requireModerator = (req, res, next) => {
   if (req.user.role !== 'admin' && req.user.role !== 'moderator') {
     return res.status(403).json({ 
@@ -60,6 +71,19 @@ export const requireModerator = (req, res, next) => {
     });
   }
   next();
+};
+
+// Role-based access control helper
+export const requireRole = (allowedRoles) => {
+  return (req, res, next) => {
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ 
+        success: false, 
+        message: `Access denied. Required role: ${allowedRoles.join(' or ')}.` 
+      });
+    }
+    next();
+  };
 };
 
 // Export auth as default and named exports for flexibility

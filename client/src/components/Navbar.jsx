@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Menu, X, Rocket, Sun, Moon, MonitorSmartphone, LogOut, User, Settings, Shield } from 'lucide-react'
+import { Menu, X, Rocket, Sun, Moon, MonitorSmartphone, LogOut, User, Settings, Shield, Edit } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 
@@ -8,7 +8,7 @@ const Navbar = ({ theme, setTheme }) => {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, logout, isAuthenticated } = useAuth()
+  const { user, logout, isAuthenticated, isAdmin, isContentManager } = useAuth()
 
   const navItems = [
     { label: 'Home', href: '/home' },
@@ -187,18 +187,31 @@ const Navbar = ({ theme, setTheme }) => {
                       </button>
                     </div>
 
-                    {/* Admin Link (if user is admin/moderator) */}
-                    {(user?.role === 'admin' || user?.role === 'moderator') && (
+                    {/* Management Links */}
+                    {(isAdmin || isContentManager) && (
                       <div className="p-2 border-b border-gray-200/20">
-                        <Link
-                          to="/admin"
-                          onClick={() => setShowUserMenu(false)}
-                          className={`flex items-center space-x-2 w-full px-3 py-2 text-sm rounded-md transition-colors ${theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
-                            }`}
-                        >
-                          <Shield className="w-4 h-4" />
-                          <span>Admin Panel</span>
-                        </Link>
+                        {isAdmin && (
+                          <Link
+                            to="/admin"
+                            onClick={() => setShowUserMenu(false)}
+                            className={`flex items-center space-x-2 w-full px-3 py-2 text-sm rounded-md transition-colors mb-1 ${theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
+                              }`}
+                          >
+                            <Shield className="w-4 h-4" />
+                            <span>Admin Panel</span>
+                          </Link>
+                        )}
+                        {isContentManager && (
+                          <Link
+                            to="/content-management"
+                            onClick={() => setShowUserMenu(false)}
+                            className={`flex items-center space-x-2 w-full px-3 py-2 text-sm rounded-md transition-colors ${theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
+                              }`}
+                          >
+                            <Edit className="w-4 h-4" />
+                            <span>Content Management</span>
+                          </Link>
+                        )}
                       </div>
                     )}
 
@@ -259,19 +272,36 @@ const Navbar = ({ theme, setTheme }) => {
                   </Link>
                 ))}
 
-                {/* Admin Link for Mobile (if user is admin/moderator) */}
-                {isAuthenticated && (user?.role === 'admin' || user?.role === 'moderator') && (
-                  <Link
-                    to="/admin"
-                    className={`py-2 px-3 rounded transition-all flex items-center space-x-2 ${isActiveRoute('/admin')
-                      ? `text-blue-400 ${theme === 'dark' ? 'bg-blue-500/20' : 'bg-blue-100'}`
-                      : `hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`
-                      }`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Shield className="w-4 h-4" />
-                    <span>Admin Panel</span>
-                  </Link>
+                {/* Management Links for Mobile */}
+                {isAuthenticated && (isAdmin || isContentManager) && (
+                  <div className="border-t border-gray-200/20 pt-2 mt-2">
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        className={`py-2 px-3 rounded transition-all flex items-center space-x-2 mb-1 ${isActiveRoute('/admin')
+                          ? `text-blue-400 ${theme === 'dark' ? 'bg-blue-500/20' : 'bg-blue-100'}`
+                          : `hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`
+                          }`}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Shield className="w-4 h-4" />
+                        <span>Admin Panel</span>
+                      </Link>
+                    )}
+                    {isContentManager && (
+                      <Link
+                        to="/content-management"
+                        className={`py-2 px-3 rounded transition-all flex items-center space-x-2 ${isActiveRoute('/content-management')
+                          ? `text-blue-400 ${theme === 'dark' ? 'bg-blue-500/20' : 'bg-blue-100'}`
+                          : `hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`
+                          }`}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Edit className="w-4 h-4" />
+                        <span>Content Management</span>
+                      </Link>
+                    )}
+                  </div>
                 )}
 
                 {/* Theme Options for Mobile */}

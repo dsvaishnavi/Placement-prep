@@ -397,7 +397,9 @@ export const AuthProvider = ({ children }) => {
     extendSession,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin',
+    isContentManager: user?.role === 'content-manager',
     isModerator: user?.role === 'moderator' || user?.role === 'admin',
+    hasContentAccess: user?.role === 'admin' || user?.role === 'content-manager',
     fetchUsers: async (page = 1, limit = 10, search = '', role = '') => {
       try {
         const response = await fetch(`http://localhost:3000/admin/users?page=${page}&limit=${limit}&search=${search}&role=${role}`, {

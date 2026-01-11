@@ -8,6 +8,7 @@ import cors from "cors";
 import connectDB from "./config/db.js";
 import authrouter from "./Routes/authrouter.js";
 import adminrouter from "./Routes/adminrouter.js";
+import contentrouter from "./Routes/contentrouter.js";
 import bodyParser from "body-parser";
 
 connectDB();
@@ -22,6 +23,7 @@ app.use(cors({
 app.use(express.json());
 app.use("/auth", authrouter);
 app.use("/admin", adminrouter);
+app.use("/content", contentrouter);
 
 //Routes
 app.get("/", (req, res) => {

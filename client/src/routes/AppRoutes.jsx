@@ -57,9 +57,17 @@ function AppRoutes({ landingTheme, setLandingTheme, appTheme, setAppTheme }) {
           <Progress theme={appTheme} />
         </ProtectedRoute>
       } />
+      {/* Protected Admin Panel - Admin Only */}
       <Route path="/admin" element={
-        <ProtectedRoute theme={appTheme}>
+        <ProtectedRoute theme={appTheme} requiredRoles={['admin']}>
           <Admin theme={appTheme} />
+        </ProtectedRoute>
+      } />
+      
+      {/* Protected Content Management - Admin and Content Manager */}
+      <Route path="/content-management" element={
+        <ProtectedRoute theme={appTheme} requiredRoles={['admin', 'content-manager']}>
+          <Admin theme={appTheme} contentManagerMode={true} />
         </ProtectedRoute>
       } />
       <Route path="/resumeanalyzer" element={

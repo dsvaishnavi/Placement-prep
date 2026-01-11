@@ -3,7 +3,7 @@ import Snowfall from 'react-snowfall'
 import { useAuth } from '../context/AuthContext'
 
 function Home({ theme }) {
-  const { user, loading } = useAuth()
+  const { user, loading, isAdmin, isContentManager } = useAuth()
 
   // Show loading state if user data is still being fetched
   if (loading) {
@@ -249,6 +249,8 @@ function Home({ theme }) {
             </div>
           </div>
         </div>
+
+
 
         {/* Stats Grid - Centered with proper spacing */}
         <div className="mb-8">
