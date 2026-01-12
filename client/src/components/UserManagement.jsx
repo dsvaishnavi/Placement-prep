@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { 
-  Search, Plus, Download, Filter, MoreVertical, 
-  Edit, Trash2, Eye, CheckCircle, XCircle, 
-  Calendar, Clock, User, ChevronDown, X, Save
+  Search, Plus, Download, Edit, Trash2, Eye, CheckCircle, XCircle, 
+  Calendar, Clock, X, Settings, UserCheck, UserX, Shield, Mail, Hash
 } from 'lucide-react'
 import { showToast } from '../utils/toast'
 
@@ -11,28 +10,19 @@ const UserManagement = ({ theme = 'light' }) => {
   
   // Theme classes
   const themeClasses = {
-    bg: isDark ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black' : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white',
-    cardBg: isDark ? 'bg-white/5 border-white/10' : 'bg-white/70 border-gray-200/60',
+    cardBg: isDark ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200',
     text: {
       primary: isDark ? 'text-white' : 'text-gray-900',
       secondary: isDark ? 'text-gray-400' : 'text-gray-600',
-      muted: isDark ? 'text-gray-500' : 'text-gray-500',
     },
     button: {
       primary: 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:opacity-90',
       secondary: isDark ? 'border-gray-600 bg-gray-800/50 text-gray-300 hover:bg-gray-700/50' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
-      danger: 'bg-gradient-to-r from-red-500 to-pink-600 text-white hover:opacity-90',
-      success: 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90',
     },
     input: isDark ? 'bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500/20' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-200',
     table: {
       header: isDark ? 'bg-gray-800/50 border-gray-700 text-gray-300' : 'bg-gray-50 border-gray-100 text-gray-600',
       row: isDark ? 'hover:bg-white/5 border-gray-700' : 'hover:bg-gray-50 border-gray-200',
-      cell: isDark ? 'text-gray-300' : 'text-gray-700',
-    },
-    status: {
-      active: isDark ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-green-100 text-green-800 border-green-200',
-      inactive: isDark ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-red-100 text-red-800 border-red-200',
     },
     role: {
       admin: isDark ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' : 'bg-purple-100 text-purple-800',
@@ -51,12 +41,11 @@ const UserManagement = ({ theme = 'light' }) => {
   const [statusFilter, setStatusFilter] = useState('all')
   const [roleFilter, setRoleFilter] = useState('all')
   const [showAddModal, setShowAddModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [showActionsModal, setShowActionsModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
-  const [actionDropdown, setActionDropdown] = useState(null)
+  const [activeTab, setActiveTab] = useState('details')
 
-  // Form state for add/edit user
+  // Form state
   const [userForm, setUserForm] = useState({
     name: '',
     email: '',
@@ -90,12 +79,11 @@ const UserManagement = ({ theme = 'light' }) => {
     }
   }
 
-  // Load users on component mount
   useEffect(() => {
     fetchUsers()
   }, [])
 
-  // Filter users based on search and filters
+  // Filter users
   const filteredUsers = users.filter(user => {
     const matchesSearch = searchTerm === '' || 
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -159,10 +147,10 @@ const UserManagement = ({ theme = 'light' }) => {
 
       if (response.ok) {
         showToast.success('User updated successfully')
-        setShowEditModal(false)
-        setSelectedUser(null)
-        setUserForm({ name: '', email: '', password: '', role: 'user' })
+        setActiveTab('details')
         fetchUsers()
+        const updatedUser = { ...selectedUser, name: userForm.name, email: userForm.email, role: userForm.role }
+        setSelectedUser(updatedUser)
       } else {
         const data = await response.json()
         showToast.error(data.message || 'Failed to update user')
@@ -191,6 +179,8 @@ const UserManagement = ({ theme = 'light' }) => {
 
       if (response.ok) {
         showToast.success('User deleted successfully')
+        setShowActionsModal(false)
+        setSelectedUser(null)
         fetchUsers()
       } else {
         const data = await response.json()
@@ -218,6 +208,9 @@ const UserManagement = ({ theme = 'light' }) => {
       if (response.ok) {
         showToast.success(`User ${!currentStatus ? 'activated' : 'deactivated'} successfully`)
         fetchUsers()
+        if (selectedUser && selectedUser._id === userId) {
+          setSelectedUser({ ...selectedUser, isActive: !currentStatus })
+        }
       } else {
         const data = await response.json()
         showToast.error(data.message || 'Failed to update user status')
@@ -258,8 +251,8 @@ const UserManagement = ({ theme = 'light' }) => {
     }
   }
 
-  // Open edit modal
-  const openEditModal = (user) => {
+  // Open actions modal
+  const openActionsModal = (user) => {
     setSelectedUser(user)
     setUserForm({
       name: user.name,
@@ -267,15 +260,16 @@ const UserManagement = ({ theme = 'light' }) => {
       password: '',
       role: user.role
     })
-    setShowEditModal(true)
-    setActionDropdown(null)
+    setActiveTab('details')
+    setShowActionsModal(true)
   }
 
-  // Open details modal
-  const openDetailsModal = (user) => {
-    setSelectedUser(user)
-    setShowDetailsModal(true)
-    setActionDropdown(null)
+  // Close actions modal
+  const closeActionsModal = () => {
+    setShowActionsModal(false)
+    setSelectedUser(null)
+    setUserForm({ name: '', email: '', password: '', role: 'user' })
+    setActiveTab('details')
   }
 
   // Get user avatar initials
@@ -291,47 +285,6 @@ const UserManagement = ({ theme = 'light' }) => {
       month: 'short',
       day: 'numeric'
     })
-  }
-
-  // Action Dropdown Component
-  const ActionDropdown = ({ user, isOpen, onClose }) => {
-    if (!isOpen) return null
-
-    return (
-      <div className={`absolute right-0 top-8 z-50 w-48 rounded-lg shadow-lg border ${themeClasses.cardBg} ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-        <div className="py-1">
-          <button
-            onClick={() => openDetailsModal(user)}
-            className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-50'} ${themeClasses.text.primary}`}
-          >
-            <Eye className="w-4 h-4" />
-            View Details
-          </button>
-          <button
-            onClick={() => openEditModal(user)}
-            className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-50'} text-blue-500`}
-          >
-            <Edit className="w-4 h-4" />
-            Edit User
-          </button>
-          <button
-            onClick={() => handleToggleStatus(user._id, user.isActive)}
-            className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-50'} ${user.isActive ? 'text-orange-500' : 'text-green-500'}`}
-          >
-            {user.isActive ? <XCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
-            {user.isActive ? 'Deactivate' : 'Activate'}
-          </button>
-          <div className={`border-t ${isDark ? 'border-gray-700' : 'border-gray-200'} my-1`}></div>
-          <button
-            onClick={() => handleDeleteUser(user._id)}
-            className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-50'} text-red-500`}
-          >
-            <Trash2 className="w-4 h-4" />
-            Delete User
-          </button>
-        </div>
-      </div>
-    )
   }
 
   if (loading) {
@@ -475,19 +428,13 @@ const UserManagement = ({ theme = 'light' }) => {
                     </div>
                   </td>
                   <td className="py-4 px-6">
-                    <div className="relative">
-                      <button
-                        onClick={() => setActionDropdown(actionDropdown === user._id ? null : user._id)}
-                        className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
-                      >
-                        <MoreVertical className={`w-4 h-4 ${themeClasses.text.secondary}`} />
-                      </button>
-                      <ActionDropdown
-                        user={user}
-                        isOpen={actionDropdown === user._id}
-                        onClose={() => setActionDropdown(null)}
-                      />
-                    </div>
+                    <button
+                      onClick={() => openActionsModal(user)}
+                      className={`px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${themeClasses.button.primary}`}
+                    >
+                      <Settings className="w-4 h-4" />
+                      Actions
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -504,9 +451,337 @@ const UserManagement = ({ theme = 'light' }) => {
         </div>
       </div>
 
+      {/* Actions Modal */}
+      {showActionsModal && selectedUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className={`w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-xl border ${themeClasses.cardBg}`}>
+            {/* Modal Header */}
+            <div className={`px-6 py-4 border-b ${isDark ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'} flex justify-between items-center`}>
+              <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${themeClasses.iconBg.blue}`}>
+                  <span className={`text-lg font-medium ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                    {getAvatarInitials(selectedUser.name)}
+                  </span>
+                </div>
+                <div>
+                  <h3 className={`text-xl font-semibold ${themeClasses.text.primary}`}>
+                    {selectedUser.name}
+                  </h3>
+                  <p className={`text-sm ${themeClasses.text.secondary}`}>
+                    User Management Panel
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={closeActionsModal}
+                className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
+              >
+                <X className={`w-5 h-5 ${themeClasses.text.secondary}`} />
+              </button>
+            </div>
+
+            {/* Tab Navigation */}
+            <div className={`px-6 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className="flex space-x-8">
+                <button
+                  onClick={() => setActiveTab('details')}
+                  className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === 'details'
+                      ? 'border-blue-500 text-blue-600'
+                      : `border-transparent ${themeClasses.text.secondary} hover:text-blue-500`
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Eye className="w-4 h-4" />
+                    User Details
+                  </div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('edit')}
+                  className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === 'edit'
+                      ? 'border-blue-500 text-blue-600'
+                      : `border-transparent ${themeClasses.text.secondary} hover:text-blue-500`
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Edit className="w-4 h-4" />
+                    Edit User
+                  </div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('actions')}
+                  className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === 'actions'
+                      ? 'border-blue-500 text-blue-600'
+                      : `border-transparent ${themeClasses.text.secondary} hover:text-blue-500`
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Settings className="w-4 h-4" />
+                    Actions
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {/* User Details Tab */}
+              {activeTab === 'details' && (
+                <div className="space-y-6">
+                  {/* Basic Information */}
+                  <div className={`p-4 rounded-lg border ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
+                    <h4 className={`text-lg font-semibold mb-4 ${themeClasses.text.primary}`}>Basic Information</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>Full Name</label>
+                        <p className={`mt-1 text-sm ${themeClasses.text.primary}`}>{selectedUser.name}</p>
+                      </div>
+                      <div>
+                        <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>Email Address</label>
+                        <p className={`mt-1 text-sm ${themeClasses.text.primary}`}>{selectedUser.email}</p>
+                      </div>
+                      <div>
+                        <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>User ID</label>
+                        <p className={`mt-1 text-sm font-mono ${themeClasses.text.primary}`}>{selectedUser._id}</p>
+                      </div>
+                      <div>
+                        <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>Role</label>
+                        <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium border ${themeClasses.role[selectedUser.role]}`}>
+                          {selectedUser.role === 'content-manager' ? 'Content Manager' : 
+                           selectedUser.role.charAt(0).toUpperCase() + selectedUser.role.slice(1)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Account Status */}
+                  <div className={`p-4 rounded-lg border ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
+                    <h4 className={`text-lg font-semibold mb-4 ${themeClasses.text.primary}`}>Account Status</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>Status</label>
+                        <div className="flex items-center gap-2 mt-1">
+                          {selectedUser.isActive ? (
+                            <>
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <span className={`text-sm font-medium ${isDark ? 'text-green-400' : 'text-green-700'}`}>Active</span>
+                            </>
+                          ) : (
+                            <>
+                              <XCircle className="w-4 h-4 text-red-500" />
+                              <span className={`text-sm font-medium ${isDark ? 'text-red-400' : 'text-red-700'}`}>Inactive</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>Email Verified</label>
+                        <p className={`mt-1 text-sm ${selectedUser.emailverified ? 'text-green-500' : 'text-orange-500'}`}>
+                          {selectedUser.emailverified ? 'Verified' : 'Not Verified'}
+                        </p>
+                      </div>
+                      <div>
+                        <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>Registration Date</label>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Calendar className={`w-4 h-4 ${themeClasses.text.secondary}`} />
+                          <span className={`text-sm ${themeClasses.text.primary}`}>
+                            {formatDate(selectedUser.createdAt)}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>Last Login</label>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Clock className={`w-4 h-4 ${themeClasses.text.secondary}`} />
+                          <span className={`text-sm ${themeClasses.text.primary}`}>
+                            {formatDate(selectedUser.lastLogin)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Edit User Tab */}
+              {activeTab === 'edit' && (
+                <div className="space-y-6">
+                  <form onSubmit={handleUpdateUser}>
+                    <div className="space-y-4">
+                      <div>
+                        <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>Full Name</label>
+                        <input
+                          type="text"
+                          required
+                          className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
+                          value={userForm.name}
+                          onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>Email Address</label>
+                        <input
+                          type="email"
+                          required
+                          className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
+                          value={userForm.email}
+                          onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>Role</label>
+                        <select
+                          className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
+                          value={userForm.role}
+                          onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
+                        >
+                          <option value="user">User</option>
+                          <option value="content-manager">Content Manager</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </div>
+                      <div className="flex justify-end gap-3 pt-4">
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab('details')}
+                          className={`px-4 py-2 rounded-lg transition-colors border ${themeClasses.button.secondary}`}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className={`px-4 py-2 rounded-lg transition-colors ${themeClasses.button.primary}`}
+                        >
+                          Update User
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* Actions Tab */}
+              {activeTab === 'actions' && (
+                <div className="space-y-6">
+                  {/* Account Actions */}
+                  <div className={`p-4 rounded-lg border ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
+                    <h4 className={`text-lg font-semibold mb-4 ${themeClasses.text.primary}`}>Account Actions</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Toggle Status */}
+                      <button
+                        onClick={() => handleToggleStatus(selectedUser._id, selectedUser.isActive)}
+                        className={`p-4 rounded-lg border transition-colors text-left ${
+                          selectedUser.isActive 
+                            ? isDark ? 'border-orange-500 bg-orange-900 hover:bg-orange-800' : 'border-orange-200 bg-orange-50 hover:bg-orange-100'
+                            : isDark ? 'border-green-500 bg-green-900 hover:bg-green-800' : 'border-green-200 bg-green-50 hover:bg-green-100'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {selectedUser.isActive ? (
+                            <UserX className="w-6 h-6 text-orange-500" />
+                          ) : (
+                            <UserCheck className="w-6 h-6 text-green-500" />
+                          )}
+                          <div>
+                            <div className={`font-medium ${selectedUser.isActive ? 'text-orange-500' : 'text-green-500'}`}>
+                              {selectedUser.isActive ? 'Deactivate User' : 'Activate User'}
+                            </div>
+                            <div className={`text-sm ${themeClasses.text.secondary}`}>
+                              {selectedUser.isActive ? 'Suspend account access' : 'Restore account access'}
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+
+                      {/* Edit Role */}
+                      <button
+                        onClick={() => setActiveTab('edit')}
+                        className={`p-4 rounded-lg border transition-colors text-left ${isDark ? 'border-blue-500 bg-blue-900 hover:bg-blue-800' : 'border-blue-200 bg-blue-50 hover:bg-blue-100'}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Shield className="w-6 h-6 text-blue-500" />
+                          <div>
+                            <div className="font-medium text-blue-500">Edit User Role</div>
+                            <div className={`text-sm ${themeClasses.text.secondary}`}>
+                              Change user permissions and access level
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Communication Actions */}
+                  <div className={`p-4 rounded-lg border ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
+                    <h4 className={`text-lg font-semibold mb-4 ${themeClasses.text.primary}`}>Communication</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Send Email */}
+                      <button
+                        onClick={() => window.open(`mailto:${selectedUser.email}`, '_blank')}
+                        className={`p-4 rounded-lg border transition-colors text-left ${isDark ? 'border-indigo-500 bg-indigo-900 hover:bg-indigo-800' : 'border-indigo-200 bg-indigo-50 hover:bg-indigo-100'}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Mail className="w-6 h-6 text-indigo-500" />
+                          <div>
+                            <div className="font-medium text-indigo-500">Send Email</div>
+                            <div className={`text-sm ${themeClasses.text.secondary}`}>
+                              Contact user directly via email
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+
+                      {/* Copy User ID */}
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(selectedUser._id)
+                          showToast.success('User ID copied to clipboard')
+                        }}
+                        className={`p-4 rounded-lg border transition-colors text-left ${isDark ? 'border-gray-500 bg-gray-800 hover:bg-gray-700' : 'border-gray-200 bg-gray-50 hover:bg-gray-100'}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Hash className="w-6 h-6 text-gray-500" />
+                          <div>
+                            <div className={`font-medium ${themeClasses.text.primary}`}>Copy User ID</div>
+                            <div className={`text-sm ${themeClasses.text.secondary}`}>
+                              Copy user ID to clipboard
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Danger Zone */}
+                  <div className={`p-4 rounded-lg border ${isDark ? 'border-red-500 bg-red-900' : 'border-red-200 bg-red-50'}`}>
+                    <h4 className="text-lg font-semibold mb-4 text-red-500">Danger Zone</h4>
+                    <button
+                      onClick={() => handleDeleteUser(selectedUser._id)}
+                      className={`w-full p-4 rounded-lg border transition-colors text-left ${isDark ? 'border-red-500 bg-red-800 hover:bg-red-700' : 'border-red-300 bg-red-100 hover:bg-red-200'}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Trash2 className="w-6 h-6 text-red-500" />
+                        <div>
+                          <div className="font-medium text-red-500">Delete User Account</div>
+                          <div className={`text-sm ${isDark ? 'text-red-400' : 'text-red-600'}`}>
+                            Permanently remove this user from the system
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add User Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
           <div className={`rounded-xl border p-6 w-full max-w-md ${themeClasses.cardBg}`}>
             <div className="flex justify-between items-center mb-6">
               <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>Add New User</h3>
@@ -578,154 +853,6 @@ const UserManagement = ({ theme = 'light' }) => {
             </form>
           </div>
         </div>
-      )}
-
-      {/* Edit User Modal */}
-      {showEditModal && selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`rounded-xl border p-6 w-full max-w-md ${themeClasses.cardBg}`}>
-            <div className="flex justify-between items-center mb-6">
-              <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>Edit User</h3>
-              <button
-                onClick={() => setShowEditModal(false)}
-                className={`p-1 rounded-lg transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
-              >
-                <X className={`w-5 h-5 ${themeClasses.text.secondary}`} />
-              </button>
-            </div>
-            <form onSubmit={handleUpdateUser} className="space-y-4">
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>Name</label>
-                <input
-                  type="text"
-                  required
-                  className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                  value={userForm.name}
-                  onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>Email</label>
-                <input
-                  type="email"
-                  required
-                  className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                  value={userForm.email}
-                  onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>Role</label>
-                <select
-                  className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                  value={userForm.role}
-                  onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
-                >
-                  <option value="user">User</option>
-                  <option value="content-manager">Content Manager</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <div className="flex justify-end gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className={`px-4 py-2 rounded-lg transition-colors border ${themeClasses.button.secondary}`}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className={`px-4 py-2 rounded-lg transition-colors ${themeClasses.button.primary}`}
-                >
-                  Update User
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* User Details Modal */}
-      {showDetailsModal && selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`rounded-xl border p-6 w-full max-w-lg ${themeClasses.cardBg}`}>
-            <div className="flex justify-between items-center mb-6">
-              <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>User Details</h3>
-              <button
-                onClick={() => setShowDetailsModal(false)}
-                className={`p-1 rounded-lg transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
-              >
-                <X className={`w-5 h-5 ${themeClasses.text.secondary}`} />
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${themeClasses.iconBg.blue}`}>
-                  <span className={`text-xl font-medium ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
-                    {getAvatarInitials(selectedUser.name)}
-                  </span>
-                </div>
-                <div>
-                  <h4 className={`text-xl font-semibold ${themeClasses.text.primary}`}>{selectedUser.name}</h4>
-                  <p className={`text-sm ${themeClasses.text.secondary}`}>{selectedUser.email}</p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>Role</label>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium border ${themeClasses.role[selectedUser.role]} inline-block mt-1`}>
-                    {selectedUser.role === 'content-manager' ? 'Content Manager' : 
-                     selectedUser.role.charAt(0).toUpperCase() + selectedUser.role.slice(1)}
-                  </span>
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>Status</label>
-                  <div className="flex items-center gap-2 mt-1">
-                    {selectedUser.isActive ? (
-                      <>
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span className={`font-medium text-sm ${isDark ? 'text-green-400' : 'text-green-700'}`}>Active</span>
-                      </>
-                    ) : (
-                      <>
-                        <XCircle className="w-4 h-4 text-red-500" />
-                        <span className={`font-medium text-sm ${isDark ? 'text-red-400' : 'text-red-700'}`}>Inactive</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>Registration Date</label>
-                  <p className={`text-sm mt-1 ${themeClasses.text.primary}`}>{formatDate(selectedUser.createdAt)}</p>
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>Last Login</label>
-                  <p className={`text-sm mt-1 ${themeClasses.text.primary}`}>{formatDate(selectedUser.lastLogin)}</p>
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>Email Verified</label>
-                  <p className={`text-sm mt-1 ${themeClasses.text.primary}`}>
-                    {selectedUser.emailverified ? 'Yes' : 'No'}
-                  </p>
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>User ID</label>
-                  <p className={`text-sm mt-1 font-mono ${themeClasses.text.primary}`}>{selectedUser._id}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Click outside to close dropdown */}
-      {actionDropdown && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setActionDropdown(null)}
-        />
       )}
     </div>
   )
