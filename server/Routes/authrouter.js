@@ -251,7 +251,7 @@ router.post("/verify-otp", async (req, res) => {
       password: hashedPassword,
       role: 'user',
       isActive: true,
-      emailVerified: true
+      emailverified: true
     });
 
     await newUser.save();
@@ -277,7 +277,7 @@ router.post("/verify-otp", async (req, res) => {
       email: newUser.email,
       role: newUser.role,
       isActive: newUser.isActive,
-      emailVerified: newUser.emailVerified
+      emailVerified: newUser.emailverified
     };
 
     res.status(201).json({
@@ -352,7 +352,7 @@ router.post("/login", async (req, res) => {
       email: user.email,
       role: user.role,
       isActive: user.isActive,
-      emailVerified: user.emailVerified
+      emailVerified: user.emailverified
     };
 
     res.status(200).json({
@@ -408,7 +408,7 @@ router.post("/refresh-session", auth, async (req, res) => {
       email: user.email,
       role: user.role,
       isActive: user.isActive,
-      emailVerified: user.emailVerified
+      emailVerified: user.emailverified
     };
 
     res.status(200).json({
@@ -468,7 +468,7 @@ router.post("/create-admin", async (req, res) => {
       password: hashedPassword,
       role: 'admin',
       isActive: true,
-      emailVerified: true
+      emailverified: true
     });
 
     await adminUser.save();
@@ -490,7 +490,7 @@ router.post("/create-admin", async (req, res) => {
       email: adminUser.email,
       role: adminUser.role,
       isActive: adminUser.isActive,
-      emailVerified: adminUser.emailVerified
+      emailVerified: adminUser.emailverified
     };
 
     res.status(201).json({
@@ -527,7 +527,7 @@ router.get("/profile", auth, async (req, res) => {
       email: user.email,
       role: user.role,
       isActive: user.isActive,
-      emailVerified: user.emailVerified
+      emailVerified: user.emailverified
     };
 
     res.status(200).json({

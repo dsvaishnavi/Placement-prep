@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { showToast } from '../utils/toast'
+import UserManagement from '../components/UserManagement'
 import { 
   // Navigation & Layout Icons
   Menu, Search, Bell, User, Home, Users, HelpCircle, 
@@ -310,144 +311,9 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
   
   const modules = getAvailableModules();
   
-  // Reusable Table Component for Users
-  const UsersTable = () => {
-    const filteredUsers = users.filter(user => {
-      const matchesSearch = searchTerm === '' || 
-        user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesFilter = userFilter === 'all' || user.status === userFilter
-      return matchesSearch && matchesFilter
-    })
-    
-    return (
-      <div className={`rounded-xl border overflow-hidden ${themeClasses.cardBg} border-${isDark ? 'gray-700' : 'gray-200'}`}>
-        {/* Table Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>User Management</h3>
-            <p className={`text-sm ${themeClasses.text.secondary}`}>Manage user accounts, roles, and permissions</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${themeClasses.text.secondary}`} />
-              <input
-                type="text"
-                placeholder="Search users..."
-                className={`pl-10 pr-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                aria-label="Search users"
-              />
-            </div>
-            <select
-              className={`px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-              value={userFilter}
-              onChange={(e) => setUserFilter(e.target.value)}
-              aria-label="Filter users by status"
-            >
-              <option value="all">All Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-            <button className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${themeClasses.button.primary}`}>
-              <Plus className="w-4 h-4" />
-              Add User
-            </button>
-          </div>
-        </div>
-        
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full" role="table" aria-label="Users table">
-            <thead>
-              <tr className={`${themeClasses.table.header}`}>
-                <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">User</th>
-                <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Role</th>
-                <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Last Login</th>
-                <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Registration</th>
-                <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Status</th>
-                <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className={`transition-colors ${themeClasses.table.row}`}>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 ${themeClasses.iconBg.blue}`}>
-                        <span className={`text-sm font-medium ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>{user.avatar}</span>
-                      </div>
-                      <div>
-                        <div className={`font-medium ${themeClasses.text.primary}`}>{user.fullName}</div>
-                        <div className={`text-sm ${themeClasses.text.secondary}`}>{user.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${
-                      user.role === 'Admin' ? themeClasses.role.admin :
-                      user.role === 'Content Manager' ? themeClasses.role.manager :
-                      themeClasses.role.student
-                    }`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-2">
-                      <Calendar className={`w-4 h-4 ${themeClasses.text.secondary}`} />
-                      <span className={`text-sm ${themeClasses.text.primary}`}>{user.lastLogin}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 text-sm font-medium text-primary">{user.registrationDate}</td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-2">
-                      {user.status === 'Active' ? (
-                        <>
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                          <span className={`font-medium ${isDark ? 'text-green-400' : 'text-green-700'}`}>Active</span>
-                        </>
-                      ) : (
-                        <>
-                          <XCircle className="w-4 h-4 text-red-500" />
-                          <span className={`font-medium ${isDark ? 'text-red-400' : 'text-red-700'}`}>Inactive</span>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-2">
-                      <button className={`p-1 rounded transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`} aria-label="View user">
-                        <Eye className={`w-4 h-4 ${themeClasses.text.secondary}`} />
-                      </button>
-                      <button className={`p-1 rounded transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`} aria-label="Edit user">
-                        <Edit className="w-4 h-4 text-blue-500" />
-                      </button>
-                      <button className={`p-1 rounded transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`} aria-label="Delete user">
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        {/* Table Footer */}
-        <div className={`px-6 py-4 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'} flex flex-col sm:flex-row justify-between items-center gap-4`}>
-          <div className={`text-sm ${themeClasses.text.secondary}`}>
-            Showing <span className={`font-medium ${themeClasses.text.primary}`}>{filteredUsers.length}</span> of <span className={`font-medium ${themeClasses.text.primary}`}>{users.length}</span> users
-          </div>
-          <div className="flex items-center gap-4">
-            <button className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${themeClasses.button.secondary}`}>
-              <Download className="w-4 h-4" />
-              Export
-            </button>
-          </div>
-        </div>
-      </div>
-    )
+  // User Management Component - Now using the dedicated UserManagement component
+  const UsersModule = () => {
+    return <UserManagement theme={theme} />
   }
   
   // Reusable Aptitude Question Form Component
@@ -1077,7 +943,7 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
         return <DashboardOverview />
       case 'users':
         // Only admins can access user management
-        return isAdmin ? <UsersTable /> : (
+        return isAdmin ? <UsersModule /> : (
           <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
             <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text.primary}`}>Access Denied</h2>
             <p className={themeClasses.text.secondary}>User management is only available to administrators.</p>

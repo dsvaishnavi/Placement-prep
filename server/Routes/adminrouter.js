@@ -225,6 +225,140 @@ router.delete("/users/:userId", auth, requireAdmin, async (req, res) => {
   }
 });
 
+// Get single user details (Admin only)
+router.get("/users/:userId", auth, requireAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await userModel.findById(userId).select('-password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      user
+    });
+
+  } catch (error) {
+    console.error("Get user error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch user details"
+    });
+  }
+});
+
+// Update user details (Admin only)
+router.put("/users/:userId", auth, requireAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { name, email, role } = req.body;
+
+    if (!name || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "Name and email are required"
+      });
+    }
+
+    if (role && !['user', 'admin', 'content-manager'].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role specified"
+      });
+    }
+
+    // Prevent admin from changing their own role
+    if (userId === req.user._id.toString() && role && role !== req.user.role) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot change your own role"
+      });
+    }
+
+    // Check if email is already taken by another user
+    if (email !== req.user.email) {
+      const existingUser = await userModel.findOne({ 
+        email, 
+        _id: { $ne: userId } 
+      });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: "Email is already taken by another user"
+        });
+      }
+    }
+
+    const updateData = { name, email };
+    if (role) {
+      updateData.role = role;
+    }
+
+    const user = await userModel.findByIdAndUpdate(
+      userId,
+      updateData,
+      { new: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      user
+    });
+
+  } catch (error) {
+    console.error("Update user error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update user"
+    });
+  }
+});
+
+// Export users data (Admin only)
+router.get("/users/export/csv", auth, requireAdmin, async (req, res) => {
+  try {
+    const users = await userModel.find({}).select('-password').sort({ createdAt: -1 });
+
+    // Create CSV content
+    const csvHeader = 'Name,Email,Role,Status,Registration Date,Last Login,Email Verified\n';
+    const csvRows = users.map(user => {
+      const registrationDate = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A';
+      const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never';
+      const status = user.isActive ? 'Active' : 'Inactive';
+      const emailVerified = user.emailverified ? 'Yes' : 'No';
+      
+      return `"${user.name}","${user.email}","${user.role}","${status}","${registrationDate}","${lastLogin}","${emailVerified}"`;
+    }).join('\n');
+
+    const csvContent = csvHeader + csvRows;
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="users_export_${new Date().toISOString().split('T')[0]}.csv"`);
+    res.status(200).send(csvContent);
+
+  } catch (error) {
+    console.error("Export users error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to export users data"
+    });
+  }
+});
+
 // Create new user (Admin only)
 router.post("/users", auth, requireAdmin, async (req, res) => {
   try {
@@ -264,7 +398,7 @@ router.post("/users", auth, requireAdmin, async (req, res) => {
       password: hashedPassword,
       role,
       isActive: true,
-      emailVerified: true
+      emailverified: true
     });
 
     await newUser.save();
@@ -276,7 +410,7 @@ router.post("/users", auth, requireAdmin, async (req, res) => {
       email: newUser.email,
       role: newUser.role,
       isActive: newUser.isActive,
-      emailVerified: newUser.emailVerified,
+      emailverified: newUser.emailverified,
       createdAt: newUser.createdAt
     };
 
