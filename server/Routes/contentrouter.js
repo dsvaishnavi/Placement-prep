@@ -1,43 +1,8 @@
 import express from "express";
 import auth, { requireContentManager } from "../middleware/auth.js";
+import AptitudeQuestion from "../models/aptitudeQuestionSchema.js";
 
 const router = express.Router();
-
-// Mock data for aptitude questions (replace with actual database models)
-let aptitudeQuestions = [
-  {
-    id: 1,
-    question: 'What is 25% of 200?',
-    options: {
-      A: '25',
-      B: '50',
-      C: '75',
-      D: '100'
-    },
-    correctAnswer: 'B',
-    difficulty: 'Easy',
-    topic: 'Percentage',
-    status: 'Published',
-    createdBy: 'Admin',
-    createdAt: new Date('2024-01-10')
-  },
-  {
-    id: 2,
-    question: 'If a train travels 300km in 3 hours, what is its speed?',
-    options: {
-      A: '80 km/h',
-      B: '90 km/h',
-      C: '100 km/h',
-      D: '120 km/h'
-    },
-    correctAnswer: 'C',
-    difficulty: 'Medium',
-    topic: 'Speed & Time',
-    status: 'Draft',
-    createdBy: 'Content Manager',
-    createdAt: new Date('2024-01-12')
-  }
-];
 
 // Mock data for core concepts
 let coreConcepts = [
@@ -68,37 +33,48 @@ let coreConcepts = [
 // Get all aptitude questions (Admin and Content Manager)
 router.get("/aptitude-questions", auth, requireContentManager, async (req, res) => {
   try {
-    const { page = 1, limit = 10, search = '', difficulty = '', status = '' } = req.query;
+    const { page = 1, limit = 10, search = '', difficulty = '', status = '', topic = '' } = req.query;
     
-    let filteredQuestions = [...aptitudeQuestions];
+    // Build search query
+    const searchQuery = { isActive: true };
     
-    // Apply filters
     if (search) {
-      filteredQuestions = filteredQuestions.filter(q => 
-        q.question.toLowerCase().includes(search.toLowerCase()) ||
-        q.topic.toLowerCase().includes(search.toLowerCase())
-      );
+      searchQuery.$or = [
+        { question: { $regex: search, $options: 'i' } },
+        { topic: { $regex: search, $options: 'i' } },
+        { tags: { $in: [new RegExp(search, 'i')] } }
+      ];
     }
     
     if (difficulty) {
-      filteredQuestions = filteredQuestions.filter(q => q.difficulty === difficulty);
+      searchQuery.difficulty = difficulty;
     }
     
     if (status) {
-      filteredQuestions = filteredQuestions.filter(q => q.status === status);
+      searchQuery.status = status;
     }
     
-    // Pagination
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + parseInt(limit);
-    const paginatedQuestions = filteredQuestions.slice(startIndex, endIndex);
+    if (topic) {
+      searchQuery.topic = { $regex: topic, $options: 'i' };
+    }
     
+    // Get questions with pagination
+    const questions = await AptitudeQuestion
+      .find(searchQuery)
+      .populate('createdBy', 'name email')
+      .populate('lastModifiedBy', 'name email')
+      .sort({ questionNumber: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+
+    const total = await AptitudeQuestion.countDocuments(searchQuery);
+
     res.status(200).json({
       success: true,
-      questions: paginatedQuestions,
-      totalPages: Math.ceil(filteredQuestions.length / limit),
+      questions,
+      totalPages: Math.ceil(total / limit),
       currentPage: parseInt(page),
-      total: filteredQuestions.length
+      total
     });
 
   } catch (error) {
@@ -113,12 +89,20 @@ router.get("/aptitude-questions", auth, requireContentManager, async (req, res) 
 // Create new aptitude question (Admin and Content Manager)
 router.post("/aptitude-questions", auth, requireContentManager, async (req, res) => {
   try {
-    const { question, options, correctAnswer, difficulty, topic } = req.body;
+    const { question, options, correctAnswer, difficulty, topic, solution, tags, status } = req.body;
 
+    // Validation
     if (!question || !options || !correctAnswer || !difficulty || !topic) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required"
+        message: "Question, options, correct answer, difficulty, and topic are required"
+      });
+    }
+
+    if (!options.A || !options.B || !options.C || !options.D) {
+      return res.status(400).json({
+        success: false,
+        message: "All four options (A, B, C, D) are required"
       });
     }
 
@@ -136,28 +120,50 @@ router.post("/aptitude-questions", auth, requireContentManager, async (req, res)
       });
     }
 
-    const newQuestion = {
-      id: aptitudeQuestions.length + 1,
-      question,
-      options,
+    // Create new question
+    const newQuestion = new AptitudeQuestion({
+      question: question.trim(),
+      options: {
+        A: options.A.trim(),
+        B: options.B.trim(),
+        C: options.C.trim(),
+        D: options.D.trim()
+      },
       correctAnswer,
       difficulty,
-      topic,
-      status: 'Draft',
-      createdBy: req.user.name,
-      createdAt: new Date()
-    };
+      topic: topic.trim(),
+      solution: solution ? solution.trim() : '',
+      tags: tags ? tags.map(tag => tag.trim()).filter(tag => tag.length > 0) : [],
+      status: status || 'Draft',
+      createdBy: req.user._id,
+      lastModifiedBy: req.user._id
+    });
 
-    aptitudeQuestions.push(newQuestion);
+    await newQuestion.save();
+
+    // Populate the created question for response
+    const populatedQuestion = await AptitudeQuestion
+      .findById(newQuestion._id)
+      .populate('createdBy', 'name email')
+      .populate('lastModifiedBy', 'name email');
 
     res.status(201).json({
       success: true,
       message: "Aptitude question created successfully",
-      question: newQuestion
+      question: populatedQuestion
     });
 
   } catch (error) {
     console.error("Create aptitude question error:", error);
+    
+    // Handle duplicate question number error (shouldn't happen with pre-save middleware)
+    if (error.code === 11000 && error.keyPattern?.questionNumber) {
+      return res.status(400).json({
+        success: false,
+        message: "Question number conflict. Please try again."
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: "Failed to create aptitude question"
@@ -169,30 +175,67 @@ router.post("/aptitude-questions", auth, requireContentManager, async (req, res)
 router.put("/aptitude-questions/:questionId", auth, requireContentManager, async (req, res) => {
   try {
     const { questionId } = req.params;
-    const { question, options, correctAnswer, difficulty, topic, status } = req.body;
+    const { question, options, correctAnswer, difficulty, topic, solution, tags, status } = req.body;
 
-    const questionIndex = aptitudeQuestions.findIndex(q => q.id === parseInt(questionId));
+    // Find the question
+    const existingQuestion = await AptitudeQuestion.findById(questionId);
     
-    if (questionIndex === -1) {
+    if (!existingQuestion) {
       return res.status(404).json({
         success: false,
         message: "Question not found"
       });
     }
 
-    // Update the question
-    const updatedQuestion = {
-      ...aptitudeQuestions[questionIndex],
-      ...(question && { question }),
-      ...(options && { options }),
-      ...(correctAnswer && { correctAnswer }),
-      ...(difficulty && { difficulty }),
-      ...(topic && { topic }),
-      ...(status && { status }),
-      lastUpdated: new Date()
+    // Validation for provided fields
+    if (correctAnswer && !['A', 'B', 'C', 'D'].includes(correctAnswer)) {
+      return res.status(400).json({
+        success: false,
+        message: "Correct answer must be A, B, C, or D"
+      });
+    }
+
+    if (difficulty && !['Easy', 'Medium', 'Hard'].includes(difficulty)) {
+      return res.status(400).json({
+        success: false,
+        message: "Difficulty must be Easy, Medium, or Hard"
+      });
+    }
+
+    if (status && !['Draft', 'Published', 'Archived'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Status must be Draft, Published, or Archived"
+      });
+    }
+
+    // Build update object
+    const updateData = {
+      lastModifiedBy: req.user._id
     };
 
-    aptitudeQuestions[questionIndex] = updatedQuestion;
+    if (question) updateData.question = question.trim();
+    if (options) {
+      updateData.options = {
+        A: options.A ? options.A.trim() : existingQuestion.options.A,
+        B: options.B ? options.B.trim() : existingQuestion.options.B,
+        C: options.C ? options.C.trim() : existingQuestion.options.C,
+        D: options.D ? options.D.trim() : existingQuestion.options.D
+      };
+    }
+    if (correctAnswer) updateData.correctAnswer = correctAnswer;
+    if (difficulty) updateData.difficulty = difficulty;
+    if (topic) updateData.topic = topic.trim();
+    if (solution !== undefined) updateData.solution = solution.trim();
+    if (tags) updateData.tags = tags.map(tag => tag.trim()).filter(tag => tag.length > 0);
+    if (status) updateData.status = status;
+
+    // Update the question
+    const updatedQuestion = await AptitudeQuestion.findByIdAndUpdate(
+      questionId,
+      updateData,
+      { new: true, runValidators: true }
+    ).populate('createdBy', 'name email').populate('lastModifiedBy', 'name email');
 
     res.status(200).json({
       success: true,
@@ -214,16 +257,22 @@ router.delete("/aptitude-questions/:questionId", auth, requireContentManager, as
   try {
     const { questionId } = req.params;
 
-    const questionIndex = aptitudeQuestions.findIndex(q => q.id === parseInt(questionId));
+    // Soft delete by setting isActive to false
+    const question = await AptitudeQuestion.findByIdAndUpdate(
+      questionId,
+      { 
+        isActive: false,
+        lastModifiedBy: req.user._id
+      },
+      { new: true }
+    );
     
-    if (questionIndex === -1) {
+    if (!question) {
       return res.status(404).json({
         success: false,
         message: "Question not found"
       });
     }
-
-    aptitudeQuestions.splice(questionIndex, 1);
 
     res.status(200).json({
       success: true,
@@ -235,6 +284,73 @@ router.delete("/aptitude-questions/:questionId", auth, requireContentManager, as
     res.status(500).json({
       success: false,
       message: "Failed to delete question"
+    });
+  }
+});
+
+// Permanently delete aptitude question (Admin only)
+router.delete("/aptitude-questions/:questionId/permanent", auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: "Only administrators can permanently delete questions"
+      });
+    }
+
+    const { questionId } = req.params;
+
+    const question = await AptitudeQuestion.findByIdAndDelete(questionId);
+    
+    if (!question) {
+      return res.status(404).json({
+        success: false,
+        message: "Question not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Question permanently deleted"
+    });
+
+  } catch (error) {
+    console.error("Permanent delete aptitude question error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to permanently delete question"
+    });
+  }
+});
+
+// Get single aptitude question (Admin and Content Manager)
+router.get("/aptitude-questions/:questionId", auth, requireContentManager, async (req, res) => {
+  try {
+    const { questionId } = req.params;
+
+    const question = await AptitudeQuestion
+      .findById(questionId)
+      .populate('createdBy', 'name email')
+      .populate('lastModifiedBy', 'name email');
+    
+    if (!question || !question.isActive) {
+      return res.status(404).json({
+        success: false,
+        message: "Question not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      question
+    });
+
+  } catch (error) {
+    console.error("Get aptitude question error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch question"
     });
   }
 });
@@ -413,16 +529,40 @@ router.delete("/core-concepts/:conceptId", auth, requireContentManager, async (r
 // Get content statistics (Admin and Content Manager)
 router.get("/stats", auth, requireContentManager, async (req, res) => {
   try {
+    // Get aptitude questions statistics
+    const totalQuestions = await AptitudeQuestion.countDocuments({ isActive: true });
+    const publishedQuestions = await AptitudeQuestion.countDocuments({ status: 'Published', isActive: true });
+    const draftQuestions = await AptitudeQuestion.countDocuments({ status: 'Draft', isActive: true });
+    const archivedQuestions = await AptitudeQuestion.countDocuments({ status: 'Archived', isActive: true });
+    
+    // Get questions by difficulty
+    const easyQuestions = await AptitudeQuestion.countDocuments({ difficulty: 'Easy', isActive: true });
+    const mediumQuestions = await AptitudeQuestion.countDocuments({ difficulty: 'Medium', isActive: true });
+    const hardQuestions = await AptitudeQuestion.countDocuments({ difficulty: 'Hard', isActive: true });
+    
+    // Get popular topics
+    const topicStats = await AptitudeQuestion.aggregate([
+      { $match: { isActive: true } },
+      { $group: { _id: '$topic', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]);
+
     const stats = {
       aptitudeQuestions: {
-        total: aptitudeQuestions.length,
-        published: aptitudeQuestions.filter(q => q.status === 'Published').length,
-        draft: aptitudeQuestions.filter(q => q.status === 'Draft').length,
+        total: totalQuestions,
+        published: publishedQuestions,
+        draft: draftQuestions,
+        archived: archivedQuestions,
         byDifficulty: {
-          easy: aptitudeQuestions.filter(q => q.difficulty === 'Easy').length,
-          medium: aptitudeQuestions.filter(q => q.difficulty === 'Medium').length,
-          hard: aptitudeQuestions.filter(q => q.difficulty === 'Hard').length
-        }
+          easy: easyQuestions,
+          medium: mediumQuestions,
+          hard: hardQuestions
+        },
+        topTopics: topicStats.map(topic => ({
+          name: topic._id,
+          count: topic.count
+        }))
       },
       coreConcepts: {
         total: coreConcepts.length,

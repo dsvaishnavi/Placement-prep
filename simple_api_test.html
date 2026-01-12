@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Aptitude API Test</title>
+</head>
+<body>
+    <h1>Aptitude Questions API Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        const BASE_URL = 'http://localhost:3000';
+        const resultsDiv = document.getElementById('results');
+        
+        function log(message) {
+            resultsDiv.innerHTML += '<p>' + message + '</p>';
+            console.log(message);
+        }
+        
+        async function testAPI() {
+            try {
+                log('🧪 Testing Aptitude Questions API...');
+                
+                // Test 1: Try to get statistics (this should work without auth for testing)
+                log('1. Testing statistics endpoint...');
+                
+                // First, let's try to create an admin account
+                const adminData = {
+                    name: 'Test Admin',
+                    email: 'admin@test.com',
+                    password: 'admin123'
+                };
+                
+                log('Creating admin account...');
+                const createAdminResponse = await fetch(`${BASE_URL}/auth/create-admin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(adminData)
+                });
+                
+                let token;
+                if (createAdminResponse.ok) {
+                    const adminResult = await createAdminResponse.json();
+                    token = adminResult.token;
+                    log('✅ Admin account created successfully');
+                } else {
+                    // Try to login instead
+                    log('Admin exists, trying to login...');
+                    const loginResponse = await fetch(`${BASE_URL}/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: adminData.email,
+                            password: adminData.password
+                        })
+                    });
+                    
+                    if (loginResponse.ok) {
+                        const loginResult = await loginResponse.json();
+                        token = loginResult.token;
+                        log('✅ Admin login successful');
+                    } else {
+                        throw new Error('Failed to create or login admin');
+                    }
+                }
+                
+                const headers = {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                };
+                
+                // Test 2: Create a question
+                log('2. Testing question creation...');
+                const testQuestion = {
+                    question: 'What is 25% of 200?',
+                    options: {
+                        A: '25',
+                        B: '50',
+                        C: '75',
+                        D: '100'
+                    },
+                    correctAnswer: 'B',
+                    difficulty: 'Easy',
+                    topic: 'Percentage',
+                    solution: 'To find 25% of 200: (25/100) × 200 = 0.25 × 200 = 50',
+                    status: 'Published'
+                };
+                
+                const createResponse = await fetch(`${BASE_URL}/aptitude`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(testQuestion)
+                });
+                
+                const createResult = await createResponse.json();
+                log(`Create Response Status: ${createResponse.status}`);
+                log(`Create Response: ${JSON.stringify(createResult, null, 2)}`);
+                
+                if (createResponse.ok) {
+                    log('✅ Question created successfully!');
+                    log(`Question Number: ${createResult.question.questionNumber}`);
+                } else {
+                    log('❌ Question creation failed: ' + createResult.message);
+                }
+                
+                // Test 3: Get questions
+                log('3. Testing get questions...');
+                const getResponse = await fetch(`${BASE_URL}/aptitude`, { headers });
+                const getResult = await getResponse.json();
+                
+                if (getResponse.ok) {
+                    log('✅ Questions retrieved successfully!');
+                    log(`Total questions: ${getResult.total}`);
+                } else {
+                    log('❌ Failed to get questions: ' + getResult.message);
+                }
+                
+                log('🎉 API test completed!');
+                
+            } catch (error) {
+                log('❌ Test failed: ' + error.message);
+            }
+        }
+        
+        // Run the test
+        testAPI();
+    </script>
+</body>
+</html>

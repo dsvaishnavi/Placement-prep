@@ -3,15 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { showToast } from '../utils/toast'
 import UserManagement from '../components/UserManagement'
+import AptitudeQuestionManagement from '../components/AptitudeQuestionManagement'
 import { 
   // Navigation & Layout Icons
   Menu, Search, Bell, User, Home, Users, HelpCircle, 
-  BookOpen, Settings, LogOut, ChevronDown, Filter, ArrowLeft,
+  BookOpen, Settings, LogOut, ChevronDown, ArrowLeft,
   // Table & Action Icons
-  Edit, Trash2, Eye, CheckCircle, XCircle, MoreVertical,
-  Plus, Download, Upload, Calendar, Clock, Star,
+  Edit, Trash2, Eye, Star,
+  Plus, Download,
   // Form & Content Icons
-  Type, Hash, Tag, BarChart3, Lock, Globe
+  BarChart3, Lock
 } from 'lucide-react'
 
 function Admin({ theme = 'light', contentManagerMode = false }) {
@@ -177,55 +178,6 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
     }
   ])
   
-  // Mock data for aptitude questions
-  const [aptitudeQuestions, setAptitudeQuestions] = useState([
-    {
-      id: 1,
-      question: 'What is 25% of 200?',
-      options: {
-        A: '25',
-        B: '50',
-        C: '75',
-        D: '100'
-      },
-      correctAnswer: 'B',
-      difficulty: 'Easy',
-      topic: 'Percentage',
-      status: 'Published',
-      createdBy: 'Admin'
-    },
-    {
-      id: 2,
-      question: 'If a train travels 300km in 3 hours, what is its speed?',
-      options: {
-        A: '80 km/h',
-        B: '90 km/h',
-        C: '100 km/h',
-        D: '120 km/h'
-      },
-      correctAnswer: 'C',
-      difficulty: 'Medium',
-      topic: 'Speed & Time',
-      status: 'Draft',
-      createdBy: 'Content Manager'
-    },
-    {
-      id: 3,
-      question: 'What is the average of first 10 natural numbers?',
-      options: {
-        A: '4.5',
-        B: '5.5',
-        C: '6.5',
-        D: '7.5'
-      },
-      correctAnswer: 'B',
-      difficulty: 'Easy',
-      topic: 'Average',
-      status: 'Published',
-      createdBy: 'Admin'
-    }
-  ])
-  
   // Mock data for core concepts
   const [coreConcepts, setCoreConcepts] = useState([
     {
@@ -260,27 +212,9 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
     }
   ])
   
-  // Form states for adding/editing
-  const [newQuestion, setNewQuestion] = useState({
-    question: '',
-    options: { A: '', B: '', C: '', D: '' },
-    correctAnswer: '',
-    difficulty: 'Medium',
-    topic: ''
-  })
-  
-  const [newConcept, setNewConcept] = useState({
-    title: '',
-    description: '',
-    subject: '',
-    difficulty: 'Beginner',
-    status: 'Draft'
-  })
-  
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState('')
   const [userFilter, setUserFilter] = useState('all')
-  const [questionFilter, setQuestionFilter] = useState('all')
   
   // Navigation modules configuration based on user role
   const getAvailableModules = () => {
@@ -316,148 +250,14 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
     return <UserManagement theme={theme} />
   }
   
-  // Reusable Aptitude Question Form Component
-  const AptitudeQuestionForm = ({ onSubmit, initialData = newQuestion, mode = 'add' }) => {
-    const [formData, setFormData] = useState(initialData)
-    
-    const handleChange = (field, value) => {
-      setFormData(prev => ({ ...prev, [field]: value }))
-    }
-    
-    const handleOptionChange = (option, value) => {
-      setFormData(prev => ({
-        ...prev,
-        options: { ...prev.options, [option]: value }
-      }))
-    }
-    
-    return (
-      <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
-        <h3 className={`text-lg font-semibold mb-6 ${themeClasses.text.primary}`}>
-          {mode === 'add' ? 'Add New Question' : 'Edit Question'}
-        </h3>
-        
-        <form onSubmit={(e) => {
-          e.preventDefault()
-          onSubmit(formData)
-        }}>
-          <div className="space-y-6">
-            {/* Question Text */}
-            <div>
-              <label htmlFor="question" className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-                Question Text
-              </label>
-              <textarea
-                id="question"
-                rows="3"
-                className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                value={formData.question}
-                onChange={(e) => handleChange('question', e.target.value)}
-                required
-                aria-describedby="question-help"
-              />
-              <p id="question-help" className={`mt-1 text-sm ${themeClasses.text.secondary}`}>
-                Enter the aptitude question text
-              </p>
-            </div>
-            
-            {/* Options Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {['A', 'B', 'C', 'D'].map((option) => (
-                <div key={option}>
-                  <label htmlFor={`option-${option}`} className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-                    Option {option}
-                  </label>
-                  <input
-                    id={`option-${option}`}
-                    type="text"
-                    className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                    value={formData.options[option]}
-                    onChange={(e) => handleOptionChange(option, e.target.value)}
-                    required
-                  />
-                </div>
-              ))}
-            </div>
-            
-            {/* Correct Answer & Difficulty */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="correctAnswer" className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-                  Correct Answer
-                </label>
-                <select
-                  id="correctAnswer"
-                  className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                  value={formData.correctAnswer}
-                  onChange={(e) => handleChange('correctAnswer', e.target.value)}
-                  required
-                >
-                  <option value="">Select correct option</option>
-                  <option value="A">Option A</option>
-                  <option value="B">Option B</option>
-                  <option value="C">Option C</option>
-                  <option value="D">Option D</option>
-                </select>
-              </div>
-              
-              <div>
-                <label htmlFor="difficulty" className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-                  Difficulty Level
-                </label>
-                <select
-                  id="difficulty"
-                  className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                  value={formData.difficulty}
-                  onChange={(e) => handleChange('difficulty', e.target.value)}
-                >
-                  <option value="Easy">Easy</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Hard">Hard</option>
-                </select>
-              </div>
-            </div>
-            
-            {/* Topic */}
-            <div>
-              <label htmlFor="topic" className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-                Topic / Category
-              </label>
-              <input
-                id="topic"
-                type="text"
-                className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                value={formData.topic}
-                onChange={(e) => handleChange('topic', e.target.value)}
-                placeholder="e.g., Percentage, Algebra, Logical Reasoning"
-                required
-              />
-            </div>
-            
-            {/* Form Actions */}
-            <div className={`flex justify-end gap-3 pt-6 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-              <button
-                type="button"
-                className={`px-6 py-2 rounded-lg transition-colors ${themeClasses.button.secondary}`}
-                onClick={() => setFormData(initialData)}
-              >
-                Reset
-              </button>
-              <button
-                type="submit"
-                className={`px-6 py-2 rounded-lg transition-colors ${themeClasses.button.primary}`}
-              >
-                {mode === 'add' ? 'Add Question' : 'Update Question'}
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    )
-  }
-  
   // Reusable Core Concept Form Component
-  const CoreConceptForm = ({ onSubmit, initialData = newConcept, mode = 'add' }) => {
+  const CoreConceptForm = ({ onSubmit, initialData = {
+    title: '',
+    description: '',
+    subject: '',
+    difficulty: 'Beginner',
+    status: 'Draft'
+  }, mode = 'add' }) => {
     const [formData, setFormData] = useState(initialData)
     
     const handleChange = (field, value) => {
@@ -705,125 +505,7 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
   
   // Aptitude Questions Management Component
   const AptitudeQuestionsModule = () => {
-    return (
-      <div className="space-y-6">
-        {/* Stats & Actions */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { label: 'Total Questions', value: '856', icon: HelpCircle, color: 'blue' },
-            { label: 'Published', value: '642', icon: CheckCircle, color: 'green' },
-            { label: 'In Draft', value: '187', icon: Type, color: 'yellow' },
-            { label: 'Avg. Difficulty', value: 'Medium', icon: BarChart3, color: 'purple' }
-          ].map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <div key={index} className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className={`text-sm ${themeClasses.text.secondary}`}>{stat.label}</p>
-                    <p className={`text-2xl font-bold mt-1 ${themeClasses.text.primary}`}>{stat.value}</p>
-                  </div>
-                  <div className={`p-3 rounded-lg ${themeClasses.iconBg[stat.color]}`}>
-                    <Icon className={`w-6 h-6 ${
-                      stat.color === 'blue' ? 'text-blue-500' :
-                      stat.color === 'green' ? 'text-green-500' :
-                      stat.color === 'yellow' ? 'text-yellow-500' : 'text-purple-500'
-                    }`} />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        
-        {/* Add Question Form */}
-        <AptitudeQuestionForm 
-          onSubmit={(data) => {
-            console.log('Adding question:', data)
-            showToast.success('Question added successfully!')
-          }}
-        />
-        
-        {/* Questions List */}
-        <div className={`rounded-xl border overflow-hidden ${themeClasses.cardBg}`}>
-          <div className="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>All Questions</h3>
-              <p className={`text-sm ${themeClasses.text.secondary}`}>Manage and review aptitude questions</p>
-            </div>
-            <select 
-              className={`px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-              value={questionFilter}
-              onChange={(e) => setQuestionFilter(e.target.value)}
-            >
-              <option value="all">All Questions</option>
-              <option value="Published">Published</option>
-              <option value="Draft">Draft</option>
-              <option value="Easy">Easy</option>
-              <option value="Medium">Medium</option>
-              <option value="Hard">Hard</option>
-            </select>
-          </div>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className={`${themeClasses.table.header}`}>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Question</th>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Topic</th>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Difficulty</th>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Status</th>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
-                {aptitudeQuestions.map((question) => (
-                  <tr key={question.id} className={`transition-colors ${themeClasses.table.row}`}>
-                    <td className="py-4 px-6">
-                      <div className="max-w-xs">
-                        <p className={`font-medium line-clamp-2 ${themeClasses.text.primary}`}>{question.question}</p>
-                        <p className={`text-sm mt-1 ${themeClasses.text.secondary}`}>Correct: Option {question.correctAnswer}</p>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${themeClasses.iconBg.blue} ${isDark ? 'text-blue-400' : 'text-blue-800'}`}>
-                        {question.topic}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${
-                        question.difficulty === 'Easy' ? themeClasses.status.active :
-                        question.difficulty === 'Medium' ? themeClasses.status.draft :
-                        themeClasses.status.inactive
-                      }`}>
-                        {question.difficulty}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${
-                        question.status === 'Published' ? themeClasses.status.published : themeClasses.status.draft
-                      }`}>
-                        {question.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-2">
-                        <button className={`p-1 rounded transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`} aria-label="Edit question">
-                          <Edit className="w-4 h-4 text-blue-500" />
-                        </button>
-                        <button className={`p-1 rounded transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`} aria-label="Delete question">
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    )
+    return <AptitudeQuestionManagement theme={theme} />
   }
   
   // Core Concepts Management Component
