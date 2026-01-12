@@ -4,6 +4,7 @@ import {
   Calendar, Clock, X, Settings, UserCheck, UserX, Shield, Mail, Hash
 } from 'lucide-react'
 import { showToast } from '../utils/toast'
+import UserDashboard from './UserDashboard'
 
 const UserManagement = ({ theme = 'light' }) => {
   const isDark = theme === 'dark'
@@ -297,6 +298,9 @@ const UserManagement = ({ theme = 'light' }) => {
 
   return (
     <div className="space-y-6">
+      {/* Dashboard */}
+      <UserDashboard theme={theme} />
+
       {/* Header */}
       <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

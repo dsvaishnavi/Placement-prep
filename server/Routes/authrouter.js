@@ -334,6 +334,9 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    // Update last login timestamp
+    await userModel.findByIdAndUpdate(user._id, { lastLogin: new Date() });
+
     // Generate JWT token
     const token = jwt.sign(
       { 

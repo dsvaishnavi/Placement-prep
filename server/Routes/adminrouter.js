@@ -98,6 +98,78 @@ router.get("/stats", auth, requireRole(['admin', 'content-manager']), async (req
   }
 });
 
+// Get recent user activity (Admin and Content Manager)
+router.get("/recent-activity", auth, requireRole(['admin', 'content-manager']), async (req, res) => {
+  try {
+    const { limit = 10 } = req.query;
+
+    // Get recently registered users
+    const recentRegistrations = await userModel
+      .find({})
+      .select('name email role createdAt')
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit) / 2);
+
+    // Get recently active users (based on lastLogin)
+    const recentLogins = await userModel
+      .find({ lastLogin: { $ne: null } })
+      .select('name email role lastLogin')
+      .sort({ lastLogin: -1 })
+      .limit(parseInt(limit) / 2);
+
+    // Combine and format activities
+    const activities = [];
+
+    // Add registration activities
+    recentRegistrations.forEach(user => {
+      activities.push({
+        id: `reg_${user._id}`,
+        type: 'registration',
+        user: {
+          name: user.name,
+          email: user.email,
+          role: user.role
+        },
+        timestamp: user.createdAt,
+        description: `New ${user.role} account created`
+      });
+    });
+
+    // Add login activities
+    recentLogins.forEach(user => {
+      activities.push({
+        id: `login_${user._id}`,
+        type: 'login',
+        user: {
+          name: user.name,
+          email: user.email,
+          role: user.role
+        },
+        timestamp: user.lastLogin,
+        description: `User logged in`
+      });
+    });
+
+    // Sort all activities by timestamp (most recent first)
+    activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    // Limit to requested number
+    const limitedActivities = activities.slice(0, parseInt(limit));
+
+    res.status(200).json({
+      success: true,
+      activities: limitedActivities
+    });
+
+  } catch (error) {
+    console.error("Get recent activity error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch recent activity"
+    });
+  }
+});
+
 // Update user role (Admin only)
 router.put("/users/:userId/role", auth, requireAdmin, async (req, res) => {
   try {
