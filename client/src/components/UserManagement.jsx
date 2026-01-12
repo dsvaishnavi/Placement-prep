@@ -385,198 +385,176 @@ const UserManagement = ({ theme = 'light' }) => {
 
   return (
     <div className="space-y-6">
-{/* Dashboard Grid Layout */}
-<div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-  
-  {/* Left Column: Stats Grid (2/5 width) */}
-  <div className="lg:col-span-2">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
+    {/* Dashboard Grid Layout */}
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
       
-      {/* Card 1: Total Users */}
-      <div className={`rounded-xl border p-6 flex flex-col ${themeClasses.cardBg}`}>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Total Users</p>
-            <p className={`text-3xl font-bold ${themeClasses.text.primary}`}>
-              {stats?.users?.total || 0}
-            </p>
-          </div>
-          <div className={`p-3 rounded-lg ${themeClasses.iconBg.blue}`}>
-            <Users className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-          </div>
-        </div>
-        <div className="mt-auto pt-4 flex items-center gap-2">
-          <TrendingUp className={`w-4 h-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
-          <span className={`text-sm ${isDark ? 'text-green-400' : 'text-green-600'}`}>
-            {stats?.users?.active || 0} active
-          </span>
-        </div>
-      </div>
-
-      {/* Card 2: Admin Users */}
-      <div className={`rounded-xl border p-6 flex flex-col ${themeClasses.cardBg}`}>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Admins</p>
-            <p className={`text-3xl font-bold ${themeClasses.text.primary}`}>
-              {stats?.users?.byRole?.admin || 0}
-            </p>
-          </div>
-          <div className={`p-3 rounded-lg ${isDark ? 'bg-purple-500/20' : 'bg-purple-100'}`}>
-            <Shield className={`w-6 h-6 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
-          </div>
-        </div>
-        <div className="mt-auto pt-4 flex items-center gap-2">
-          <Eye className={`w-4 h-4 ${themeClasses.text.secondary}`} />
-          <span className={`text-sm ${themeClasses.text.secondary}`}>
-            Full access
-          </span>
-        </div>
-      </div>
-
-      {/* Card 3: Content Managers */}
-      <div className={`rounded-xl border p-6 flex flex-col ${themeClasses.cardBg}`}>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Content Managers</p>
-            <p className={`text-3xl font-bold ${themeClasses.text.primary}`}>
-              {stats?.users?.byRole?.contentManager || 0}
-            </p>
-          </div>
-          <div className={`p-3 rounded-lg ${isDark ? 'bg-green-500/20' : 'bg-green-100'}`}>
-            <UserCheck className={`w-6 h-6 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
-          </div>
-        </div>
-        <div className="mt-auto pt-4 flex items-center gap-2">
-          <Calendar className={`w-4 h-4 ${themeClasses.text.secondary}`} />
-          <span className={`text-sm ${themeClasses.text.secondary}`}>
-            Content access
-          </span>
-        </div>
-      </div>
-
-      {/* Card 4: Regular Users */}
-      <div className={`rounded-xl border p-6 flex flex-col ${themeClasses.cardBg}`}>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Regular Users</p>
-            <p className={`text-3xl font-bold ${themeClasses.text.primary}`}>
-              {stats?.users?.byRole?.user || 0}
-            </p>
-          </div>
-          <div className={`p-3 rounded-lg ${isDark ? 'bg-orange-500/20' : 'bg-orange-100'}`}>
-            <Users className={`w-6 h-6 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
-          </div>
-        </div>
-        <div className="mt-auto pt-4 flex items-center gap-2">
-          <Clock className={`w-4 h-4 ${themeClasses.text.secondary}`} />
-          <span className={`text-sm ${themeClasses.text.secondary}`}>
-            Standard access
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {/* Right Column: Recent Activity Card (3/5 width) */}
-  <div className="lg:col-span-3">
-    <div className={`rounded-xl border p-6 h-full ${themeClasses.cardBg}`}>
-      <div className="flex items-center justify-between mb-6">
-        <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>Recent Activity</h3>
-        <div className="flex items-center gap-2">
-          <button className={`px-3 py-1 text-sm rounded-lg ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} ${themeClasses.text.secondary} transition-colors`}>
-            Last 24h
-          </button>
-          <button className={`px-3 py-1 text-sm rounded-lg ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} ${themeClasses.text.secondary} transition-colors`}>
-            Last 7 days
-          </button>
-          <button className={`px-3 py-1 text-sm rounded-lg ${isDark ? 'bg-blue-500/20 hover:bg-blue-500/30' : 'bg-blue-100 hover:bg-blue-200'} ${isDark ? 'text-blue-400' : 'text-blue-600'} transition-colors`}>
-            All time
-          </button>
-          <Activity className={`w-5 h-5 ${themeClasses.text.secondary}`} />
-        </div>
-      </div>
-      
-      {dashboardLoading ? (
-        <div className="flex items-center justify-center h-32">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-        </div>
-      ) : recentActivity.length > 0 ? (
-        <div className="space-y-4">
-          {/* Show only last 3 activities */}
-          {recentActivity.slice(0, 3).map((activity) => (
-            <div key={activity.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-              <div className={`p-2 rounded-lg ${activity.type === 'registration' ? (isDark ? 'bg-green-500/20' : 'bg-green-100') : (isDark ? 'bg-blue-500/20' : 'bg-blue-100')}`}>
-                <span className={getActivityColor(activity.type)}>
-                  {getActivityIcon(activity.type)}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className={`font-medium ${themeClasses.text.primary}`}>
-                    {activity.user.name}
-                  </p>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    activity.user.role === 'admin' 
-                      ? isDark ? 'bg-purple-500/20 text-purple-400' : 'bg-purple-100 text-purple-800'
-                      : activity.user.role === 'content-manager'
-                      ? isDark ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-800'
-                      : isDark ? 'bg-gray-500/20 text-gray-400' : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {activity.user.role === 'content-manager' ? 'Content Manager' : 
-                     activity.user.role.charAt(0).toUpperCase() + activity.user.role.slice(1)}
-                  </span>
-                </div>
-                <p className={`text-sm ${themeClasses.text.secondary}`}>
-                  {activity.description}
+      {/* Left Column: Stats Grid (2/5 width) */}
+      <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
+          
+          {/* Card 1: Total Users */}
+          <div className={`rounded-xl border p-6 flex flex-col ${themeClasses.cardBg}`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Total Users</p>
+                <p className={`text-3xl font-bold ${themeClasses.text.primary}`}>
+                  {stats?.users?.total || 0}
                 </p>
               </div>
-              <div className={`text-sm whitespace-nowrap ${themeClasses.text.secondary}`}>
-                {formatActivityDate(activity.timestamp)}
+              <div className={`p-3 rounded-lg ${themeClasses.iconBg.blue}`}>
+                <Users className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
               </div>
             </div>
-          ))}
+            <div className="mt-auto pt-4 flex items-center gap-2">
+              <TrendingUp className={`w-4 h-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+              <span className={`text-sm ${isDark ? 'text-green-400' : 'text-green-600'}`}>
+                {stats?.users?.active || 0} active
+              </span>
+            </div>
+          </div>
+
+          {/* Card 2: Admin Users */}
+          <div className={`rounded-xl border p-6 flex flex-col ${themeClasses.cardBg}`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Admins</p>
+                <p className={`text-3xl font-bold ${themeClasses.text.primary}`}>
+                  {stats?.users?.byRole?.admin || 0}
+                </p>
+              </div>
+              <div className={`p-3 rounded-lg ${isDark ? 'bg-purple-500/20' : 'bg-purple-100'}`}>
+                <Shield className={`w-6 h-6 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
+              </div>
+            </div>
+            <div className="mt-auto pt-4 flex items-center gap-2">
+              <Eye className={`w-4 h-4 ${themeClasses.text.secondary}`} />
+              <span className={`text-sm ${themeClasses.text.secondary}`}>
+                Full access
+              </span>
+            </div>
+          </div>
+
+          {/* Card 3: Content Managers */}
+          <div className={`rounded-xl border p-6 flex flex-col ${themeClasses.cardBg}`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Content Managers</p>
+                <p className={`text-3xl font-bold ${themeClasses.text.primary}`}>
+                  {stats?.users?.byRole?.contentManager || 0}
+                </p>
+              </div>
+              <div className={`p-3 rounded-lg ${isDark ? 'bg-green-500/20' : 'bg-green-100'}`}>
+                <UserCheck className={`w-6 h-6 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+              </div>
+            </div>
+            <div className="mt-auto pt-4 flex items-center gap-2">
+              <Calendar className={`w-4 h-4 ${themeClasses.text.secondary}`} />
+              <span className={`text-sm ${themeClasses.text.secondary}`}>
+                Content access
+              </span>
+            </div>
+          </div>
+
+          {/* Card 4: Regular Users */}
+          <div className={`rounded-xl border p-6 flex flex-col ${themeClasses.cardBg}`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Regular Users</p>
+                <p className={`text-3xl font-bold ${themeClasses.text.primary}`}>
+                  {stats?.users?.byRole?.user || 0}
+                </p>
+              </div>
+              <div className={`p-3 rounded-lg ${isDark ? 'bg-orange-500/20' : 'bg-orange-100'}`}>
+                <Users className={`w-6 h-6 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
+              </div>
+            </div>
+            <div className="mt-auto pt-4 flex items-center gap-2">
+              <Clock className={`w-4 h-4 ${themeClasses.text.secondary}`} />
+              <span className={`text-sm ${themeClasses.text.secondary}`}>
+                Standard access
+              </span>
+            </div>
+          </div>
         </div>
-      ) : (
-        <div className="text-center py-8">
-          <Activity className={`w-12 h-12 mx-auto mb-4 ${themeClasses.text.secondary}`} />
-          <p className={`text-sm ${themeClasses.text.secondary}`}>No recent activity</p>
+      </div>
+
+      {/* Right Column: Recent Activity Card (3/5 width) */}
+      <div className="lg:col-span-3">
+        <div className={`rounded-xl border p-6 h-full ${themeClasses.cardBg}`}>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>Recent Activity</h3>
+            <div className="flex items-center gap-2">
+              <button className={`px-3 py-1 text-sm rounded-lg ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} ${themeClasses.text.secondary} transition-colors`}>
+                Last 24h
+              </button>
+              <button className={`px-3 py-1 text-sm rounded-lg ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} ${themeClasses.text.secondary} transition-colors`}>
+                Last 7 days
+              </button>
+              <button className={`px-3 py-1 text-sm rounded-lg ${isDark ? 'bg-blue-500/20 hover:bg-blue-500/30' : 'bg-blue-100 hover:bg-blue-200'} ${isDark ? 'text-blue-400' : 'text-blue-600'} transition-colors`}>
+                All time
+              </button>
+              <Activity className={`w-5 h-5 ${themeClasses.text.secondary}`} />
+            </div>
+          </div>
+          
+          {dashboardLoading ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+            </div>
+          ) : recentActivity.length > 0 ? (
+            <div className="space-y-4">
+              {/* Show only last 3 activities */}
+              {recentActivity.slice(0, 3).map((activity) => (
+                <div key={activity.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                  <div className={`p-2 rounded-lg ${activity.type === 'registration' ? (isDark ? 'bg-green-500/20' : 'bg-green-100') : (isDark ? 'bg-blue-500/20' : 'bg-blue-100')}`}>
+                    <span className={getActivityColor(activity.type)}>
+                      {getActivityIcon(activity.type)}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className={`font-medium ${themeClasses.text.primary}`}>
+                        {activity.user.name}
+                      </p>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        activity.user.role === 'admin' 
+                          ? isDark ? 'bg-purple-500/20 text-purple-400' : 'bg-purple-100 text-purple-800'
+                          : activity.user.role === 'content-manager'
+                          ? isDark ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-800'
+                          : isDark ? 'bg-gray-500/20 text-gray-400' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {activity.user.role === 'content-manager' ? 'Content Manager' : 
+                        activity.user.role.charAt(0).toUpperCase() + activity.user.role.slice(1)}
+                      </span>
+                    </div>
+                    <p className={`text-sm ${themeClasses.text.secondary}`}>
+                      {activity.description}
+                    </p>
+                  </div>
+                  <div className={`text-sm whitespace-nowrap ${themeClasses.text.secondary}`}>
+                    {formatActivityDate(activity.timestamp)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Activity className={`w-12 h-12 mx-auto mb-4 ${themeClasses.text.secondary}`} />
+              <p className={`text-sm ${themeClasses.text.secondary}`}>No recent activity</p>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
-  </div>
-</div>
 
       {/* Header */}
       <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h2 className={`text-2xl font-bold ${themeClasses.text.primary}`}>User Management</h2>
-            <p className={`text-sm mt-1 ${themeClasses.text.secondary}`}>
-              Manage user accounts, roles, and permissions
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleExport}
-              className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 border ${themeClasses.button.secondary}`}
-            >
-              <Download className="w-4 h-4" />
-              Export
-            </button>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${themeClasses.button.primary}`}
-            >
-              <Plus className="w-4 h-4" />
-              Add User
-            </button>
-          </div>
-        </div>
-      </div>
+        
+          
+            
 
       {/* Filters */}
-      <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
+      {/* <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}> */}
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${themeClasses.text.secondary}`} />
@@ -607,9 +585,29 @@ const UserManagement = ({ theme = 'light' }) => {
             <option value="content-manager">Content Manager</option>
             <option value="user">User</option>
           </select>
+          
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleExport}
+              className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 border ${themeClasses.button.secondary}`}
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </button>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${themeClasses.button.primary}`}
+            >
+              <Plus className="w-4 h-4" />
+              Add User
+            </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </div>     
 
+      
       {/* Users Table */}
       <div className={`rounded-xl border overflow-hidden ${themeClasses.cardBg}`}>
         <div className="overflow-x-auto">
