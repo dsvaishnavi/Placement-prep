@@ -1,7 +1,26 @@
 import { Trophy, Target, Clock, TrendingUp, Calendar, Award, Brain, Users, BookOpen, ChevronRight, Star, Zap, Target as TargetIcon, BarChart3, TrendingDown } from 'lucide-react'
 import Snowfall from 'react-snowfall'
+import { useAuth } from '../context/AuthContext'
 
 function Home({ theme }) {
+  const { user, loading, isAdmin, isContentManager } = useAuth()
+
+  // Show loading state if user data is still being fetched
+  if (loading) {
+    return (
+      <div className={`min-h-screen pt-16 flex items-center justify-center ${theme === 'dark'
+        ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
+        : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
+        }`}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className={`text-lg ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            Loading your dashboard...
+          </p>
+        </div>
+      </div>
+    )
+  }
   // Enhanced dummy data
   const stats = [
     {
@@ -205,7 +224,7 @@ function Home({ theme }) {
           <div className="flex flex-col md:flex-row justify-between items-center mb-6">
             <div className="mb-4 md:mb-0">
               <h1 className={`text-3xl md:text-4xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                Welcome back, Alex! 👋
+                Welcome back, {user?.name?.split(' ')[0] || user?.name || 'User'}! 👋
               </h1>
               <p className={`text-lg ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
                 Your placement preparation dashboard
@@ -230,6 +249,8 @@ function Home({ theme }) {
             </div>
           </div>
         </div>
+
+
 
         {/* Stats Grid - Centered with proper spacing */}
         <div className="mb-8">
@@ -565,7 +586,7 @@ function Home({ theme }) {
               "The secret of getting ahead is getting started. Every expert was once a beginner."
             </p>
             <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-              You're in the top 15% of SkillSync users. Keep pushing! 🚀
+              {user?.name ? `${user.name}, you're` : "You're"} in the top 15% of SkillSync users. Keep pushing! 🚀
             </p>
           </div>
         </div>

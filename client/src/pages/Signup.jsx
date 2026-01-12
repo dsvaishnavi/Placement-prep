@@ -1,10 +1,9 @@
-import { LogIn } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
-import Snowfall from "react-snowfall";
-import { ToastContainer, toast } from "react-toastify";
-import { handleerror } from "../utils";
-import "react-toastify/dist/ReactToastify.css";
+import { LogIn } from 'lucide-react'
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from 'react'
+import Snowfall from 'react-snowfall';
+import { showToast } from '../utils/toast';
+import { useAuth } from '../context/AuthContext';
 
 // Mouse Follower Pink Circle
 const MouseFollower = () => {
@@ -42,76 +41,97 @@ const MouseFollower = () => {
 };
 
 const Signup = ({ theme }) => {
-  const [signupinfo, setSignupinfo] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmpassword: "",
-    otp: "",
+  const [step, setStep] = useState(1); // 1: Form, 2: OTP Verification
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    otp: ''
   });
+  const [loading, setLoading] = useState(false);
+  
+  const { sendOTP, verifyOTP, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
-  const handlechange = (e) => {
-    const { name, value } = e.target;
-    setSignupinfo((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/home');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
-  const validateForm = () => {
-    const { name, email, password, confirmpassword, otp } = signupinfo;
-
-    if (!name || !email || !password || !confirmpassword || !otp) {
-      handleerror("All fields are required!");
-      return false;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      handleerror("Please enter a valid email address!");
-      return false;
-    }
-
-    if (password.length < 6) {
-      handleerror("Password must be at least 6 characters long!");
-      return false;
-    }
-
-    if (password !== confirmpassword) {
-      handleerror("Passwords do not match!");
-      return false;
-    }
-
-    if (otp.length !== 6 || !/^\d+$/.test(otp)) {
-      handleerror("OTP must be 6 digits!");
-      return false;
-    }
-
-    return true;
-  };
-
-  const handlesignup = (e) => {
+  const handleSendOTP = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    if (!validateForm()) {
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      showToast.error('Passwords do not match');
+      setLoading(false);
       return;
     }
 
-    const { name, email, password, otp } = signupinfo;
-    console.log("Signup info:", { name, email, password, otp });
+    // Validate password length
+    if (formData.password.length < 6) {
+      showToast.error('Password must be at least 6 characters long');
+      setLoading(false);
+      return;
+    }
 
-    toast.success("Account created successfully! Please login.", {
-      position: "top-right",
-      autoClose: 3000,
-    });
+    const result = await sendOTP(formData.name, formData.email);
+    
+    if (result.success) {
+      showToast.success(result.message);
+      setStep(2); // Move to OTP verification step
+    } else {
+      showToast.error(result.message);
+    }
+    
+    setLoading(false);
+  };
 
-    setSignupinfo({
-      name: "",
-      email: "",
-      password: "",
-      confirmpassword: "",
-      otp: "",
-    });
+  const handleVerifyOTP = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (!formData.otp || formData.otp.length !== 6) {
+      showToast.error('Please enter a valid 6-digit OTP');
+      setLoading(false);
+      return;
+    }
+
+    const result = await verifyOTP(formData.email, formData.otp, formData.password);
+    
+    if (result.success) {
+      showToast.success(result.message);
+      // Navigation will happen automatically due to useEffect above
+    } else {
+      showToast.error(result.message);
+    }
+    
+    setLoading(false);
+  };
+
+  const handleResendOTP = async () => {
+    setLoading(true);
+
+    const result = await sendOTP(formData.name, formData.email);
+    
+    if (result.success) {
+      showToast.success('OTP resent successfully');
+    } else {
+      showToast.error(result.message);
+    }
+    
+    setLoading(false);
   };
 
   return (
@@ -131,208 +151,144 @@ const Signup = ({ theme }) => {
         radius={[0.5, 3]}
       />
       <MouseFollower />
-
-      {/* Toast Container - Fixed HIGH z-index to appear above navbar */}
-      <div className="fixed top-4 right-4 z-[9999]">
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme={theme}
-          toastStyle={{
-            marginTop: "4rem", // Add margin to push below navbar if needed
-            zIndex: 9999,
-          }}
-        />
-      </div>
-
-      {/* Alternative: Toast Container below navbar with top margin */}
-      <div className="fixed top-20 right-4 z-[9999]">
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme={theme}
-        />
-      </div>
-
-      <div className="min-h-screen flex items-center justify-center p-4 pt-20">
-        {" "}
-        {/* Added pt-20 for navbar space */}
-        <div
-          className={`w-full max-w-lg rounded-2xl p-8 shadow-lg border ${
-            theme === "dark"
-              ? "bg-gray-900/80 border-gray-700 backdrop-blur-sm"
-              : "bg-white/90 border-gray-200 backdrop-blur-sm"
-          }`}
-        >
-          <div className="text-center mb-8">
-            <div
-              className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
-                theme === "dark" ? "bg-blue-500/20" : "bg-blue-100"
-              }`}
-            >
-              <LogIn
-                className={`w-8 h-8 ${
-                  theme === "dark" ? "text-blue-400" : "text-blue-600"
-                }`}
-              />
+      <div className={`min-h-screen flex items-center justify-center pt-16 px-4 ${theme === 'dark'
+        ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
+        : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
+        }`}>
+        <div className={`rounded-xl shadow-sm p-8 backdrop-blur-md border w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl ${theme === 'dark'
+          ? 'bg-white/5 border-white/10'
+          : 'bg-white/70 border-gray-200/60'
+          }`}>
+          <div className="text-center mb-6">
+            <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${theme === 'dark' ? 'bg-blue-500/20' : 'bg-blue-500/10'}`}>
+              <LogIn className={`w-8 h-8 ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`} />
             </div>
-            <h2
-              className={`text-2xl font-bold mb-2 ${
-                theme === "dark" ? "text-white" : "text-gray-900"
-              }`}
-            >
-              Create Account
+            <h2 className={`text-2xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+              {step === 1 ? 'Create your account' : 'Verify your email'}
             </h2>
-            <p
-              className={`text-sm ${
-                theme === "dark" ? "text-gray-300" : "text-gray-600"
-              }`}
-            >
-              Start your placement preparation journey
+            <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+              {step === 1 ? 'Start your placement preparation journey' : `Enter the 6-digit OTP sent to ${formData.email}`}
             </p>
           </div>
 
-          {/* Form */}
-          <form className="space-y-5" onSubmit={handlesignup}>
-            <div className="space-y-4">
+          {step === 1 ? (
+            /* Step 1: Registration Form */
+            <form onSubmit={handleSendOTP} className="mt-6 space-y-4">
               <div>
-                <label
-                  className={`block text-sm font-medium mb-1.5 ${
-                    theme === "dark" ? "text-gray-200" : "text-gray-700"
-                  }`}
-                >
+                <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                   Full Name
                 </label>
                 <input
-                  name="name"
-                  value={signupinfo.name}
-                  onChange={handlechange}
                   type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
                   placeholder="Enter your name"
-                  className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
-                    theme === "dark"
-                      ? "border-gray-600 bg-gray-800/50 text-white focus:ring-blue-500 focus:border-blue-500"
-                      : "border-gray-300 bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500"
-                  }`}
+                  className={`mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent ${theme === 'dark' ? 'border-white/20 bg-white/5 text-white focus:ring-blue-400' : 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'}`}
                 />
               </div>
 
               <div>
-                <label
-                  className={`block text-sm font-medium mb-1.5 ${
-                    theme === "dark" ? "text-gray-200" : "text-gray-700"
-                  }`}
-                >
+                <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                   Email address
                 </label>
                 <input
-                  name="email"
-                  onChange={handlechange}
                   type="email"
-                  value={signupinfo.email}
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
                   placeholder="you@example.com"
-                  className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
-                    theme === "dark"
-                      ? "border-gray-600 bg-gray-800/50 text-white focus:ring-blue-500 focus:border-blue-500"
-                      : "border-gray-300 bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500"
-                  }`}
+                  className={`mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent ${theme === 'dark' ? 'border-white/20 bg-white/5 text-white focus:ring-blue-400' : 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'}`}
                 />
               </div>
 
               <div>
-                <label
-                  className={`block text-sm font-medium mb-1.5 ${
-                    theme === "dark" ? "text-gray-200" : "text-gray-700"
-                  }`}
-                >
+                <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                   Password
                 </label>
                 <input
-                  name="password"
-                  onChange={handlechange}
                   type="password"
-                  value={signupinfo.password}
-                  placeholder="Create a password (min. 6 characters)"
-                  className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
-                    theme === "dark"
-                      ? "border-gray-600 bg-gray-800/50 text-white focus:ring-blue-500 focus:border-blue-500"
-                      : "border-gray-300 bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500"
-                  }`}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  placeholder="Create a password (min 6 characters)"
+                  className={`mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent ${theme === 'dark' ? 'border-white/20 bg-white/5 text-white focus:ring-blue-400' : 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'}`}
                 />
               </div>
 
               <div>
-                <label
-                  className={`block text-sm font-medium mb-1.5 ${
-                    theme === "dark" ? "text-gray-200" : "text-gray-700"
-                  }`}
-                >
+                <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                   Confirm Password
                 </label>
                 <input
-                  name="confirmpassword"
-                  onChange={handlechange}
                   type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
                   placeholder="Confirm password"
-                  value={signupinfo.confirmpassword}
-                  className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
-                    theme === "dark"
-                      ? "border-gray-600 bg-gray-800/50 text-white focus:ring-blue-500 focus:border-blue-500"
-                      : "border-gray-300 bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500"
-                  }`}
+                  className={`mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent ${theme === 'dark' ? 'border-white/20 bg-white/5 text-white focus:ring-blue-400' : 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'}`}
                 />
               </div>
 
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full mt-2 py-2 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${theme === 'dark' ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+              >
+                {loading ? 'Sending OTP...' : 'Send OTP'}
+              </button>
+            </form>
+          ) : (
+            /* Step 2: OTP Verification */
+            <form onSubmit={handleVerifyOTP} className="mt-6 space-y-4">
               <div>
-                <label
-                  className={`block text-sm font-medium mb-1.5 ${
-                    theme === "dark" ? "text-gray-200" : "text-gray-700"
-                  }`}
-                >
-                  Enter OTP (6 digits)
+                <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  Enter 6-digit OTP
                 </label>
                 <input
-                  name="otp"
                   type="text"
-                  value={signupinfo.otp}
-                  onChange={handlechange}
-                  placeholder="Enter 6-digit OTP"
-                  maxLength={6}
-                  className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
-                    theme === "dark"
-                      ? "border-gray-600 bg-gray-800/50 text-white focus:ring-blue-500 focus:border-blue-500"
-                      : "border-gray-300 bg-white text-gray-900 focus:ring-blue-500 focus:border-blue-500"
-                  }`}
+                  name="otp"
+                  value={formData.otp}
+                  onChange={handleChange}
+                  required
+                  maxLength="6"
+                  placeholder="123456"
+                  className={`mt-1 w-full rounded-md border px-3 py-2 text-sm text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:border-transparent ${theme === 'dark' ? 'border-white/20 bg-white/5 text-white focus:ring-blue-400' : 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'}`}
                 />
               </div>
-            </div>
 
-            {/* Button */}
-            <button
-              type="submit"
-              className={`w-full py-3 rounded-lg font-medium transition-colors ${
-                theme === "dark"
-                  ? "bg-blue-600 text-white hover:bg-blue-500"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
-            >
-              Sign up
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full mt-2 py-2 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${theme === 'dark' ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+              >
+                {loading ? 'Verifying...' : 'Verify & Create Account'}
+              </button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={handleResendOTP}
+                  disabled={loading}
+                  className={`text-sm transition-colors disabled:opacity-50 ${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'}`}
+                >
+                  Resend OTP
+                </button>
+                <span className={`mx-2 text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>|</span>
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className={`text-sm transition-colors ${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'}`}
+                >
+                  Change Email
+                </button>
+              </div>
+            </form>
+          )}
 
           {/* Footer */}
           <p
