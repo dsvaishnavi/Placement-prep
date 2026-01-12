@@ -385,15 +385,15 @@ const UserManagement = ({ theme = 'light' }) => {
 
   return (
     <div className="space-y-6">
-      {/* Dashboard Grid Layout */}
+{/* Dashboard Grid Layout */}
 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
   
   {/* Left Column: Stats Grid (2/5 width) */}
   <div className="lg:col-span-2">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
       
       {/* Card 1: Total Users */}
-      <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
+      <div className={`rounded-xl border p-6 flex flex-col ${themeClasses.cardBg}`}>
         <div className="flex items-center justify-between">
           <div>
             <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Total Users</p>
@@ -405,7 +405,7 @@ const UserManagement = ({ theme = 'light' }) => {
             <Users className={`w-6 h-6 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
           </div>
         </div>
-        <div className="mt-4 flex items-center gap-2">
+        <div className="mt-auto pt-4 flex items-center gap-2">
           <TrendingUp className={`w-4 h-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
           <span className={`text-sm ${isDark ? 'text-green-400' : 'text-green-600'}`}>
             {stats?.users?.active || 0} active
@@ -414,7 +414,7 @@ const UserManagement = ({ theme = 'light' }) => {
       </div>
 
       {/* Card 2: Admin Users */}
-      <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
+      <div className={`rounded-xl border p-6 flex flex-col ${themeClasses.cardBg}`}>
         <div className="flex items-center justify-between">
           <div>
             <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Admins</p>
@@ -426,7 +426,7 @@ const UserManagement = ({ theme = 'light' }) => {
             <Shield className={`w-6 h-6 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
           </div>
         </div>
-        <div className="mt-4 flex items-center gap-2">
+        <div className="mt-auto pt-4 flex items-center gap-2">
           <Eye className={`w-4 h-4 ${themeClasses.text.secondary}`} />
           <span className={`text-sm ${themeClasses.text.secondary}`}>
             Full access
@@ -435,7 +435,7 @@ const UserManagement = ({ theme = 'light' }) => {
       </div>
 
       {/* Card 3: Content Managers */}
-      <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
+      <div className={`rounded-xl border p-6 flex flex-col ${themeClasses.cardBg}`}>
         <div className="flex items-center justify-between">
           <div>
             <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Content Managers</p>
@@ -447,7 +447,7 @@ const UserManagement = ({ theme = 'light' }) => {
             <UserCheck className={`w-6 h-6 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
           </div>
         </div>
-        <div className="mt-4 flex items-center gap-2">
+        <div className="mt-auto pt-4 flex items-center gap-2">
           <Calendar className={`w-4 h-4 ${themeClasses.text.secondary}`} />
           <span className={`text-sm ${themeClasses.text.secondary}`}>
             Content access
@@ -456,7 +456,7 @@ const UserManagement = ({ theme = 'light' }) => {
       </div>
 
       {/* Card 4: Regular Users */}
-      <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
+      <div className={`rounded-xl border p-6 flex flex-col ${themeClasses.cardBg}`}>
         <div className="flex items-center justify-between">
           <div>
             <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Regular Users</p>
@@ -468,7 +468,7 @@ const UserManagement = ({ theme = 'light' }) => {
             <Users className={`w-6 h-6 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
           </div>
         </div>
-        <div className="mt-4 flex items-center gap-2">
+        <div className="mt-auto pt-4 flex items-center gap-2">
           <Clock className={`w-4 h-4 ${themeClasses.text.secondary}`} />
           <span className={`text-sm ${themeClasses.text.secondary}`}>
             Standard access
