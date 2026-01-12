@@ -74,19 +74,24 @@ Authorization: Bearer <admin-token>
 
 ## Component Structure
 
-### UserDashboard Component
-- **Location**: `client/src/components/UserDashboard.jsx`
+### UserManagement Component
+- **Location**: `client/src/components/UserManagement.jsx`
 - **Props**: 
   - `theme`: 'light' or 'dark' theme support
 - **Features**:
-  - Statistics cards with icons
-  - Recent activity feed
-  - Responsive design
-  - Loading states
-  - Error handling
+  - **Dashboard Section**:
+    - Statistics cards with icons
+    - Recent activity feed
+    - Responsive design
+    - Loading states
+  - **User Management Section**:
+    - User listing and filtering
+    - User creation and editing
+    - User actions (activate/deactivate, delete)
+    - Export functionality
 
 ### Integration
-The dashboard is integrated into the UserManagement component and appears at the top of the user management interface.
+The dashboard is integrated directly into the UserManagement component and appears at the top of the user management interface, providing a seamless experience.
 
 ## Usage
 
@@ -109,10 +114,10 @@ The dashboard is integrated into the UserManagement component and appears at the
 3. **Updated login tracking** - Records `lastLogin` timestamp on user login
 
 ### Frontend Changes
-1. **Created UserDashboard component** - Displays statistics and activity
-2. **Updated UserManagement component** - Integrated dashboard
-3. **Added responsive design** - Works on mobile and desktop
-4. **Theme support** - Supports light and dark themes
+1. **Enhanced UserManagement component** - Integrated dashboard with statistics and activity
+2. **Added responsive design** - Works on mobile and desktop
+3. **Theme support** - Supports light and dark themes
+4. **Unified interface** - Dashboard and user management in single component
 
 ### Database Changes
 - **lastLogin field**: Automatically updated when users log in
