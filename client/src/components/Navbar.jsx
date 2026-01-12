@@ -1,11 +1,14 @@
-import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, Rocket, Sun, Moon, MonitorSmartphone } from 'lucide-react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Menu, X, Rocket, Sun, Moon, MonitorSmartphone, LogOut, User, Settings, Shield, Edit } from 'lucide-react'
 import { useState } from 'react'
+import { useAuth } from '../context/AuthContext'
 
 const Navbar = ({ theme, setTheme }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [showThemeOptions, setShowThemeOptions] = useState(false)
+  const [showUserMenu, setShowUserMenu] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout, isAuthenticated, isAdmin, isContentManager } = useAuth()
 
   const navItems = [
     { label: 'Home', href: '/home' },
@@ -13,12 +16,17 @@ const Navbar = ({ theme, setTheme }) => {
     { label: 'Core Concepts', href: '/core-concepts' },
     { label: 'Progress', href: '/progress' },
     { label: 'Resume Analyzer', href: '/resumeanalyzer' },
-    // { label: 'Admin', href: '/admin' },
   ]
 
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme)
-    setShowThemeOptions(false)
+    setShowUserMenu(false)
+  }
+
+  const handleLogout = () => {
+    logout()
+    setShowUserMenu(false)
+    navigate('/login')
   }
 
   const getThemeIcon = () => {
@@ -59,12 +67,12 @@ const Navbar = ({ theme, setTheme }) => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-2 lg:space-x-4 xl:space-x-6 absolute left-1/2 transform -translate-x-1/2">
+          <div className="hidden lg:flex items-center space-x-2 xl:space-x-4 absolute left-1/2 transform -translate-x-1/2">
             {navItems.map((item) => (
               <Link
                 key={item.label}
                 to={item.href}
-                className={`relative text-xs lg:text-sm font-medium transition-all duration-300 px-3 py-2 rounded-lg ${isActiveRoute(item.href)
+                className={`relative text-xs xl:text-sm font-medium transition-all duration-300 px-2 xl:px-3 py-2 rounded-lg whitespace-nowrap ${isActiveRoute(item.href)
                   ? `text-blue-400 ${theme === 'dark' ? 'bg-blue-500/20' : 'bg-blue-100'} shadow-lg shadow-blue-500/30`
                   : `hover:text-blue-400 ${theme === 'dark' ? 'text-gray-300 hover:bg-white/5' : 'text-gray-600 hover:bg-gray-100/50'}`
                   }`}
@@ -78,102 +86,169 @@ const Navbar = ({ theme, setTheme }) => {
           </div>
 
           {/* Right Section */}
-          <div className="flex items-center gap-1 sm:gap-2 md:gap-3 flex-shrink-0">
-            {/* Theme Toggle */}
-            <div className="relative">
-              <button
-                onClick={() => setShowThemeOptions(!showThemeOptions)}
-                className={`
-                  flex items-center justify-center w-10 h-10 rounded-lg
-                  transition-all duration-300 ease-out shadow-sm
-                  ${theme === 'dark'
-                    ? 'bg-gray-800/50 hover:bg-gray-700/50 text-white border border-white/10'
-                    : 'bg-white/70 hover:bg-white/80 text-gray-800 border border-gray-200/50'
-                  }
-                  backdrop-blur-sm
-                `}
-                aria-label="Toggle theme"
-              >
-                {getThemeIcon()}
-              </button>
-
-              {showThemeOptions && (
-                <div className={`absolute top-full right-0 mt-2 w-36 rounded-lg shadow-xl backdrop-blur-xl border z-50 ${theme === 'dark'
-                  ? 'bg-gray-800/95 border-white/20'
-                  : 'bg-white/95 border-gray-200'
-                  }`}>
-                  <button
-                    onClick={() => handleThemeChange('light')}
-                    className={`flex items-center justify-between w-full px-3 py-2.5 text-sm transition-colors ${theme === 'light'
-                      ? 'bg-blue-500/20 text-blue-400'
-                      : theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
-                      }`}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Sun className="w-4 h-4 flex-shrink-0" />
-                      <span>Light</span>
-                    </div>
-                    {theme === 'light' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
-                  </button>
-
-                  <button
-                    onClick={() => handleThemeChange('dark')}
-                    className={`flex items-center justify-between w-full px-3 py-2.5 text-sm transition-colors ${theme === 'dark'
-                      ? 'bg-blue-500/20 text-blue-400'
-                      : theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
-                      }`}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Moon className="w-4 h-4 flex-shrink-0" />
-                      <span>Dark</span>
-                    </div>
-                    {theme === 'dark' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
-                  </button>
-
-                  <button
-                    onClick={() => handleThemeChange('system')}
-                    className={`flex items-center justify-between w-full px-3 py-2.5 text-sm transition-colors ${theme === 'system'
-                      ? 'bg-blue-500/20 text-blue-400'
-                      : theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
-                      }`}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <MonitorSmartphone className="w-4 h-4 flex-shrink-0" />
-                      <span>System</span>
-                    </div>
-                    {theme === 'system' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <Link to="/login">
-              <div className={`
-                px-3 py-2 rounded-lg backdrop-blur-lg border
-                transition-all duration-300 ease-out
-                ${theme === 'dark'
-                  ? 'bg-white/5 border-white/10 hover:bg-white/10'
-                  : 'bg-white/70 border-gray-200/60 hover:bg-white/80'
-                }
-              `}>
-                <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                  Login
-                </span>
-              </div>
-            </Link>
-
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-1.5 rounded-md hover:bg-white/10 transition-colors"
+              className={`
+                lg:hidden flex items-center justify-center w-10 h-10 rounded-lg
+                transition-all duration-300 ease-out
+                ${theme === 'dark'
+                  ? 'bg-gray-800/50 hover:bg-gray-700/50 text-white border border-white/10'
+                  : 'bg-white/70 hover:bg-white/80 text-gray-800 border border-gray-200/50'
+                }
+                backdrop-blur-sm
+              `}
+              aria-label="Toggle menu"
             >
               {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
+
+            {/* User Menu or Login Button */}
+            {isAuthenticated ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className={`
+                    flex items-center space-x-2 px-3 py-2 rounded-lg backdrop-blur-lg border
+                    transition-all duration-300 ease-out
+                    ${theme === 'dark'
+                      ? 'bg-white/5 border-white/10 hover:bg-white/10'
+                      : 'bg-white/70 border-gray-200/60 hover:bg-white/80'
+                    }
+                  `}
+                >
+                  <User className="w-4 h-4" />
+                  <span className={`text-sm font-medium hidden sm:inline ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                    {user?.name || 'User'}
+                  </span>
+                </button>
+
+                {showUserMenu && (
+                  <div className={`absolute top-full right-0 mt-2 w-56 rounded-lg shadow-xl backdrop-blur-xl border z-50 ${theme === 'dark'
+                    ? 'bg-gray-800/95 border-white/20'
+                    : 'bg-white/95 border-gray-200'
+                    }`}>
+                    {/* User Info */}
+                    <div className="p-3 border-b border-gray-200/20">
+                      <p className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                        {user?.name}
+                      </p>
+                      <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                        {user?.email}
+                      </p>
+                    </div>
+
+                    {/* Theme Options */}
+                    <div className="p-2 border-b border-gray-200/20">
+                      <div className={`text-xs font-medium mb-2 px-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                        Theme
+                      </div>
+                      <button
+                        onClick={() => handleThemeChange('light')}
+                        className={`flex items-center justify-between w-full px-3 py-2 text-sm rounded-md transition-colors ${theme === 'light'
+                          ? 'bg-blue-500/20 text-blue-400'
+                          : theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
+                          }`}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Sun className="w-4 h-4 flex-shrink-0" />
+                          <span>Light</span>
+                        </div>
+                        {theme === 'light' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
+                      </button>
+
+                      <button
+                        onClick={() => handleThemeChange('dark')}
+                        className={`flex items-center justify-between w-full px-3 py-2 text-sm rounded-md transition-colors ${theme === 'dark'
+                          ? 'bg-blue-500/20 text-blue-400'
+                          : theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
+                          }`}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Moon className="w-4 h-4 flex-shrink-0" />
+                          <span>Dark</span>
+                        </div>
+                        {theme === 'dark' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
+                      </button>
+
+                      <button
+                        onClick={() => handleThemeChange('system')}
+                        className={`flex items-center justify-between w-full px-3 py-2 text-sm rounded-md transition-colors ${theme === 'system'
+                          ? 'bg-blue-500/20 text-blue-400'
+                          : theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
+                          }`}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <MonitorSmartphone className="w-4 h-4 flex-shrink-0" />
+                          <span>System</span>
+                        </div>
+                        {theme === 'system' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
+                      </button>
+                    </div>
+
+                    {/* Management Links */}
+                    {(isAdmin || isContentManager) && (
+                      <div className="p-2 border-b border-gray-200/20">
+                        {isAdmin && (
+                          <Link
+                            to="/admin"
+                            onClick={() => setShowUserMenu(false)}
+                            className={`flex items-center space-x-2 w-full px-3 py-2 text-sm rounded-md transition-colors mb-1 ${theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
+                              }`}
+                          >
+                            <Shield className="w-4 h-4" />
+                            <span>Admin Panel</span>
+                          </Link>
+                        )}
+                        {isContentManager && (
+                          <Link
+                            to="/content-management"
+                            onClick={() => setShowUserMenu(false)}
+                            className={`flex items-center space-x-2 w-full px-3 py-2 text-sm rounded-md transition-colors ${theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
+                              }`}
+                          >
+                            <Edit className="w-4 h-4" />
+                            <span>Content Management</span>
+                          </Link>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Logout */}
+                    <div className="p-2">
+                      <button
+                        onClick={handleLogout}
+                        className={`flex items-center space-x-2 w-full px-3 py-2 text-sm rounded-md transition-colors ${theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
+                          }`}
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link to="/login">
+                <div className={`
+                  px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 ease-out
+                  ${theme === 'dark'
+                    ? 'bg-gradient-to-r from-blue-500/20 to-green-500/20 text-white border border-white/20 hover:from-blue-500/30 hover:to-green-500/30'
+                    : 'bg-gradient-to-r from-blue-500 to-green-500 text-white hover:opacity-90'
+                  }
+                  backdrop-blur-sm shadow-lg
+                `}>
+                  Login
+                </div>
+              </Link>
+            )}
           </div>
         </div>
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden mt-3">
+          <div className="lg:hidden mt-3">
             <div className={`
               p-3 rounded-lg backdrop-blur-xl border
               ${theme === 'dark'
@@ -182,6 +257,7 @@ const Navbar = ({ theme, setTheme }) => {
               }
             `}>
               <div className="flex flex-col space-y-2">
+                {/* Navigation Items */}
                 {navItems.map((item) => (
                   <Link
                     key={item.label}
@@ -195,13 +271,125 @@ const Navbar = ({ theme, setTheme }) => {
                     {item.label}
                   </Link>
                 ))}
-                <Link
-                  to="/login"
-                  className={`py-2 px-3 rounded transition-colors hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Login
-                </Link>
+
+                {/* Management Links for Mobile */}
+                {isAuthenticated && (isAdmin || isContentManager) && (
+                  <div className="border-t border-gray-200/20 pt-2 mt-2">
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        className={`py-2 px-3 rounded transition-all flex items-center space-x-2 mb-1 ${isActiveRoute('/admin')
+                          ? `text-blue-400 ${theme === 'dark' ? 'bg-blue-500/20' : 'bg-blue-100'}`
+                          : `hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`
+                          }`}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Shield className="w-4 h-4" />
+                        <span>Admin Panel</span>
+                      </Link>
+                    )}
+                    {isContentManager && (
+                      <Link
+                        to="/content-management"
+                        className={`py-2 px-3 rounded transition-all flex items-center space-x-2 ${isActiveRoute('/content-management')
+                          ? `text-blue-400 ${theme === 'dark' ? 'bg-blue-500/20' : 'bg-blue-100'}`
+                          : `hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`
+                          }`}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Edit className="w-4 h-4" />
+                        <span>Content Management</span>
+                      </Link>
+                    )}
+                  </div>
+                )}
+
+                {/* Theme Options for Mobile */}
+                <div className="border-t border-gray-200/20 pt-2 mt-2">
+                  <div className={`text-xs font-medium mb-2 px-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Theme
+                  </div>
+                  <button
+                    onClick={() => {
+                      handleThemeChange('light')
+                      setIsMenuOpen(false)
+                    }}
+                    className={`flex items-center justify-between w-full px-3 py-2 text-sm rounded transition-colors ${theme === 'light'
+                      ? 'bg-blue-500/20 text-blue-400'
+                      : theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
+                      }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Sun className="w-4 h-4 flex-shrink-0" />
+                      <span>Light</span>
+                    </div>
+                    {theme === 'light' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      handleThemeChange('dark')
+                      setIsMenuOpen(false)
+                    }}
+                    className={`flex items-center justify-between w-full px-3 py-2 text-sm rounded transition-colors ${theme === 'dark'
+                      ? 'bg-blue-500/20 text-blue-400'
+                      : theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
+                      }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Moon className="w-4 h-4 flex-shrink-0" />
+                      <span>Dark</span>
+                    </div>
+                    {theme === 'dark' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      handleThemeChange('system')
+                      setIsMenuOpen(false)
+                    }}
+                    className={`flex items-center justify-between w-full px-3 py-2 text-sm rounded transition-colors ${theme === 'system'
+                      ? 'bg-blue-500/20 text-blue-400'
+                      : theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
+                      }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <MonitorSmartphone className="w-4 h-4 flex-shrink-0" />
+                      <span>System</span>
+                    </div>
+                    {theme === 'system' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
+                  </button>
+                </div>
+
+                {/* User Actions */}
+                <div className="border-t border-gray-200/20 pt-2 mt-2">
+                  {isAuthenticated ? (
+                    <>
+                      <div className={`text-xs font-medium mb-2 px-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                        {user?.name} ({user?.email})
+                      </div>
+                      <button
+                        onClick={() => {
+                          handleLogout()
+                          setIsMenuOpen(false)
+                        }}
+                        className={`flex items-center space-x-2 w-full py-2 px-3 rounded transition-colors hover:bg-white/10 text-sm text-left ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Logout</span>
+                      </button>
+                    </>
+                  ) : (
+                    <Link
+                      to="/login"
+                      className={`flex items-center space-x-2 py-2 px-3 rounded transition-colors hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <User className="w-4 h-4" />
+                      <span>Login</span>
+                    </Link>
+                  )}
+                </div>
               </div>
             </div>
           </div>

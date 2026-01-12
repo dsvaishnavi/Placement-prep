@@ -1,56 +1,96 @@
 // App.jsx
 import { useState, useEffect, Suspense } from 'react'
 import { useLocation } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
 import Navbar from './components/Navbar'
+import Footer from './components/Footer' // Import the Footer
 import AppRoutes from './routes/AppRoutes'
 import LoadingSpinner from './components/LoadingSpinner'
+import { useSessionManager } from './hooks/useSessionManager'
+import SessionDebug from './components/SessionDebug'
 
 function App() {
   const [landingTheme, setLandingTheme] = useState('dark')
   const [appTheme, setAppTheme] = useState(() => {
-    // Load theme from localStorage or default to 'light' for app pages
     return localStorage.getItem('appTheme') || 'light'
   })
   const [isLoading, setIsLoading] = useState(false)
   const location = useLocation()
 
+  // Initialize session management
+  useSessionManager()
+
   useEffect(() => {
-    // Show loading on route change
+    // Only show loading animation for actual navigation, not for refresh
+    // Check if this is a page refresh by looking at performance navigation type
+    const isPageRefresh = performance.navigation?.type === 1 || 
+                         performance.getEntriesByType('navigation')[0]?.type === 'reload';
+    
+    // Don't show loading on refresh if user has a token (likely authenticated)
+    if (isPageRefresh && localStorage.getItem('token')) {
+      return; // Skip loading animation on refresh for authenticated users
+    }
+    
     setIsLoading(true)
-    const timer = setTimeout(() => setIsLoading(false), 500) // Simulate loading time
+    const timer = setTimeout(() => setIsLoading(false), 300) // Reduced from 500ms to 300ms
     return () => clearTimeout(timer)
   }, [location.pathname])
 
   useEffect(() => {
-    // Save theme to localStorage
-    if (location.pathname === '/') {
-      localStorage.setItem('landingTheme', landingTheme)
+    if (location.pathname === "/") {
+      localStorage.setItem("landingTheme", landingTheme);
     } else {
-      localStorage.setItem('appTheme', appTheme)
+      localStorage.setItem("appTheme", appTheme);
     }
-  }, [landingTheme, appTheme, location.pathname])
+  }, [landingTheme, appTheme, location.pathname]);
 
-  const currentTheme = location.pathname === '/' ? landingTheme : appTheme
-  const setCurrentTheme = (newTheme) => {
-    if (location.pathname === '/') {
-      setLandingTheme(newTheme)
+  const currentTheme = location.pathname === "/" ? landingTheme : appTheme;
+
+  const setCurrentTheme = (theme) => {
+    if (location.pathname === "/") {
+      setLandingTheme(theme);
     } else {
-      setAppTheme(newTheme)
+      setAppTheme(theme);
     }
   }
 
+  // Check if we should show navbar (exclude landing page, auth pages, admin pages, and test pages)
+  const authPages = ['/login', '/signup', '/admin-setup']
+  const adminPages = ['/admin']
+  const testPages = ['/toast-test']
+  const excludedPages = ['/', ...authPages, ...adminPages, ...testPages]
+  const showNavbar = !excludedPages.includes(location.pathname)
+  
+  // Check if we should show footer (not on landing page)
+  const showFooter = location.pathname !== '/'
+
   return (
-    <div className={`min-h-screen transition-all duration-300 relative ${currentTheme === 'dark'
+    <div className={`min-h-screen transition-all duration-300 relative flex flex-col ${currentTheme === 'dark'
       ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
       : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
       }`}>
-      {location.pathname !== '/' && <Navbar theme={currentTheme} setTheme={setCurrentTheme} />}
-      <Suspense fallback={<LoadingSpinner theme={currentTheme} />}>
-        <AppRoutes landingTheme={landingTheme} setLandingTheme={setLandingTheme} appTheme={appTheme} setAppTheme={setAppTheme} />
-      </Suspense>
+      
+      {showNavbar && <Navbar theme={currentTheme} setTheme={setCurrentTheme} />}
+      
+      <main className="flex-1">
+        <Suspense fallback={<LoadingSpinner theme={currentTheme} />}>
+          <AppRoutes
+            landingTheme={landingTheme}
+            setLandingTheme={setLandingTheme}
+            appTheme={appTheme}
+            setAppTheme={setAppTheme}
+          />
+        </Suspense>
+      </main>
+
+      {showFooter && <Footer theme={appTheme} />}
+      
+      {/* Session Debug Component (Development Only) */}
+      <SessionDebug theme={currentTheme} />
+      
       {isLoading && <LoadingSpinner theme={currentTheme} />}
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

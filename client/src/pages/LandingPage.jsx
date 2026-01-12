@@ -27,44 +27,33 @@ import {
   Linkedin,
   Mail,
   Sun,
-  Moon
+  Moon,
+  BookOpen,
+  Code,
+  Briefcase,
+  CheckCircle,
+  DollarSign,
+  Calendar,
+  Video,
+  FileText,
+  Search,
+  TrendingUp as TrendingUpIcon,
+  UserCheck,
+  Laptop,
+  Smartphone,
+  Server,
+  Database,
+  Cloud,
+  Lock,
+  Headphones,
+  HelpCircle,
+  BarChart,
+  Target as TargetIcon,
+  Clock as ClockIcon,
+  Award as AwardIcon
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-
-// // Mouse Follower Pink Circle - DISABLED
-// const MouseFollower = () => {
-//   const [position, setPosition] = useState({ x: 0, y: 0 })
-//   const circleRef = useRef(null)
-
-//   useEffect(() => {
-//     const handleMouseMove = (e) => {
-//       const x = e.clientX
-//       const y = e.clientY
-//       setPosition({ x, y })
-//     }
-
-//     window.addEventListener('mousemove', handleMouseMove)
-//     return () => window.removeEventListener('mousemove', handleMouseMove)
-//   }, [])
-
-//   return (
-//     <div
-//       ref={circleRef}
-//       className="fixed pointer-events-none z-30 mix-blend-screen"
-//       style={{
-//         left: `${position.x}px`,
-//         top: `${position.y}px`,
-//         transform: 'translate(-50%, -50%)',
-//         transition: 'left 0.1s ease-out, top 0.1s ease-out',
-//         willChange: 'transform'
-//       }}
-//     >
-//       <div className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 blur-sm" />
-//       <div className="absolute inset-0 w-6 h-6 rounded-full bg-gradient-to-r from-pink-400/40 to-purple-400/40 blur-sm" />
-//       <div className="absolute inset-0 w-4 h-4 rounded-full bg-pink-400/60 blur-sm" />
-//     </div>
-//   )
-// }
+import Snowfall from 'react-snowfall'
 
 // Fixed Circuit Green Particles Animation
 const CircuitGreenParticles = ({ theme }) => {
@@ -78,14 +67,12 @@ const CircuitGreenParticles = ({ theme }) => {
 
     const ctx = canvas.getContext('2d')
     const particles = []
-    const particleCount = 50 // Optimized for mobile
+    const particleCount = 50
 
     let width = 0, height = 0
     let devicePixelRatio = 1
 
-    // Responsive circuit path points
     const getCircuitPoints = () => {
-      // Ensure we have valid dimensions
       const safeWidth = Math.max(width, 100)
       const safeHeight = Math.max(height, 100)
 
@@ -132,16 +119,13 @@ const CircuitGreenParticles = ({ theme }) => {
       width = rect.width
       height = rect.height
 
-      // Set canvas size exactly to container size
       canvas.width = width
       canvas.height = height
 
-      // Update circuit points
       circuitPoints = getCircuitPoints()
       initParticles()
     }
 
-    // Initialize
     setCanvasSize()
     const resizeObserver = new ResizeObserver(setCanvasSize)
     if (containerRef.current) {
@@ -154,14 +138,12 @@ const CircuitGreenParticles = ({ theme }) => {
         return
       }
 
-      // Clear with minimal fade
       ctx.fillStyle = theme === 'dark'
         ? 'rgba(0, 0, 0, 0.02)'
         : 'rgba(255, 255, 255, 0.01)'
       ctx.fillRect(0, 0, width, height)
 
       particles.forEach(particle => {
-        // Update progress along circuit path
         particle.progress += particle.speed
         if (particle.progress > 1) {
           particle.progress = 0
@@ -169,7 +151,6 @@ const CircuitGreenParticles = ({ theme }) => {
           particle.trail = []
         }
 
-        // Calculate position along circuit path
         const startPoint = circuitPoints[particle.currentPath]
         const endPoint = circuitPoints[particle.currentPath + 1] || circuitPoints[0]
 
@@ -177,23 +158,19 @@ const CircuitGreenParticles = ({ theme }) => {
         const baseX = startPoint.x + (endPoint.x - startPoint.x) * t
         const baseY = startPoint.y + (endPoint.y - startPoint.y) * t
 
-        // Add smooth sinusoidal movement
         const maxOffset = Math.min(width, height) * 0.02
         const circuitOffset = Math.sin(particle.progress * Math.PI * 2) * maxOffset
         const finalX = baseX + Math.cos(particle.pulsePhase) * circuitOffset
         const finalY = baseY + Math.sin(particle.pulsePhase) * circuitOffset
 
-        // Update pulse for glowing effect
         particle.pulsePhase += particle.pulseSpeed
         particle.glow = Math.sin(particle.pulsePhase) * 0.5 + 0.5
 
-        // Store position for trail
         particle.trail.push({ x: finalX, y: finalY })
         if (particle.trail.length > particle.trailLength) {
           particle.trail.shift()
         }
 
-        // Draw trail (circuit trace)
         if (particle.trail.length > 1) {
           ctx.strokeStyle = theme === 'dark'
             ? `rgba(34, 197, 94, ${0.15 * particle.glow})`
@@ -210,20 +187,17 @@ const CircuitGreenParticles = ({ theme }) => {
           ctx.stroke()
         }
 
-        // Draw particle with glowing effect
         const opacity = particle.baseOpacity * (0.8 + 0.2 * particle.glow)
         const size = particle.size * (0.8 + 0.4 * particle.glow)
 
-        // Glow effect - visible in dark mode
         ctx.fillStyle = theme === 'dark'
-          ? `rgba(34, 197, 94, ${opacity * 0.5})` // Increased opacity for dark mode
+          ? `rgba(34, 197, 94, ${opacity * 0.5})`
           : `rgba(21, 128, 61, ${opacity * 0.3})`
 
         ctx.beginPath()
         ctx.arc(finalX, finalY, size * 2.5, 0, Math.PI * 2)
         ctx.fill()
 
-        // Particle core - brighter in dark mode
         ctx.fillStyle = theme === 'dark'
           ? `rgba(34, 197, 94, ${0.9 * particle.glow})`
           : `rgba(21, 128, 61, ${0.8 * particle.glow})`
@@ -232,7 +206,6 @@ const CircuitGreenParticles = ({ theme }) => {
         ctx.arc(finalX, finalY, size, 0, Math.PI * 2)
         ctx.fill()
 
-        // Particle highlight
         ctx.fillStyle = theme === 'dark'
           ? `rgba(255, 255, 255, ${0.8 * particle.glow})`
           : `rgba(255, 255, 255, ${0.6 * particle.glow})`
@@ -267,7 +240,7 @@ const CircuitGreenParticles = ({ theme }) => {
   )
 }
 
-// Fixed Short Circuit Spark Animation (visible in dark mode)
+// Fixed Short Circuit Spark Animation
 const ShortCircuitSparks = ({ theme }) => {
   const canvasRef = useRef(null)
   const animationRef = useRef(null)
@@ -310,7 +283,7 @@ const ShortCircuitSparks = ({ theme }) => {
         maxLife: life,
         size: 1.5 + Math.random() * 2.5,
         color: theme === 'dark'
-          ? `rgba(251, 191, 36, ${0.9})` // Brighter yellow for dark mode
+          ? `rgba(251, 191, 36, ${0.9})`
           : `rgba(245, 158, 11, ${0.8})`
       })
     }
@@ -331,20 +304,17 @@ const ShortCircuitSparks = ({ theme }) => {
         return
       }
 
-      // Clear with fade
       ctx.fillStyle = theme === 'dark'
         ? 'rgba(0, 0, 0, 0.03)'
         : 'rgba(255, 255, 255, 0.01)'
       ctx.fillRect(0, 0, width, height)
 
-      // Update spark timer
       sparkTimer++
-      if (sparkTimer - lastSparkTime > 90 + Math.random() * 120) { // 1.5-3.5 seconds
+      if (sparkTimer - lastSparkTime > 90 + Math.random() * 120) {
         createSparkBurst()
         lastSparkTime = sparkTimer
       }
 
-      // Update and draw sparks
       for (let i = sparks.length - 1; i >= 0; i--) {
         const spark = sparks[i]
 
@@ -352,16 +322,13 @@ const ShortCircuitSparks = ({ theme }) => {
         spark.y += spark.vy
         spark.life--
 
-        // Fade out
         const opacity = spark.life / spark.maxLife
 
-        // Draw spark with glow
         ctx.fillStyle = spark.color.replace(')', `, ${opacity})`).replace('rgb', 'rgba')
         ctx.beginPath()
         ctx.arc(spark.x, spark.y, spark.size, 0, Math.PI * 2)
         ctx.fill()
 
-        // Spark trail - visible in dark mode
         ctx.strokeStyle = theme === 'dark'
           ? `rgba(251, 191, 36, ${opacity * 0.6})`
           : `rgba(245, 158, 11, ${opacity * 0.4})`
@@ -371,7 +338,6 @@ const ShortCircuitSparks = ({ theme }) => {
         ctx.lineTo(spark.x, spark.y)
         ctx.stroke()
 
-        // Remove dead sparks
         if (spark.life <= 0) {
           sparks.splice(i, 1)
         }
@@ -409,14 +375,9 @@ const ThemeToggle = ({ theme, setTheme }) => {
     setShowOptions(false)
   }
 
-  const getThemeLabel = () => {
-    if (theme === 'system') return 'System'
-    return theme === 'dark' ? 'Dark' : 'Light'
-  }
-
   const getThemeIcon = () => {
-    if (theme === 'system') return <MonitorSmartphone className="w-4 h-4 sm:w-5 sm:h-5" />
-    return theme === 'dark' ? <Moon className="w-4 h-4 sm:w-5 sm:h-5" /> : <Sun className="w-4 h-4 sm:w-5 sm:h-5" />
+    if (theme === 'system') return <MonitorSmartphone className="w-4 h-4" />
+    return theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />
   }
 
   return (
@@ -424,66 +385,62 @@ const ThemeToggle = ({ theme, setTheme }) => {
       <button
         onClick={() => setShowOptions(!showOptions)}
         className={`
-          flex items-center justify-center space-x-1 sm:space-x-2
-          min-h-[2.75rem] sm:min-h-[2.5rem] px-2 sm:px-3 py-2 sm:py-1.5
-          rounded-lg transition-all duration-300 ease-out
-          touch-manipulation select-none
+          flex items-center justify-center w-10 h-10 rounded-lg
+          transition-all duration-300 ease-out
           ${theme === 'dark'
-            ? 'bg-gray-800/50 hover:bg-gray-700/50 active:bg-gray-600/50 text-white border border-white/10'
-            : 'bg-gray-200/50 hover:bg-gray-300/50 active:bg-gray-400/50 text-gray-800 border border-gray-300/50'
+            ? 'bg-gray-800/50 hover:bg-gray-700/50 text-white border border-white/10'
+            : 'bg-white/70 hover:bg-white/80 text-gray-800 border border-gray-200/50'
           }
+          backdrop-blur-sm
         `}
-        aria-label={`Current theme: ${getThemeLabel()}. Click to change theme.`}
+        aria-label="Toggle theme"
       >
         {getThemeIcon()}
-        <span className="text-xs sm:text-sm font-medium hidden sm:inline">
-          {getThemeLabel()}
-        </span>
       </button>
 
       {showOptions && (
-        <div className={`absolute top-full left-0 mt-2 w-36 sm:w-40 rounded-lg shadow-xl backdrop-blur-xl border z-50 ${theme === 'dark'
+        <div className={`absolute top-full right-0 mt-2 w-36 rounded-lg shadow-xl backdrop-blur-xl border z-50 ${theme === 'dark'
           ? 'bg-gray-800/95 border-white/20'
           : 'bg-white/95 border-gray-200'
           }`}>
           <button
             onClick={() => handleThemeChange('light')}
-            className={`flex items-center justify-between w-full px-3 py-3 sm:py-2.5 text-sm sm:text-base transition-colors touch-manipulation ${theme === 'light'
+            className={`flex items-center justify-between w-full px-3 py-2.5 text-sm transition-colors ${theme === 'light'
               ? 'bg-blue-500/20 text-blue-400'
-              : theme === 'dark' ? 'hover:bg-gray-700/50 active:bg-gray-600/50 text-gray-200' : 'hover:bg-gray-100/50 active:bg-gray-200/50 text-gray-700'
+              : theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
               }`}
           >
             <div className="flex items-center space-x-2">
-              <Sun className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-              <span className="font-medium">Light</span>
+              <Sun className="w-4 h-4 flex-shrink-0" />
+              <span>Light</span>
             </div>
             {theme === 'light' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
           </button>
 
           <button
             onClick={() => handleThemeChange('dark')}
-            className={`flex items-center justify-between w-full px-3 py-3 sm:py-2.5 text-sm sm:text-base transition-colors touch-manipulation ${theme === 'dark'
+            className={`flex items-center justify-between w-full px-3 py-2.5 text-sm transition-colors ${theme === 'dark'
               ? 'bg-blue-500/20 text-blue-400'
-              : theme === 'dark' ? 'hover:bg-gray-700/50 active:bg-gray-600/50 text-gray-200' : 'hover:bg-gray-100/50 active:bg-gray-200/50 text-gray-700'
+              : theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
               }`}
           >
             <div className="flex items-center space-x-2">
-              <Moon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-              <span className="font-medium">Dark</span>
+              <Moon className="w-4 h-4 flex-shrink-0" />
+              <span>Dark</span>
             </div>
             {theme === 'dark' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
           </button>
 
           <button
             onClick={() => handleThemeChange('system')}
-            className={`flex items-center justify-between w-full px-3 py-3 sm:py-2.5 text-sm sm:text-base transition-colors touch-manipulation ${theme === 'system'
+            className={`flex items-center justify-between w-full px-3 py-2.5 text-sm transition-colors ${theme === 'system'
               ? 'bg-blue-500/20 text-blue-400'
-              : theme === 'dark' ? 'hover:bg-gray-700/50 active:bg-gray-600/50 text-gray-200' : 'hover:bg-gray-100/50 active:bg-gray-200/50 text-gray-700'
+              : theme === 'dark' ? 'hover:bg-gray-700/50 text-gray-200' : 'hover:bg-gray-100/50 text-gray-700'
               }`}
           >
             <div className="flex items-center space-x-2">
-              <MonitorSmartphone className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-              <span className="font-medium">System</span>
+              <MonitorSmartphone className="w-4 h-4 flex-shrink-0" />
+              <span>System</span>
             </div>
             {theme === 'system' && <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />}
           </button>
@@ -493,47 +450,11 @@ const ThemeToggle = ({ theme, setTheme }) => {
   )
 }
 
-// Sticky Get Started Button
-const StickyGetStartedButton = ({ theme }) => {
-  const [visible, setVisible] = useState(true)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      // Always show button, but reduce opacity when scrolled far
-      setVisible(window.scrollY < window.innerHeight * 0.8)
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  return (
-    <Link to="/signup">
-      <button
-        className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl font-semibold
-          transition-all duration-300 ease-out
-          bg-gradient-to-r from-blue-500 to-green-500
-          hover:from-blue-600 hover:to-green-600
-          hover:scale-105 active:scale-95
-          shadow-lg shadow-green-500/30
-          flex items-center space-x-2
-          ${visible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}
-        `}
-      >
-        <Rocket className="w-4 h-4" />
-        <span className="text-sm">Get Started</span>
-      </button>
-    </Link>
-  )
-}
-
 // Main Component
 function LandingPage({ theme, setTheme }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  // Force hide scrollbar on all elements
   useEffect(() => {
-    // Add hide-scrollbar class to all scrollable elements
     const style = document.createElement('style')
     style.innerHTML = `
       .hide-scrollbar::-webkit-scrollbar {
@@ -562,9 +483,8 @@ function LandingPage({ theme, setTheme }) {
 
   const navItems = [
     { label: 'Features', href: '#features' },
-    { label: 'Why Skill Sync', href: '#why' },
-    { label: 'Reach', href: '#reach' },
-    { label: 'Company', href: '#company' },
+    { label: 'Pricing', href: '#pricing' },
+    { label: 'About', href: '#about' },
     { label: 'Contact', href: '#contact' },
   ]
 
@@ -582,7 +502,7 @@ function LandingPage({ theme, setTheme }) {
       link: "/core-concepts"
     },
     {
-      icon: Activity, // Replaced BarChart3 with Activity
+      icon: Activity,
       title: "Progress Tracking",
       description: "Detailed analytics and performance insights dashboard.",
       link: "/progress"
@@ -597,21 +517,76 @@ function LandingPage({ theme, setTheme }) {
       icon: MessageSquare,
       title: "Mock Interviews",
       description: "Realistic interview simulations with feedback.",
-      link: "/aptitude"
+      link: "/interview"
     },
     {
       icon: Brain,
       title: "Smart Analytics",
       description: "Identify strengths and areas for improvement.",
       link: "/progress"
+    },
+    {
+      icon: Code,
+      title: "Coding Challenges",
+      description: "500+ coding problems with detailed solutions.",
+      link: "/coding"
+    },
+    {
+      icon: Video,
+      title: "Video Tutorials",
+      description: "Learn from industry experts with video courses.",
+      link: "/tutorials"
+    },
+    {
+      icon: BookOpen,
+      title: "Study Material",
+      description: "Comprehensive notes and reference materials.",
+      link: "/study"
+    }
+  ]
+
+  const courses = [
+    {
+      title: "Data Structures & Algorithms",
+      level: "Beginner to Advanced",
+      duration: "8 weeks",
+      students: "10K+",
+      icon: Database,
+      color: "from-blue-500 to-cyan-500"
+    },
+    {
+      title: "System Design",
+      level: "Intermediate",
+      duration: "6 weeks",
+      students: "5K+",
+      icon: Server,
+      color: "from-purple-500 to-pink-500"
+    },
+    {
+      title: "Frontend Development",
+      level: "Beginner",
+      duration: "4 weeks",
+      students: "15K+",
+      icon: Laptop,
+      color: "from-green-500 to-emerald-500"
+    },
+    {
+      title: "Backend Development",
+      level: "Intermediate",
+      duration: "6 weeks",
+      students: "8K+",
+      icon: Cloud,
+      color: "from-orange-500 to-red-500"
     }
   ]
 
   const stats = [
-    { icon: Users, value: "10K+", label: "Students Trained" },
+    { icon: Users, value: "50K+", label: "Active Students" },
     { icon: Award, value: "95%", label: "Placement Rate" },
-    { icon: Target, value: "500+", label: "Companies" },
-    { icon: Star, value: "4.8", label: "Rating" }
+    { icon: Target, value: "1000+", label: "Company Partners" },
+    { icon: Star, value: "4.9", label: "Rating" },
+    { icon: Briefcase, value: "85%", label: "Job Offers" },
+    { icon: CheckCircle, value: "10K+", label: "Problems Solved" }
   ]
 
   const successMetrics = [
@@ -621,29 +596,121 @@ function LandingPage({ theme, setTheme }) {
     { value: "24/7", label: "Learning Support", icon: Clock }
   ]
 
+  const interviewPrep = [
+    {
+      title: "Technical Interviews",
+      description: "Practice coding questions from FAANG companies",
+      icon: Terminal
+    },
+    {
+      title: "Behavioral Questions",
+      description: "Master STAR method and situational questions",
+      icon: MessageSquare
+    },
+    {
+      title: "Resume Review",
+      description: "Get expert feedback on your resume",
+      icon: FileText
+    },
+    {
+      title: "Mock Interviews",
+      description: "Live mock interviews with industry professionals",
+      icon: Video
+    }
+  ]
+
+  const pricingPlans = [
+    {
+      name: "Free",
+      price: "$0",
+      period: "forever",
+      features: [
+        "Basic Coding Problems",
+        "Limited Aptitude Tests",
+        "Community Support",
+        "Basic Progress Tracking"
+      ],
+      highlighted: false
+    },
+    {
+      name: "Pro",
+      price: "$29",
+      period: "/month",
+      features: [
+        "All Coding Problems",
+        "Unlimited Aptitude Tests",
+        "Mock Interviews",
+        "Resume Builder",
+        "Priority Support",
+        "Advanced Analytics"
+      ],
+      highlighted: true
+    },
+    {
+      name: "Enterprise",
+      price: "Custom",
+      period: "pricing",
+      features: [
+        "Everything in Pro",
+        "Custom Learning Paths",
+        "Team Management",
+        "API Access",
+        "Dedicated Support",
+        "White-labeling"
+      ],
+      highlighted: false
+    }
+  ]
+
+  const testimonials = [
+    {
+      name: "Alex Johnson",
+      role: "Software Engineer @ Google",
+      content: "Skill Sync helped me crack 5 FAANG interviews. The mock interviews were incredibly realistic!",
+      avatar: "AJ"
+    },
+    {
+      name: "Sarah Chen",
+      role: "Product Manager @ Microsoft",
+      content: "The aptitude training was exactly what I needed. Landed my dream job in 3 months!",
+      avatar: "SC"
+    },
+    {
+      name: "David Park",
+      role: "Data Scientist @ Amazon",
+      content: "The coding challenges are top-notch. They match real interview difficulty perfectly.",
+      avatar: "DP"
+    }
+  ]
+
   return (
     <div className={`min-h-screen transition-all duration-300 relative hide-scrollbar ${theme === 'dark'
       ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
       : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
       }`}>
+      <Snowfall 
+        style={{
+          position: 'fixed',
+          width: '100vw',
+          height: '100vh',
+          pointerEvents: 'none',
+          zIndex: 1
+        }}
+        snowflakeCount={100}
+        color={theme === 'dark' ? '#ffffff' : '#cbd5e1'}
+        speed={[0.5, 1.5]}
+        wind={[-0.5, 0.5]}
+        radius={[0.5, 3]}
+      />
 
-      {/* Mouse Follower Pink Circle - DISABLED */}
-      {/* <MouseFollower /> */}
-
-      {/* Background Animations */}
       <CircuitGreenParticles theme={theme} />
       <ShortCircuitSparks theme={theme} />
 
-      {/* Glass Overlay */}
       <div className={`fixed inset-0 pointer-events-none ${theme === 'dark'
         ? 'bg-gradient-to-b from-transparent via-transparent to-black/10'
         : 'bg-gradient-to-b from-transparent via-transparent to-white/10'
         }`} />
 
-      {/* Sticky Get Started Button - REMOVED */}
-      {/* <StickyGetStartedButton theme={theme} /> */}
-
-      {/* Navigation */}
       <nav className={`
         fixed top-0 left-0 right-0 z-40 
         transition-all duration-300 ease-out
@@ -653,9 +720,8 @@ function LandingPage({ theme, setTheme }) {
           : 'backdrop-blur-lg sm:backdrop-blur-xl bg-white/40 border-b border-gray-200/50'
         }
       `}>
-        <div className="container mx-auto px-3 sm:px-4">
+        <div className="container mx-auto px-3 sm:px-4 max-w-7xl">
           <div className="flex items-center justify-between">
-            {/* Logo */}
             <Link to="/" className="flex items-center space-x-1 sm:space-x-1.5 md:space-x-2 flex-shrink-0">
               <div className={`p-1 sm:p-1.5 rounded-md ${theme === 'dark'
                 ? 'bg-gradient-to-br from-blue-500/15 to-green-500/15'
@@ -674,12 +740,12 @@ function LandingPage({ theme, setTheme }) {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-2 lg:space-x-4 xl:space-x-6 absolute left-1/2 transform -translate-x-1/2">
+            <div className="hidden lg:flex items-center space-x-4 xl:space-x-8 absolute left-1/2 transform -translate-x-1/2">
               {navItems.map((item) => (
                 <a
                   key={item.label}
                   href={item.href}
-                  className={`text-xs lg:text-sm font-medium transition-colors hover:text-blue-400 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                  className={`text-sm xl:text-base font-medium transition-colors hover:text-blue-400 px-2 py-1 rounded-md ${theme === 'dark' ? 'text-gray-300 hover:bg-white/5' : 'text-gray-600 hover:bg-gray-100/50'
                     }`}
                 >
                   {item.label}
@@ -687,38 +753,38 @@ function LandingPage({ theme, setTheme }) {
               ))}
             </div>
 
-            {/* Right Section */}
-            <div className="flex items-center gap-1 sm:gap-2 md:gap-3 flex-shrink-0">
+            {/* Right Section - Only Login Button */}
+            <div className="flex items-center gap-3 flex-shrink-0">
               <ThemeToggle theme={theme} setTheme={setTheme} />
 
               <Link to="/login">
                 <div className={`
-                  min-h-[2.75rem] sm:min-h-[2.5rem] px-3 sm:px-4 py-2 sm:py-1.5 rounded-lg backdrop-blur-lg border
+                  px-4 py-2 rounded-lg backdrop-blur-lg border
                   flex items-center justify-center transition-all duration-300 ease-out
-                  touch-manipulation select-none
                   ${theme === 'dark'
-                    ? 'bg-white/5 border-white/10 hover:bg-white/10 active:bg-white/15'
-                    : 'bg-white/70 border-gray-200/60 hover:bg-white/80 active:bg-white/90'
+                    ? 'bg-white/5 border-white/10 hover:bg-white/10'
+                    : 'bg-white/70 border-gray-200/60 hover:bg-white/80'
                   }
                 `}>
-                  <span className={`text-sm sm:text-base font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                     Login
                   </span>
                 </div>
               </Link>
 
+              {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="md:hidden p-1 sm:p-1.5 rounded-md hover:bg-white/10 transition-colors"
+                className="lg:hidden p-2 rounded-md hover:bg-white/10 transition-colors"
               >
-                {isMenuOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5" />}
+                {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
           </div>
 
           {/* Mobile Menu */}
           {isMenuOpen && (
-            <div className="md:hidden mt-3">
+            <div className="lg:hidden mt-3">
               <div className={`
                 p-3 rounded-lg backdrop-blur-xl border
                 ${theme === 'dark'
@@ -731,21 +797,23 @@ function LandingPage({ theme, setTheme }) {
                     <a
                       key={item.label}
                       href={item.href}
-                      className={`py-1.5 px-3 rounded transition-colors hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                      className={`py-2 px-3 rounded transition-colors hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
                         }`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {item.label}
                     </a>
                   ))}
-                  <Link
-                    to="/login"
-                    className={`py-1.5 px-3 rounded transition-colors hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                      }`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Login
-                  </Link>
+                  <div className="border-t border-gray-200/20 pt-2 mt-2">
+                    <Link
+                      to="/login"
+                      className={`block py-2 px-3 rounded transition-colors hover:bg-white/10 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                        }`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -754,18 +822,16 @@ function LandingPage({ theme, setTheme }) {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-20 sm:pt-24 pb-12 sm:pb-16 px-3 sm:px-4">
-        <div className="container mx-auto max-w-4xl">
+      <section id="home" className="relative pt-20 sm:pt-24 pb-12 sm:pb-16 px-3 sm:px-4">
+        <div className="container mx-auto max-w-6xl">
           <div className="text-center">
-            {/* Badge */}
             <div className="inline-flex items-center space-x-1 sm:space-x-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full mb-4 sm:mb-6 backdrop-blur-sm border border-white/20">
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 animate-pulse" />
               <span className={`text-xs font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>
-                AI-Powered Platform
+                AI-Powered Placement Platform
               </span>
             </div>
 
-            {/* Main Heading */}
             <h1 className="mb-3 sm:mb-4">
               <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-1 sm:mb-2">
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-green-400 to-purple-400">
@@ -779,31 +845,26 @@ function LandingPage({ theme, setTheme }) {
               </div>
             </h1>
 
-            {/* Description */}
-            <p className={`text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+            <p className={`text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
               }`}>
               Transform your career with comprehensive placement preparation.
-              From aptitude tests to technical interviews.
+              From aptitude tests to technical interviews, we provide everything you need to land your dream job.
             </p>
 
-            {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center mb-8 sm:mb-12">
               <Link to="/signup">
                 <div className={`
                   px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl backdrop-blur-lg border
                   flex items-center justify-center sm:justify-start space-x-1.5 sm:space-x-2 group min-w-[140px]
                   transition-all duration-300 ease-out
-                  ${theme === 'dark'
-                    ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
-                    : 'bg-white/70 border-gray-200/60 hover:bg-white/80 hover:border-gray-200'
-                  }
+                  bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600
                   hover:scale-[1.02] active:scale-95
                 `}>
-                  <Rocket className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
-                  <span className={`text-xs sm:text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <Rocket className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                  <span className="text-xs sm:text-sm font-medium text-white">
                     Start Free Trial
                   </span>
-                  <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-0.5 sm:group-hover:translate-x-1" />
+                  <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-white transition-transform group-hover:translate-x-0.5 sm:group-hover:translate-x-1" />
                 </div>
               </Link>
               <Link to="/aptitude">
@@ -823,8 +884,7 @@ function LandingPage({ theme, setTheme }) {
               </Link>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-md mx-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 max-w-4xl mx-auto">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
                   <div className={`inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg mb-2 sm:mb-3 ${theme === 'dark'
@@ -855,7 +915,7 @@ function LandingPage({ theme, setTheme }) {
             </h2>
             <p className={`text-sm sm:text-base max-w-xl mx-auto ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
               }`}>
-              Everything for successful placement preparation
+              Everything you need for successful placement preparation
             </p>
           </div>
 
@@ -890,8 +950,282 @@ function LandingPage({ theme, setTheme }) {
         </div>
       </section>
 
+      {/* Courses Section */}
+      <section id="courses" className="py-10 sm:py-12 px-3 sm:px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-6 sm:mb-10">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-green-400 to-purple-400">
+                Popular Courses
+              </span>
+            </h2>
+            <p className={`text-sm sm:text-base max-w-xl mx-auto ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+              }`}>
+              Structured learning paths for your career goals
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {courses.map((course, index) => (
+              <div key={index} className={`
+                p-4 sm:p-5 rounded-xl backdrop-blur-lg border
+                transition-all duration-300 ease-out
+                ${theme === 'dark'
+                  ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                  : 'bg-white/70 border-gray-200/60 hover:bg-white/80 hover:border-gray-200'
+                }
+                hover:scale-[1.02] active:scale-95
+              `}>
+                <div className={`inline-flex items-center justify-center w-10 h-10 rounded-lg mb-3 sm:mb-4 bg-gradient-to-br ${course.color}`}>
+                  <course.icon className="w-5 h-5 text-white" />
+                </div>
+                <h3 className={`font-semibold mb-1.5 sm:mb-2 text-sm sm:text-base ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  {course.title}
+                </h3>
+                <div className="space-y-1 mb-3">
+                  <div className="flex items-center text-xs text-gray-400">
+                    <BookOpen className="w-3 h-3 mr-1" />
+                    {course.level}
+                  </div>
+                  <div className="flex items-center text-xs text-gray-400">
+                    <ClockIcon className="w-3 h-3 mr-1" />
+                    {course.duration}
+                  </div>
+                  <div className="flex items-center text-xs text-gray-400">
+                    <Users className="w-3 h-3 mr-1" />
+                    {course.students} students
+                  </div>
+                </div>
+                <button className={`w-full py-2 rounded-lg text-sm font-medium transition-colors ${theme === 'dark'
+                  ? 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-400'
+                  : 'bg-blue-100 hover:bg-blue-200 text-blue-600'
+                  }`}>
+                  Enroll Now
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Practice Section */}
+      <section id="practice" className="py-10 sm:py-12 px-3 sm:px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className={`
+            p-4 sm:p-6 rounded-xl backdrop-blur-lg border
+            ${theme === 'dark'
+              ? 'bg-white/5 border-white/10'
+              : 'bg-white/70 border-gray-200/60'
+            }
+          `}>
+            <div className="text-center mb-4 sm:mb-8">
+              <Code className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 sm:mb-4 text-green-400" />
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1.5 sm:mb-3">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-green-400 to-purple-400">
+                  Practice Coding
+                </span>
+              </h2>
+              <p className={`text-sm sm:text-base max-w-lg mx-auto ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                }`}>
+                5000+ coding problems with company tags and difficulty levels
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mb-6">
+              <div className="text-center p-3 sm:p-4">
+                <div className="text-2xl sm:text-3xl font-bold text-green-400 mb-2">Easy</div>
+                <div className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>1500+ Problems</div>
+                <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>For beginners</div>
+              </div>
+              <div className="text-center p-3 sm:p-4">
+                <div className="text-2xl sm:text-3xl font-bold text-yellow-400 mb-2">Medium</div>
+                <div className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>2500+ Problems</div>
+                <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>For intermediates</div>
+              </div>
+              <div className="text-center p-3 sm:p-4">
+                <div className="text-2xl sm:text-3xl font-bold text-red-400 mb-2">Hard</div>
+                <div className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>1000+ Problems</div>
+                <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>For experts</div>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <Link to="/practice">
+                <button className={`
+                  px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl backdrop-blur-lg border
+                  flex items-center justify-center space-x-1.5 sm:space-x-2 group mx-auto
+                  transition-all duration-300 ease-out
+                  bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600
+                  hover:scale-[1.02] active:scale-95
+                `}>
+                  <Code className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                  <span className="text-xs sm:text-sm font-medium text-white">
+                    Start Practicing
+                  </span>
+                  <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-white transition-transform group-hover:translate-x-0.5 sm:group-hover:translate-x-1" />
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Interview Prep Section */}
+      <section id="interview" className="py-10 sm:py-12 px-3 sm:px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-6 sm:mb-10">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-green-400 to-purple-400">
+                Interview Preparation
+              </span>
+            </h2>
+            <p className={`text-sm sm:text-base max-w-xl mx-auto ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+              }`}>
+              Get ready for technical and behavioral interviews
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {interviewPrep.map((item, index) => (
+              <div key={index} className={`
+                p-4 sm:p-5 rounded-xl backdrop-blur-lg border
+                transition-all duration-300 ease-out
+                ${theme === 'dark'
+                  ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                  : 'bg-white/70 border-gray-200/60 hover:bg-white/80 hover:border-gray-200'
+                }
+                hover:scale-[1.02] active:scale-95
+              `}>
+                <item.icon className="w-6 h-6 sm:w-8 sm:h-8 text-green-400 mb-3" />
+                <h3 className={`font-semibold mb-1.5 sm:mb-2 text-sm sm:text-base ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  {item.title}
+                </h3>
+                <p className={`text-xs sm:text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                  {item.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="py-10 sm:py-12 px-3 sm:px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-6 sm:mb-10">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-green-400 to-purple-400">
+                Choose Your Plan
+              </span>
+            </h2>
+            <p className={`text-sm sm:text-base max-w-xl mx-auto ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+              }`}>
+              Start for free, upgrade when you're ready
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+            {pricingPlans.map((plan, index) => (
+              <div key={index} className={`
+                p-4 sm:p-5 rounded-xl backdrop-blur-lg border
+                transition-all duration-300 ease-out
+                ${plan.highlighted
+                  ? 'border-blue-400 shadow-lg shadow-blue-500/20'
+                  : theme === 'dark'
+                    ? 'bg-white/5 border-white/10'
+                    : 'bg-white/70 border-gray-200/60'
+                }
+                hover:scale-[1.02] active:scale-95
+              `}>
+                {plan.highlighted && (
+                  <div className="inline-flex items-center px-2 py-1 rounded-full bg-gradient-to-r from-blue-500 to-green-500 text-white text-xs mb-3">
+                    Most Popular
+                  </div>
+                )}
+                <h3 className={`text-lg sm:text-xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  {plan.name}
+                </h3>
+                <div className="mb-4">
+                  <span className="text-2xl sm:text-3xl font-bold text-blue-400">{plan.price}</span>
+                  <span className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {plan.period}
+                  </span>
+                </div>
+                <ul className="space-y-2 mb-6">
+                  {plan.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-center text-xs sm:text-sm">
+                      <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 mr-2" />
+                      <span className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button className={`
+                  w-full py-2.5 rounded-lg text-sm font-medium transition-colors
+                  ${plan.highlighted
+                    ? 'bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white'
+                    : theme === 'dark'
+                      ? 'bg-white/10 hover:bg-white/20 text-white'
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                  }
+                `}>
+                  {plan.name === 'Enterprise' ? 'Contact Sales' : 'Get Started'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-10 sm:py-12 px-3 sm:px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-6 sm:mb-10">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-green-400 to-purple-400">
+                Success Stories
+              </span>
+            </h2>
+            <p className={`text-sm sm:text-base max-w-xl mx-auto ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+              }`}>
+              See what our students have achieved
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+            {testimonials.map((testimonial, index) => (
+              <div key={index} className={`
+                p-4 sm:p-5 rounded-xl backdrop-blur-lg border
+                transition-all duration-300 ease-out
+                ${theme === 'dark'
+                  ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                  : 'bg-white/70 border-gray-200/60 hover:bg-white/80 hover:border-gray-200'
+                }
+                hover:scale-[1.02] active:scale-95
+              `}>
+                <div className="flex items-center mb-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-green-500 flex items-center justify-center text-white font-bold">
+                    {testimonial.avatar}
+                  </div>
+                  <div className="ml-3">
+                    <div className={`font-semibold text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                      {testimonial.name}
+                    </div>
+                    <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                      {testimonial.role}
+                    </div>
+                  </div>
+                </div>
+                <p className={`text-xs sm:text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                  "{testimonial.content}"
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Why Skill Sync Section */}
-      <section id="why" className="py-10 sm:py-12 px-3 sm:px-4">
+      <section id="about" className="py-10 sm:py-12 px-3 sm:px-4">
         <div className="container mx-auto max-w-4xl">
           <div className={`
             p-4 sm:p-6 rounded-xl backdrop-blur-lg border
@@ -928,19 +1262,75 @@ function LandingPage({ theme, setTheme }) {
         </div>
       </section>
 
+      {/* CTA Section */}
+      <section className="py-10 sm:py-12 px-3 sm:px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className={`
+            p-6 sm:p-8 rounded-xl backdrop-blur-lg border text-center
+            bg-gradient-to-r from-blue-500/10 via-green-500/10 to-purple-500/10
+            ${theme === 'dark' ? 'border-white/10' : 'border-gray-200/60'}
+          `}>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-white">
+              Ready to Transform Your Career?
+            </h2>
+            <p className={`text-sm sm:text-base mb-6 max-w-xl mx-auto ${theme === 'dark' ? 'text-gray-300' : 'text-gray-200'
+              }`}>
+              Join thousands of students who have successfully landed their dream jobs
+            </p>
+            <Link to="/signup">
+              <button className={`
+                px-6 py-3 sm:px-8 sm:py-4 rounded-xl
+                flex items-center justify-center space-x-2 group mx-auto
+                transition-all duration-300 ease-out
+                bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600
+                hover:scale-[1.02] active:scale-95
+              `}>
+                <Rocket className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                <span className="text-sm sm:text-base font-medium text-white">
+                  Start Your Free Trial
+                </span>
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-white transition-transform group-hover:translate-x-1" />
+              </button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer id="contact" className={`py-6 sm:py-8 px-3 sm:px-4 border-t ${theme === 'dark' ? 'border-white/10' : 'border-gray-200'
         }`}>
-        <div className="container mx-auto max-w-4xl">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
-            <div className="col-span-2 sm:col-span-1">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 mb-4 sm:mb-6">
+            <div className="col-span-1 lg:col-span-2">
               <div className="flex items-center space-x-1.5 sm:space-x-2 mb-2 sm:mb-3">
                 <Rocket className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                <span className="text-base sm:text-lg font-bold">Skill Sync</span>
+                <span className="text-base sm:text-lg font-bold text-white">Skill Sync</span>
               </div>
-              <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                Empowering careers through placement preparation.
+              <p className={`text-xs sm:text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                Empowering careers through comprehensive placement preparation.
+                Join our community of learners and achievers.
               </p>
+            </div>
+
+            <div>
+              <h4 className={`font-medium mb-1 sm:mb-2 text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-900'
+                }`}>
+                Platform
+              </h4>
+              <div className="space-y-0.5 sm:space-y-1">
+                <a href="#features" className={`text-xs sm:text-sm block hover:text-green-400 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Features
+                </a>
+                <a href="#courses" className={`text-xs sm:text-sm block hover:text-green-400 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Courses
+                </a>
+                <a href="#practice" className={`text-xs sm:text-sm block hover:text-green-400 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Practice
+                </a>
+                <a href="#pricing" className={`text-xs sm:text-sm block hover:text-green-400 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Pricing
+                </a>
+              </div>
             </div>
 
             <div>
@@ -949,15 +1339,18 @@ function LandingPage({ theme, setTheme }) {
                 Company
               </h4>
               <div className="space-y-0.5 sm:space-y-1">
-                <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                <a href="#about" className={`text-xs sm:text-sm block hover:text-green-400 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                   About Us
-                </div>
-                <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                </a>
+                <a href="#contact" className={`text-xs sm:text-sm block hover:text-green-400 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                   Careers
-                </div>
-                <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                </a>
+                <a href="#contact" className={`text-xs sm:text-sm block hover:text-green-400 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                   Contact
-                </div>
+                </a>
+                <a href="#contact" className={`text-xs sm:text-sm block hover:text-green-400 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Blog
+                </a>
               </div>
             </div>
 
@@ -966,27 +1359,23 @@ function LandingPage({ theme, setTheme }) {
                 }`}>
                 Connect
               </h4>
-              <div className="flex space-x-1.5 sm:space-x-2">
-                <Github className={`w-3 h-3 sm:w-4 sm:h-4 cursor-pointer hover:text-green-400 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                  }`} />
-                <Linkedin className={`w-3 h-3 sm:w-4 sm:h-4 cursor-pointer hover:text-green-400 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                  }`} />
-                <Mail className={`w-3 h-3 sm:w-4 sm:h-4 cursor-pointer hover:text-green-400 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                  }`} />
+              <div className="flex space-x-1.5 sm:space-x-2 mb-2">
+                <a href="#" className={`p-1.5 rounded-lg hover:bg-white/10 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <Github className="w-3 h-3 sm:w-4 sm:h-4" />
+                </a>
+                <a href="#" className={`p-1.5 rounded-lg hover:bg-white/10 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <Linkedin className="w-3 h-3 sm:w-4 sm:h-4" />
+                </a>
+                <a href="#" className={`p-1.5 rounded-lg hover:bg-white/10 transition-colors ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
+                </a>
               </div>
-            </div>
-
-            <div>
-              <h4 className={`font-medium mb-1 sm:mb-2 text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-900'
-                }`}>
-                Legal
-              </h4>
               <div className="space-y-0.5 sm:space-y-1">
-                <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                  Privacy Policy
+                <div className={`text-xs sm:text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  support@skillsync.com
                 </div>
-                <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                  Terms of Service
+                <div className={`text-xs sm:text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  +1 (555) 123-4567
                 </div>
               </div>
             </div>
@@ -996,7 +1385,10 @@ function LandingPage({ theme, setTheme }) {
             ? 'border-white/10 text-gray-400'
             : 'border-gray-200 text-gray-500'
             }`}>
-            <p className="text-xs">© 2024 Skill Sync. All rights reserved.</p>
+            <p className="text-xs">© 2024 Skill Sync. All rights reserved. | 
+              <a href="#" className="hover:text-green-400 transition-colors ml-1">Privacy Policy</a> | 
+              <a href="#" className="hover:text-green-400 transition-colors ml-1">Terms of Service</a>
+            </p>
           </div>
         </div>
       </footer>
