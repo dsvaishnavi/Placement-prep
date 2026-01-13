@@ -13,8 +13,12 @@ import {
   Edit, Trash2, Eye, Star,
   Plus, Download,
   // Form & Content Icons
-  BarChart3, Lock, Hash
+  BarChart3, Lock, Hash, TrendingUp,
+  // System & Server Icons
+  Server, Cpu, Database, HardDrive, FileText
 } from 'lucide-react'
+
+
 
 function Admin({ theme = 'light', contentManagerMode = false }) {
   // Theme helper functions
@@ -174,7 +178,29 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
     
     return (
       <div className="space-y-6">
-        {/* Stats Overview */}
+        {/* Welcome & Stats Header */}
+        <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 className={`text-2xl font-bold ${themeClasses.text.primary}`}>Admin Dashboard</h1>
+              <p className={`mt-2 ${themeClasses.text.secondary}`}>
+                Welcome back, Admin! Here's your system overview and analytics.
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className={`px-4 py-2 rounded-lg ${isDark ? 'bg-green-900/30 border border-green-800' : 'bg-green-50 border border-green-100'}`}>
+                <span className={`text-sm font-medium ${isDark ? 'text-green-300' : 'text-green-700'}`}>
+                  System Status: <span className="font-bold">Online</span>
+                </span>
+              </div>
+              <button className={`px-4 py-2 rounded-lg transition-colors ${themeClasses.button.primary}`}>
+                Generate Report
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Stats Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat, index) => {
             const Icon = stat.icon
@@ -195,29 +221,208 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-sm text-green-600 font-medium">{stat.change}</span>
+                  <span className={`text-sm font-medium ${stat.change.includes('+') ? 'text-green-600' : 'text-red-600'}`}>
+                    {stat.change}
+                  </span>
                   <span className={`text-sm ml-2 ${themeClasses.text.secondary}`}>from last month</span>
                 </div>
               </div>
             )
           })}
         </div>
-        
+
+        {/* Analytics & User Behavior Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* User Activity Graph */}
+          <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>User Activity Trends</h3>
+              <select className={`text-sm px-3 py-1 rounded border ${themeClasses.input}`}>
+                <option>Last 7 days</option>
+                <option>Last 30 days</option>
+                <option>Last 90 days</option>
+              </select>
+            </div>
+            
+            {/* Activity Graph Visualization */}
+            <div className="h-64 flex items-end justify-between gap-2">
+              {[65, 80, 45, 90, 75, 85, 95].map((height, index) => (
+                <div key={index} className="flex-1 flex flex-col items-center">
+                  <div className="relative w-full">
+                    <div 
+                      className={`w-full rounded-t ${isDark ? 'bg-blue-900' : 'bg-blue-100'}`}
+                      style={{ height: `${height}%` }}
+                    >
+                      <div className={`absolute inset-0 rounded-t ${isDark ? 'bg-blue-600' : 'bg-blue-500'}`}></div>
+                    </div>
+                  </div>
+                  <span className={`text-xs mt-2 ${themeClasses.text.secondary}`}>
+                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][index]}
+                  </span>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-6 grid grid-cols-2 gap-4">
+              <div className={`p-3 rounded-lg ${isDark ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
+                <p className={`text-xs ${themeClasses.text.secondary}`}>Avg. Session Duration</p>
+                <p className={`text-lg font-bold mt-1 ${themeClasses.text.primary}`}>12m 34s</p>
+              </div>
+              <div className={`p-3 rounded-lg ${isDark ? 'bg-green-900/30' : 'bg-green-50'}`}>
+                <p className={`text-xs ${themeClasses.text.secondary}`}>Peak Activity Time</p>
+                <p className={`text-lg font-bold mt-1 ${themeClasses.text.primary}`}>2:00 PM - 4:00 PM</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Content Performance */}
+          <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
+            <h3 className={`text-lg font-semibold mb-6 ${themeClasses.text.primary}`}>Content Performance</h3>
+            
+            <div className="space-y-4">
+              {[
+                { title: 'Aptitude Questions', views: 1542, completion: 78, trend: '+12%' },
+                { title: 'Core Concepts', views: 892, completion: 65, trend: '+8%' },
+                { title: 'Practice Tests', views: 2341, completion: 82, trend: '+15%' },
+                { title: 'Video Tutorials', views: 567, completion: 45, trend: '+5%' }
+              ].map((item, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className={`text-sm font-medium ${themeClasses.text.primary}`}>{item.title}</span>
+                    <span className={`text-sm ${themeClasses.text.secondary}`}>{item.views} views</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                      <div 
+                        className="h-full rounded-full bg-green-500"
+                        style={{ width: `${item.completion}%` }}
+                      ></div>
+                    </div>
+                    <span className={`text-sm font-medium ${item.trend.includes('+') ? 'text-green-600' : 'text-red-600'}`}>
+                      {item.trend}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* User Demographics & System Health */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* User Demographics */}
+          <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
+            <h3 className={`text-lg font-semibold mb-6 ${themeClasses.text.primary}`}>User Demographics</h3>
+            
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {[
+                { label: 'Students', value: '68%', color: 'bg-blue-500' },
+                { label: 'Working Professionals', value: '22%', color: 'bg-green-500' },
+                { label: 'Educators', value: '8%', color: 'bg-purple-500' },
+                { label: 'Others', value: '2%', color: 'bg-amber-500' }
+              ].map((demo, index) => (
+                <div key={index} className={`p-3 rounded-lg ${isDark ? 'bg-white/5' : 'bg-gray-50'}`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className={`w-3 h-3 rounded-full ${demo.color}`}></div>
+                    <span className={`text-sm ${themeClasses.text.primary}`}>{demo.label}</span>
+                  </div>
+                  <p className={`text-xl font-bold ${themeClasses.text.primary}`}>{demo.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className={`p-4 rounded-lg ${isDark ? 'bg-purple-900/20 border border-purple-800/30' : 'bg-purple-50 border border-purple-100'}`}>
+              <div className="flex items-center gap-3">
+                <TrendingUp className="w-5 h-5 text-purple-500" />
+                <div>
+                  <p className={`text-sm font-medium ${themeClasses.text.primary}`}>User Growth Trend</p>
+                  <p className={`text-xs ${themeClasses.text.secondary}`}>24% increase in new registrations this month</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* System Health & Resources */}
+          <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
+            <h3 className={`text-lg font-semibold mb-6 ${themeClasses.text.primary}`}>System Health</h3>
+            
+            <div className="space-y-4">
+              {[
+                { label: 'Server Uptime', value: '99.9%', status: 'good' },
+                { label: 'Database Usage', value: '68%', status: 'good' },
+                { label: 'Storage', value: '82%', status: 'warning' },
+                { label: 'API Response Time', value: '128ms', status: 'good' }
+              ].map((item, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className={`text-sm ${themeClasses.text.primary}`}>{item.label}</span>
+                    <span className={`text-sm font-medium ${
+                      item.status === 'good' ? 'text-green-600' : 
+                      item.status === 'warning' ? 'text-amber-600' : 'text-red-600'
+                    }`}>{item.value}</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full ${
+                        item.status === 'good' ? 'bg-green-500' : 
+                        item.status === 'warning' ? 'bg-amber-500' : 'bg-red-500'
+                      }`}
+                      style={{ width: item.label.includes('Usage') || item.label === 'Storage' ? item.value : '100%' }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 grid grid-cols-3 gap-4">
+              <div className={`p-3 rounded-lg ${isDark ? 'bg-blue-900/30' : 'bg-blue-50'} text-center`}>
+                <Cpu className="w-5 h-5 text-blue-500 mx-auto mb-1" />
+                <p className={`text-xs ${themeClasses.text.secondary}`}>CPU Load</p>
+                <p className={`text-sm font-bold mt-1 ${themeClasses.text.primary}`}>42%</p>
+              </div>
+              <div className={`p-3 rounded-lg ${isDark ? 'bg-green-900/30' : 'bg-green-50'} text-center`}>
+                <Database className="w-5 h-5 text-green-500 mx-auto mb-1" />
+                <p className={`text-xs ${themeClasses.text.secondary}`}>RAM Usage</p>
+                <p className={`text-sm font-bold mt-1 ${themeClasses.text.primary}`}>3.2GB</p>
+              </div>
+              <div className={`p-3 rounded-lg ${isDark ? 'bg-purple-900/30' : 'bg-purple-50'} text-center`}>
+                <HardDrive className="w-5 h-5 text-purple-500 mx-auto mb-1" />
+                <p className={`text-xs ${themeClasses.text.secondary}`}>Disk I/O</p>
+                <p className={`text-sm font-bold mt-1 ${themeClasses.text.primary}`}>45 MB/s</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Recent Activity & Quick Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Activity */}
           <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
-            <h3 className={`text-lg font-semibold mb-4 ${themeClasses.text.primary}`}>Recent Activity</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>Recent Activity</h3>
+              <button className={`text-sm px-3 py-1 rounded border ${themeClasses.input}`}>
+                View All
+              </button>
+            </div>
             <div className="space-y-4">
               {[
-                { user: 'Admin', action: 'added new aptitude question', time: '2 hours ago' },
-                { user: 'Sarah Miller', action: 'updated core concept', time: '5 hours ago' },
-                { user: 'System', action: 'user registration completed', time: '1 day ago' },
-                { user: 'Admin', action: 'published new content', time: '2 days ago' }
+                { user: 'Admin', action: 'added 15 new aptitude questions', time: '2 hours ago', type: 'question' },
+                { user: 'Sarah Miller', action: 'updated core concept: Data Structures', time: '5 hours ago', type: 'concept' },
+                { user: 'System', action: '25 new user registrations completed', time: '1 day ago', type: 'system' },
+                { user: 'John Doe', action: 'completed advanced aptitude test', time: '2 days ago', type: 'test' },
+                { user: 'Admin', action: 'published 3 new learning modules', time: '3 days ago', type: 'module' }
               ].map((activity, index) => (
                 <div key={index} className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${isDark ? 'hover:bg-white/5' : 'hover:bg-gray-50'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${themeClasses.iconBg.blue}`}>
-                    <User className="w-4 h-4 text-blue-500" />
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    activity.type === 'question' ? 'bg-blue-100 dark:bg-blue-900/30' :
+                    activity.type === 'concept' ? 'bg-green-100 dark:bg-green-900/30' :
+                    activity.type === 'system' ? 'bg-purple-100 dark:bg-purple-900/30' :
+                    'bg-amber-100 dark:bg-amber-900/30'
+                  }`}>
+                    {activity.type === 'question' && <HelpCircle className="w-4 h-4 text-blue-500" />}
+                    {activity.type === 'concept' && <BookOpen className="w-4 h-4 text-green-500" />}
+                    {activity.type === 'system' && <Server className="w-4 h-4 text-purple-500" />}
+                    {activity.type === 'test' && <FileText className="w-4 h-4 text-amber-500" />}
                   </div>
                   <div className="flex-1">
                     <p className={`text-sm ${themeClasses.text.primary}`}>
@@ -234,23 +439,22 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
           <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
             <h3 className={`text-lg font-semibold mb-4 ${themeClasses.text.primary}`}>Quick Actions</h3>
             <div className="grid grid-cols-2 gap-4">
-              {/* Show different quick actions based on role */}
               {hasContentAccess && (
                 <>
                   <button 
-                    className={`p-4 border rounded-lg transition-colors text-center ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
+                    className={`p-4 border rounded-lg transition-colors text-center group ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
                     onClick={() => setActiveModule('aptitude')}
                   >
-                    <HelpCircle className="w-6 h-6 text-blue-500 mx-auto mb-2" />
+                    <HelpCircle className="w-6 h-6 text-blue-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
                     <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Add Question</p>
                     <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>Create new aptitude question</p>
                   </button>
                   
                   <button 
-                    className={`p-4 border rounded-lg transition-colors text-center ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
+                    className={`p-4 border rounded-lg transition-colors text-center group ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
                     onClick={() => setActiveModule('concepts')}
                   >
-                    <BookOpen className="w-6 h-6 text-green-500 mx-auto mb-2" />
+                    <BookOpen className="w-6 h-6 text-green-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
                     <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Add Concept</p>
                     <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>Create new core concept</p>
                   </button>
@@ -258,20 +462,37 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
               )}
               
               {isAdmin && (
-                <button 
-                  className={`p-4 border rounded-lg transition-colors text-center ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
-                  onClick={() => setActiveModule('users')}
-                >
-                  <Users className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-                  <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Add User</p>
-                  <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>Create new user account</p>
-                </button>
+                <>
+                  <button 
+                    className={`p-4 border rounded-lg transition-colors text-center group ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
+                    onClick={() => setActiveModule('users')}
+                  >
+                    <Users className="w-6 h-6 text-purple-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                    <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Manage Users</p>
+                    <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>User management & permissions</p>
+                  </button>
+                  
+                  <button 
+                    className={`p-4 border rounded-lg transition-colors text-center group ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
+                    onClick={() => setActiveModule('analytics')}
+                  >
+                    <BarChart3 className="w-6 h-6 text-amber-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                    <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Analytics</p>
+                    <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>View detailed reports</p>
+                  </button>
+                </>
               )}
               
-              <button className={`p-4 border rounded-lg transition-colors text-center ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}>
-                <Download className="w-6 h-6 text-amber-500 mx-auto mb-2" />
+              <button className={`p-4 border rounded-lg transition-colors text-center group ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}>
+                <Download className="w-6 h-6 text-indigo-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
                 <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Export Data</p>
                 <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>Export reports & analytics</p>
+              </button>
+              
+              <button className={`p-4 border rounded-lg transition-colors text-center group ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}>
+                <Settings className="w-6 h-6 text-gray-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Settings</p>
+                <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>System configuration</p>
               </button>
             </div>
           </div>
