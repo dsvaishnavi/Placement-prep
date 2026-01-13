@@ -12,7 +12,7 @@ import {
   Edit, Trash2, Eye, Star,
   Plus, Download,
   // Form & Content Icons
-  BarChart3, Lock
+  BarChart3, Lock, Hash
 } from 'lucide-react'
 
 function Admin({ theme = 'light', contentManagerMode = false }) {
@@ -124,94 +124,6 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
   const [activeModule, setActiveModule] = useState(getDefaultModule())
   const [sidebarOpen, setSidebarOpen] = useState(true)
   
-  // Mock data for users
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      fullName: 'Alex Johnson',
-      email: 'alex.johnson@example.com',
-      role: 'Admin',
-      lastLogin: '2024-01-15 14:30',
-      registrationDate: '2023-12-01',
-      status: 'Active',
-      avatar: 'AJ'
-    },
-    {
-      id: 2,
-      fullName: 'Sarah Miller',
-      email: 'sarah.m@example.com',
-      role: 'Content Manager',
-      lastLogin: '2024-01-14 11:20',
-      registrationDate: '2023-11-15',
-      status: 'Active',
-      avatar: 'SM'
-    },
-    {
-      id: 3,
-      fullName: 'Robert Chen',
-      email: 'robert.chen@example.com',
-      role: 'Student',
-      lastLogin: '2024-01-13 09:45',
-      registrationDate: '2024-01-01',
-      status: 'Active',
-      avatar: 'RC'
-    },
-    {
-      id: 4,
-      fullName: 'Maria Garcia',
-      email: 'maria.g@example.com',
-      role: 'Student',
-      lastLogin: '2024-01-10 16:20',
-      registrationDate: '2023-12-20',
-      status: 'Inactive',
-      avatar: 'MG'
-    },
-    {
-      id: 5,
-      fullName: 'David Wilson',
-      email: 'david.w@example.com',
-      role: 'Student',
-      lastLogin: '2024-01-12 13:15',
-      registrationDate: '2023-12-10',
-      status: 'Active',
-      avatar: 'DW'
-    }
-  ])
-  
-  // Mock data for core concepts
-  const [coreConcepts, setCoreConcepts] = useState([
-    {
-      id: 1,
-      title: 'Data Structures - Arrays',
-      description: 'Understanding array data structure, operations, and time complexity',
-      subject: 'Data Structures',
-      topics: 15,
-      difficulty: 'Beginner',
-      status: 'Published',
-      lastUpdated: '2024-01-10'
-    },
-    {
-      id: 2,
-      title: 'Operating Systems - Processes',
-      description: 'Process management, scheduling algorithms, and synchronization',
-      subject: 'Operating Systems',
-      topics: 22,
-      difficulty: 'Intermediate',
-      status: 'Draft',
-      lastUpdated: '2024-01-12'
-    },
-    {
-      id: 3,
-      title: 'Database Normalization',
-      description: 'Normal forms, functional dependencies, and database design principles',
-      subject: 'DBMS',
-      topics: 18,
-      difficulty: 'Advanced',
-      status: 'Published',
-      lastUpdated: '2024-01-08'
-    }
-  ])
-  
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState('')
   const [userFilter, setUserFilter] = useState('all')
@@ -306,6 +218,107 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
                 required
               />
             </div>
+
+            {/* YouTube Video Reference Link */}
+            <div>
+              <label htmlFor="youtube-link" className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
+                YouTube Video Reference Link
+              </label>
+              <input
+                id="youtube-link"
+                type="url"
+                className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
+                value={formData.youtubeLink || ''}
+                onChange={(e) => handleChange('youtubeLink', e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
+              <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>
+                Optional: Add a YouTube video link for additional learning reference
+              </p>
+            </div>
+            
+            {/* Modules Section */}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <label className={`block text-sm font-medium ${themeClasses.text.primary}`}>
+                  Modules
+                </label>
+                <button
+                  type="button"
+                  onClick={() => handleAddModule()}
+                  className={`px-4 py-2 text-sm rounded-lg transition-colors ${themeClasses.button.primary}`}
+                >
+                  + Add Module
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                {formData.modules && formData.modules.map((module, index) => (
+                  <div key={index} className="p-4 border rounded-lg relative group">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className={`font-medium ${themeClasses.text.primary}`}>
+                        Module {index + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteModule(index)}
+                        className={`px-3 py-1 text-sm rounded transition-colors ${
+                          formData.modules.length > 1 
+                            ? `${themeClasses.button.danger} opacity-0 group-hover:opacity-100`
+                            : 'opacity-0 cursor-not-allowed'
+                        }`}
+                        disabled={formData.modules.length <= 1}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <label className={`block text-xs font-medium mb-1 ${themeClasses.text.secondary}`}>
+                          Module Title
+                        </label>
+                        <input
+                          type="text"
+                          className={`w-full px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
+                          value={module.title}
+                          onChange={(e) => handleModuleChange(index, 'title', e.target.value)}
+                          placeholder={`Module ${index + 1} Title`}
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className={`block text-xs font-medium mb-1 ${themeClasses.text.secondary}`}>
+                          Module Content
+                        </label>
+                        <textarea
+                          rows="3"
+                          className={`w-full px-3 py-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
+                          value={module.content}
+                          onChange={(e) => handleModuleChange(index, 'content', e.target.value)}
+                          placeholder={`Enter content for Module ${index + 1}...`}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {(!formData.modules || formData.modules.length === 0) && (
+                  <div className={`text-center py-8 border-2 border-dashed rounded-lg ${isDark ? 'border-gray-700' : 'border-gray-300'}`}>
+                    <p className={themeClasses.text.secondary}>No modules added yet</p>
+                    <button
+                      type="button"
+                      onClick={() => handleAddModule()}
+                      className={`mt-2 px-4 py-2 text-sm rounded-lg transition-colors ${themeClasses.button.primary}`}
+                    >
+                      Create Your First Module
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
             
             {/* Subject & Difficulty */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -385,7 +398,8 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
       </div>
     )
   }
-  
+
+
   // Dashboard Overview Component
   const DashboardOverview = () => {
     const stats = [
@@ -508,6 +522,55 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
     return <AptitudeQuestionManagement theme={theme} />
   }
   
+  // Mock data for core concepts
+  const coreConcepts = [
+    {
+      id: 1,
+      title: "Arrays and Dynamic Arrays",
+      description: "Understanding array data structures, operations, and dynamic resizing",
+      subject: "Data Structures",
+      difficulty: "Beginner",
+      topics: 12,
+      status: "Published"
+    },
+    {
+      id: 2,
+      title: "Binary Search Trees",
+      description: "Tree data structures with binary search property and operations",
+      subject: "Data Structures",
+      difficulty: "Intermediate",
+      topics: 8,
+      status: "Published"
+    },
+    {
+      id: 3,
+      title: "Graph Algorithms",
+      description: "Graph traversal algorithms including BFS, DFS, and shortest path",
+      subject: "Algorithms",
+      difficulty: "Advanced",
+      topics: 15,
+      status: "Draft"
+    },
+    {
+      id: 4,
+      title: "Process Synchronization",
+      description: "Concurrency control, semaphores, and deadlock prevention",
+      subject: "Operating Systems",
+      difficulty: "Intermediate",
+      topics: 10,
+      status: "Published"
+    },
+    {
+      id: 5,
+      title: "Database Normalization",
+      description: "Normal forms and database design principles",
+      subject: "DBMS",
+      difficulty: "Intermediate",
+      topics: 6,
+      status: "Published"
+    }
+  ];
+
   // Core Concepts Management Component
   const CoreConceptsModule = () => {
     return (
