@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { showToast } from '../utils/toast'
@@ -13,18 +13,43 @@ import {
   Edit, Trash2, Eye, Star,
   Plus, Download,
   // Form & Content Icons
-  BarChart3, Lock, Hash, TrendingUp,
-  // System & Server Icons
-  Server, Cpu, Database, HardDrive, FileText
+  BarChart3, Lock, Hash, TrendingUp , Cpu , Database ,HardDrive , Server ,FileText,
+  // Theme & Profile Icons
+  Sun, Moon, UserCircle
 } from 'lucide-react'
 
 
 
-function Admin({ theme = 'light', contentManagerMode = false }) {
+function Admin({ theme = 'light', contentManagerMode = false, toggleTheme }) {
   // Theme helper functions
   const isDark = theme === 'dark';
   const navigate = useNavigate();
-  const { user, isAdmin, isContentManager, hasContentAccess } = useAuth();
+  const { user, isAdmin, isContentManager, hasContentAccess, logout } = useAuth();
+  
+  // State for dropdowns
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
+  
+  // Refs for dropdown elements
+  const profileDropdownRef = useRef(null);
+  const notificationDropdownRef = useRef(null);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+        setProfileDropdownOpen(false);
+      }
+      if (notificationDropdownRef.current && !notificationDropdownRef.current.contains(event.target)) {
+        setNotificationDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   
   // Check access permissions
   if (!user) {
@@ -115,6 +140,7 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
       purple: 'from-purple-500 to-indigo-600',
       green: 'from-green-500 to-emerald-600',
       orange: 'from-amber-500 to-orange-600',
+      gray: 'from-gray-500 to-slate-600',
     }
   };
 
@@ -132,6 +158,24 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState('')
   const [userFilter, setUserFilter] = useState('all')
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+      showToast('Logged out successfully', 'success');
+      navigate('/login');
+    } catch (error) {
+      showToast('Error logging out', 'error');
+    }
+  };
+
+  // Mock notifications data
+  const notifications = [
+    { id: 1, title: 'New user registered', message: 'John Doe has joined the platform', time: '2 min ago', unread: true },
+    { id: 2, title: 'Question approved', message: 'Your aptitude question has been approved', time: '1 hour ago', unread: true },
+    { id: 3, title: 'System update', message: 'Platform maintenance scheduled for tonight', time: '3 hours ago', unread: false },
+  ];
   
   // Navigation modules configuration based on user role
   const getAvailableModules = () => {
@@ -544,7 +588,7 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
         return isAdmin ? (
           <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
             <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text.primary}`}>Settings</h2>
-            <p className={themeClasses.text.secondary}>Settings panel would be implemented here.</p>
+            <p className={`${themeClasses.text.primary} opacity-70`}>Settings panel would be implemented here.</p>
           </div>
         ) : (
           <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
@@ -572,7 +616,7 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
       </div>
       
       {/* Top Navigation Header */}
-      <header className={`border-b sticky top-0 z-50 ${themeClasses.headerBg}`}>
+      <header className={`border-b sticky top-0 z-50 ${themeClasses.headerBg} backdrop-blur-sm`}>
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             {/* Left: Logo & Mobile Menu Toggle */}
@@ -582,7 +626,7 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
               >
-                <Menu className="w-5 h-5 text-secondary" />
+                <Menu className={`w-5 h-5 ${themeClasses.text.secondary}`} />
               </button>
               
               <div className="flex items-center gap-3">
@@ -600,46 +644,169 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
               </div>
             </div>
             
-            {/* Right: User Menu & Notifications */}
-            <div className="flex items-center gap-4">
-              {/* Search */}
-              <div className="relative hidden md:block">
+            {/* Center: Search Bar */}
+            <div className="flex-1 max-w-md mx-8 hidden md:block">
+              <div className="relative">
                 <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${themeClasses.text.secondary}`} />
                 <input
                   type="search"
                   placeholder="Search..."
-                  className={`pl-10 pr-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${themeClasses.input}`}
                   aria-label="Search in admin panel"
                 />
               </div>
-              
-              {/* Notifications */}
+            </div>
+            
+            {/* Right: Actions & User Menu */}
+            <div className="flex items-center gap-2">
+              {/* Theme Toggle Button */}
               <button 
-                className="p-2 rounded-lg relative transition-colors hover:opacity-80"
-                aria-label="View notifications"
+                onClick={toggleTheme}
+                className={`p-2 rounded-lg transition-colors hover:opacity-80 ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
+                aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
+                title={`Switch to ${isDark ? 'light' : 'dark'} theme`}
               >
-                <Bell className={`w-5 h-5 ${themeClasses.text.secondary}`} />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                {isDark ? (
+                  <Sun className={`w-5 h-5 ${themeClasses.text.secondary}`} />
+                ) : (
+                  <Moon className={`w-5 h-5 ${themeClasses.text.secondary}`} />
+                )}
               </button>
               
-              {/* User Profile Dropdown */}
-              <div className="relative">
+              {/* Notifications Dropdown */}
+              <div className="relative" ref={notificationDropdownRef}>
                 <button 
-                  className="flex items-center gap-3 p-2 rounded-lg transition-colors hover:opacity-80"
+                  onClick={() => setNotificationDropdownOpen(!notificationDropdownOpen)}
+                  className={`p-2 rounded-lg relative transition-colors hover:opacity-80 ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
+                  aria-label="View notifications"
+                  title="Notifications"
+                >
+                  <Bell className={`w-5 h-5 ${themeClasses.text.secondary}`} />
+                  {notifications.some(n => n.unread) && (
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                  )}
+                </button>
+                
+                {/* Notifications Dropdown Menu */}
+                {notificationDropdownOpen && (
+                  <div className={`absolute right-0 mt-2 w-80 rounded-lg border shadow-lg z-50 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                      <h3 className={`font-semibold ${themeClasses.text.primary}`}>Notifications</h3>
+                    </div>
+                    <div className="max-h-64 overflow-y-auto">
+                      {notifications.map((notification) => (
+                        <div key={notification.id} className={`p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 ${notification.unread ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''}`}>
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <p className={`text-sm font-medium ${themeClasses.text.primary}`}>{notification.title}</p>
+                              <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>{notification.message}</p>
+                            </div>
+                            {notification.unread && (
+                              <div className="w-2 h-2 bg-blue-500 rounded-full ml-2 mt-1"></div>
+                            )}
+                          </div>
+                          <p className={`text-xs mt-2 ${themeClasses.text.secondary}`}>{notification.time}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="p-3 border-t border-gray-200 dark:border-gray-700">
+                      <button className={`w-full text-sm text-blue-500 hover:text-blue-600 font-medium`}>
+                        View all notifications
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* User Profile Dropdown */}
+              <div className="relative" ref={profileDropdownRef}>
+                <button 
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className={`flex items-center gap-3 p-2 rounded-lg transition-colors hover:opacity-80 ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
                   aria-label="User profile menu"
+                  title="Profile menu"
                 >
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${themeClasses.iconBg.blue}`}>
-                    <User className="w-5 h-5 text-blue-500" />
+                    <UserCircle className="w-5 h-5 text-blue-500" />
                   </div>
                   <div className="text-left hidden md:block">
-                    <p className={`text-sm font-medium ${themeClasses.text.primary}`}>{user?.name || 'User'}</p>
+                    <p className={`text-sm font-medium ${themeClasses.text.primary}`}>
+                      {user?.name || 'Satyajeet S. Desai'}
+                    </p>
                     <p className={`text-xs ${themeClasses.text.secondary}`}>
                       {user?.role === 'admin' ? 'Administrator' : 
-                       user?.role === 'content-manager' ? 'Content Manager' : 'User'}
+                       user?.role === 'content-manager' ? 'Content Manager' : 'Administrator'}
                     </p>
                   </div>
-                  <ChevronDown className={`w-4 h-4 ${themeClasses.text.secondary}`} />
+                  <ChevronDown className={`w-4 h-4 ${themeClasses.text.secondary} transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
+                
+                {/* Profile Dropdown Menu */}
+                {profileDropdownOpen && (
+                  <div className={`absolute right-0 mt-2 w-64 rounded-lg border shadow-lg z-50 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                    {/* User Info Header */}
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${themeClasses.iconBg.blue}`}>
+                          <UserCircle className="w-8 h-8 text-blue-500" />
+                        </div>
+                        <div>
+                          <p className={`font-semibold ${themeClasses.text.primary}`}>
+                            {user?.name || 'Satyajeet S. Desai'}
+                          </p>
+                          <p className={`text-sm ${themeClasses.text.secondary}`}>
+                            {user?.email || 'admin@example.com'}
+                          </p>
+                          <span className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${themeClasses.role.admin}`}>
+                            {user?.role === 'admin' ? 'Administrator' : 
+                             user?.role === 'content-manager' ? 'Content Manager' : 'Administrator'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Menu Items */}
+                    <div className="py-2">
+                      <button 
+                        onClick={() => {
+                          setProfileDropdownOpen(false);
+                          // Navigate to profile page or show profile modal
+                          showToast('Profile page coming soon', 'info');
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-2 text-left transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-50'}`}
+                      >
+                        <User className={`w-4 h-4 ${themeClasses.text.secondary}`} />
+                        <span className={`text-sm ${themeClasses.text.primary}`}>View Profile</span>
+                      </button>
+                      
+                      <button 
+                        onClick={() => {
+                          setProfileDropdownOpen(false);
+                          setActiveModule('settings');
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-2 text-left transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-50'}`}
+                      >
+                        <Settings className={`w-4 h-4 ${themeClasses.text.secondary}`} />
+                        <span className={`text-sm ${themeClasses.text.primary}`}>Settings</span>
+                      </button>
+                      
+                      <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                      
+                      <button 
+                        onClick={() => {
+                          setProfileDropdownOpen(false);
+                          handleLogout();
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-2 text-left transition-colors ${isDark ? 'hover:bg-red-500/20 text-red-400' : 'hover:bg-red-50 text-red-600'}`}
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span className="text-sm font-medium">Log Out</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -766,7 +933,7 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
             <h2 className={`text-2xl font-bold ${themeClasses.text.primary}`}>
               {modules.find(m => m.id === activeModule)?.label || 'Dashboard'}
             </h2>
-            <p className={`${themeClasses.text.secondary} mt-2`}>
+            <p className={`${themeClasses.text.primary} opacity-70 mt-2`}>
               {activeModule === 'users' && 'Manage user accounts, roles, and permissions'}
               {activeModule === 'aptitude' && 'Create and manage aptitude test questions'}
               {activeModule === 'concepts' && 'Manage educational content and core concepts'}

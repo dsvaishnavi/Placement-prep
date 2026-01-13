@@ -60,14 +60,14 @@ function AppRoutes({ landingTheme, setLandingTheme, appTheme, setAppTheme }) {
       {/* Protected Admin Panel - Admin Only */}
       <Route path="/admin" element={
         <ProtectedRoute theme={appTheme} requiredRoles={['admin']}>
-          <Admin theme={appTheme} />
+          <Admin theme={appTheme} toggleTheme={() => setAppTheme(appTheme === 'dark' ? 'light' : 'dark')} />
         </ProtectedRoute>
       } />
       
       {/* Protected Content Management - Admin and Content Manager */}
       <Route path="/content-management" element={
         <ProtectedRoute theme={appTheme} requiredRoles={['admin', 'content-manager']}>
-          <Admin theme={appTheme} contentManagerMode={true} />
+          <Admin theme={appTheme} contentManagerMode={true} toggleTheme={() => setAppTheme(appTheme === 'dark' ? 'light' : 'dark')} />
         </ProtectedRoute>
       } />
       <Route path="/resumeanalyzer" element={
