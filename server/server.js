@@ -10,6 +10,7 @@ import authrouter from "./Routes/authrouter.js";
 import adminrouter from "./Routes/adminrouter.js";
 import contentrouter from "./Routes/contentrouter.js";
 import aptituderouter from "./Routes/aptitudeRouter.js";
+import coreConceptRouter from "./Routes/coreConceptRouter.js";
 import bodyParser from "body-parser";
 
 connectDB();
@@ -26,6 +27,7 @@ app.use("/auth", authrouter);
 app.use("/admin", adminrouter);
 app.use("/content", contentrouter);
 app.use("/aptitude", aptituderouter);
+app.use("/core-concepts", coreConceptRouter);
 
 //Routes
 app.get("/", (req, res) => {
