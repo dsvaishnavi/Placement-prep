@@ -280,26 +280,47 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
     })
   }
 
+  // Handle modal open/close with body scroll prevention
+  const openModal = (type, concept = null) => {
+    document.body.classList.add('modal-open')
+    
+    if (type === 'add') {
+      setShowAddModal(true)
+    } else if (type === 'edit') {
+      setSelectedConcept(concept)
+      setConceptForm({
+        title: concept.title,
+        description: concept.description,
+        subject: concept.subject,
+        difficulty: concept.difficulty,
+        modules: concept.modules && concept.modules.length > 0 ? concept.modules : [{ title: '', content: '' }],
+        youtubeLink: concept.youtubeLink || '',
+        status: concept.status,
+        tags: concept.tags || []
+      })
+      setShowEditModal(true)
+    } else if (type === 'view') {
+      setSelectedConcept(concept)
+      setShowViewModal(true)
+    }
+  }
+
+  const closeModal = () => {
+    document.body.classList.remove('modal-open')
+    setShowAddModal(false)
+    setShowEditModal(false)
+    setShowViewModal(false)
+    resetForm()
+  }
+
   // Open edit modal
   const openEditModal = (concept) => {
-    setSelectedConcept(concept)
-    setConceptForm({
-      title: concept.title,
-      description: concept.description,
-      subject: concept.subject,
-      difficulty: concept.difficulty,
-      modules: concept.modules && concept.modules.length > 0 ? concept.modules : [{ title: '', content: '' }],
-      youtubeLink: concept.youtubeLink || '',
-      status: concept.status,
-      tags: concept.tags || []
-    })
-    setShowEditModal(true)
+    openModal('edit', concept)
   }
 
   // Open view modal
   const openViewModal = (concept) => {
-    setSelectedConcept(concept)
-    setShowViewModal(true)
+    openModal('view', concept)
   }
 
   // Handle module changes
@@ -464,7 +485,7 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
             </select>
 
             <button
-              onClick={() => setShowAddModal(true)}
+              onClick={() => openModal('add')}
               className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${themeClasses.button.primary}`}
             >
               <Plus className="w-4 h-4" />
@@ -496,7 +517,7 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
             <p className={`text-lg font-medium ${themeClasses.text.primary}`}>No concepts found</p>
             <p className={`${themeClasses.text.secondary}`}>Create your first core concept to get started.</p>
             <button
-              onClick={() => setShowAddModal(true)}
+              onClick={() => openModal('add')}
               className={`mt-4 px-4 py-2 rounded-lg transition-colors ${themeClasses.button.primary}`}
             >
               Add First Concept
@@ -627,77 +648,85 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
 
       {/* Add/Edit Modal */}
       {(showAddModal || showEditModal) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`rounded-xl border max-w-4xl w-full max-h-[90vh] overflow-y-auto ${themeClasses.cardBg}`}>
-            <div className="sticky top-0 px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-inherit">
-              <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>
-                {showAddModal ? 'Add New Core Concept' : 'Edit Core Concept'}
-              </h3>
-              <button
-                onClick={() => {
-                  setShowAddModal(false)
-                  setShowEditModal(false)
-                  resetForm()
-                }}
-                className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
-              >
-                <X className={`w-5 h-5 ${themeClasses.text.secondary}`} />
-              </button>
-            </div>
+        <div className="modal-overlay">
+          {/* Transparent Backdrop - No black background */}
+          <div 
+            className="fixed inset-0 transition-opacity"
+            onClick={closeModal}
+          ></div>
+          
+          {/* Modal Container */}
+          <div className="modal-container">
+            <div className={`modal-content ${themeClasses.cardBg}`}>
+              {/* Modal Header */}
+              <div className={`sticky top-0 z-10 flex items-center justify-between border-b px-6 py-4 ${isDark ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-white'} rounded-t-xl`}>
+                <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>
+                  {showAddModal ? 'Add New Core Concept' : 'Edit Core Concept'}
+                </h3>
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className={`rounded-lg p-2 transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
+                >
+                  <X className={`h-5 w-5 ${themeClasses.text.secondary}`} />
+                </button>
+              </div>
 
-            <form onSubmit={showAddModal ? handleCreateConcept : handleUpdateConcept} className="p-6">
-              <div className="space-y-6">
-                {/* Title */}
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-                    Concept Title *
-                  </label>
-                  <input
-                    type="text"
-                    className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                    value={conceptForm.title}
-                    onChange={(e) => setConceptForm({ ...conceptForm, title: e.target.value })}
-                    placeholder="e.g., Data Structures - Arrays"
-                    required
-                  />
-                </div>
+              {/* Modal Body */}
+              <div className="modal-scroll max-h-[calc(90vh-120px)] overflow-y-auto">
+                <form onSubmit={showAddModal ? handleCreateConcept : handleUpdateConcept} className="p-6">
+                  <div className="space-y-6">
+                    {/* Title */}
+                    <div>
+                      <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
+                        Concept Title *
+                      </label>
+                      <input
+                        type="text"
+                        className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
+                        value={conceptForm.title}
+                        onChange={(e) => setConceptForm({ ...conceptForm, title: e.target.value })}
+                        placeholder="e.g., Data Structures - Arrays"
+                        required
+                      />
+                    </div>
 
-                {/* Description */}
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-                    Description *
-                  </label>
-                  <textarea
-                    rows="4"
-                    className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                    value={conceptForm.description}
-                    onChange={(e) => setConceptForm({ ...conceptForm, description: e.target.value })}
-                    placeholder="Detailed description of the core concept..."
-                    required
-                  />
-                </div>
+                    {/* Description */}
+                    <div>
+                      <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
+                        Description *
+                      </label>
+                      <textarea
+                        rows="4"
+                        className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
+                        value={conceptForm.description}
+                        onChange={(e) => setConceptForm({ ...conceptForm, description: e.target.value })}
+                        placeholder="Detailed description of the core concept..."
+                        required
+                      />
+                    </div>
 
-                {/* Subject & Difficulty */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-                      Subject *
-                    </label>
-                    <select
-                      className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                      value={conceptForm.subject}
-                      onChange={(e) => setConceptForm({ ...conceptForm, subject: e.target.value })}
-                      required
-                    >
-                      <option value="">Select Subject</option>
-                      <option value="Data Structures">Data Structures</option>
-                      <option value="Algorithms">Algorithms</option>
-                      <option value="Operating Systems">Operating Systems</option>
-                      <option value="DBMS">DBMS</option>
-                      <option value="Computer Networks">Computer Networks</option>
-                      <option value="System Design">System Design</option>
-                    </select>
-                  </div>
+                    {/* Subject & Difficulty */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
+                          Subject *
+                        </label>
+                        <select
+                          className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
+                          value={conceptForm.subject}
+                          onChange={(e) => setConceptForm({ ...conceptForm, subject: e.target.value })}
+                          required
+                        >
+                          <option value="">Select Subject</option>
+                          <option value="Data Structures">Data Structures</option>
+                          <option value="Algorithms">Algorithms</option>
+                          <option value="Operating Systems">Operating Systems</option>
+                          <option value="DBMS">DBMS</option>
+                          <option value="Computer Networks">Computer Networks</option>
+                          <option value="System Design">System Design</option>
+                        </select>
+                      </div>
 
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
@@ -831,135 +860,149 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
                   </select>
                 </div>
 
-                {/* Form Actions */}
-                <div className={`flex justify-end gap-3 pt-6 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAddModal(false)
-                      setShowEditModal(false)
-                      resetForm()
-                    }}
-                    className={`px-6 py-2 rounded-lg transition-colors ${themeClasses.button.secondary}`}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className={`px-6 py-2 rounded-lg transition-colors ${themeClasses.button.primary}`}
-                  >
-                    {showAddModal ? 'Create Concept' : 'Update Concept'}
-                  </button>
-                </div>
+                    {/* Form Actions */}
+                    <div className={`flex justify-end gap-3 pt-6 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowAddModal(false)
+                          setShowEditModal(false)
+                          resetForm()
+                        }}
+                        className={`px-6 py-2 rounded-lg transition-colors ${themeClasses.button.secondary}`}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className={`px-6 py-2 rounded-lg transition-colors ${themeClasses.button.primary}`}
+                      >
+                        {showAddModal ? 'Create Concept' : 'Update Concept'}
+                      </button>
+                    </div>
+                  </div>
+                </form>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
 
       {/* View Modal */}
       {showViewModal && selectedConcept && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`rounded-xl border max-w-4xl w-full max-h-[90vh] overflow-y-auto ${themeClasses.cardBg}`}>
-            <div className="sticky top-0 px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-inherit">
-              <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>
-                View Core Concept
-              </h3>
-              <button
-                onClick={() => setShowViewModal(false)}
-                className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
-              >
-                <X className={`w-5 h-5 ${themeClasses.text.secondary}`} />
-              </button>
-            </div>
+        <div className="modal-overlay">
+          {/* Transparent Backdrop - No black background */}
+          <div 
+            className="fixed inset-0 transition-opacity"
+            onClick={closeModal}
+          ></div>
+          
+          {/* Modal Container */}
+          <div className="modal-container">
+            <div className={`modal-content ${themeClasses.cardBg}`}>
+              {/* Modal Header */}
+              <div className={`sticky top-0 z-10 flex items-center justify-between border-b px-6 py-4 ${isDark ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-white'} rounded-t-xl`}>
+                <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>
+                  View Core Concept
+                </h3>
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className={`rounded-lg p-2 transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
+                >
+                  <X className={`h-5 w-5 ${themeClasses.text.secondary}`} />
+                </button>
+              </div>
 
-            <div className="p-6">
-              <div className="space-y-6">
-                {/* Header Info */}
-                <div>
-                  <h2 className={`text-2xl font-bold mb-2 ${themeClasses.text.primary}`}>
-                    {selectedConcept.title}
-                  </h2>
-                  <p className={`text-lg ${themeClasses.text.secondary} mb-4`}>
-                    {selectedConcept.description}
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-4 mb-4">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${themeClasses.iconBg.purple} ${isDark ? 'text-purple-400' : 'text-purple-800'}`}>
-                      {selectedConcept.subject}
-                    </span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium border ${themeClasses.difficulty[selectedConcept.difficulty]}`}>
-                      {selectedConcept.difficulty}
-                    </span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium border ${themeClasses.status[selectedConcept.status]}`}>
-                      {selectedConcept.status}
-                    </span>
-                  </div>
-
-                  {selectedConcept.youtubeLink && (
-                    <div className="mb-4">
-                      <a
-                        href={selectedConcept.youtubeLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                      >
-                        <Youtube className="w-4 h-4" />
-                        Watch Video Tutorial
-                      </a>
-                    </div>
-                  )}
-                </div>
-
-                {/* Modules */}
-                {selectedConcept.modules && selectedConcept.modules.length > 0 && (
+              {/* Modal Body */}
+              <div className="modal-scroll max-h-[calc(90vh-120px)] overflow-y-auto p-6">
+                <div className="space-y-6">
+                  {/* Header Info */}
                   <div>
-                    <h3 className={`text-lg font-semibold mb-4 ${themeClasses.text.primary}`}>
-                      Modules ({selectedConcept.modules.length})
-                    </h3>
-                    <div className="space-y-4">
-                      {selectedConcept.modules.map((module, index) => (
-                        <div key={index} className={`p-4 border rounded-lg ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-                          <h4 className={`font-medium mb-2 ${themeClasses.text.primary}`}>
-                            {index + 1}. {module.title}
-                          </h4>
-                          <div className={`text-sm ${themeClasses.text.secondary} whitespace-pre-wrap`}>
-                            {module.content}
-                          </div>
-                        </div>
-                      ))}
+                    <h2 className={`text-2xl font-bold mb-2 ${themeClasses.text.primary}`}>
+                      {selectedConcept.title}
+                    </h2>
+                    <p className={`text-lg ${themeClasses.text.secondary} mb-4`}>
+                      {selectedConcept.description}
+                    </p>
+                    
+                    <div className="flex flex-wrap gap-4 mb-4">
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${themeClasses.iconBg.purple} ${isDark ? 'text-purple-400' : 'text-purple-800'}`}>
+                        {selectedConcept.subject}
+                      </span>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium border ${themeClasses.difficulty[selectedConcept.difficulty]}`}>
+                        {selectedConcept.difficulty}
+                      </span>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium border ${themeClasses.status[selectedConcept.status]}`}>
+                        {selectedConcept.status}
+                      </span>
                     </div>
-                  </div>
-                )}
 
-                {/* Metadata */}
-                <div className={`pt-6 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className={`font-medium ${themeClasses.text.primary}`}>Created by:</span>
-                      <span className={`ml-2 ${themeClasses.text.secondary}`}>
-                        {selectedConcept.createdBy?.name || 'Unknown'}
-                      </span>
-                    </div>
-                    <div>
-                      <span className={`font-medium ${themeClasses.text.primary}`}>Created at:</span>
-                      <span className={`ml-2 ${themeClasses.text.secondary}`}>
-                        {new Date(selectedConcept.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                    {selectedConcept.updatedBy && (
-                      <div>
-                        <span className={`font-medium ${themeClasses.text.primary}`}>Updated by:</span>
-                        <span className={`ml-2 ${themeClasses.text.secondary}`}>
-                          {selectedConcept.updatedBy?.name || 'Unknown'}
-                        </span>
+                    {selectedConcept.youtubeLink && (
+                      <div className="mb-4">
+                        <a
+                          href={selectedConcept.youtubeLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                        >
+                          <Youtube className="w-4 h-4" />
+                          Watch Video Tutorial
+                        </a>
                       </div>
                     )}
+                  </div>
+
+                  {/* Modules */}
+                  {selectedConcept.modules && selectedConcept.modules.length > 0 && (
                     <div>
-                      <span className={`font-medium ${themeClasses.text.primary}`}>Last updated:</span>
-                      <span className={`ml-2 ${themeClasses.text.secondary}`}>
-                        {new Date(selectedConcept.updatedAt).toLocaleDateString()}
-                      </span>
+                      <h3 className={`text-lg font-semibold mb-4 ${themeClasses.text.primary}`}>
+                        Modules ({selectedConcept.modules.length})
+                      </h3>
+                      <div className="space-y-4">
+                        {selectedConcept.modules.map((module, index) => (
+                          <div key={index} className={`p-4 border rounded-lg ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+                            <h4 className={`font-medium mb-2 ${themeClasses.text.primary}`}>
+                              {index + 1}. {module.title}
+                            </h4>
+                            <div className={`text-sm ${themeClasses.text.secondary} whitespace-pre-wrap`}>
+                              {module.content}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Metadata */}
+                  <div className={`pt-6 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className={`font-medium ${themeClasses.text.primary}`}>Created by:</span>
+                        <span className={`ml-2 ${themeClasses.text.secondary}`}>
+                          {selectedConcept.createdBy?.name || 'Unknown'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className={`font-medium ${themeClasses.text.primary}`}>Created at:</span>
+                        <span className={`ml-2 ${themeClasses.text.secondary}`}>
+                          {new Date(selectedConcept.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      {selectedConcept.updatedBy && (
+                        <div>
+                          <span className={`font-medium ${themeClasses.text.primary}`}>Updated by:</span>
+                          <span className={`ml-2 ${themeClasses.text.secondary}`}>
+                            {selectedConcept.updatedBy?.name || 'Unknown'}
+                          </span>
+                        </div>
+                      )}
+                      <div>
+                        <span className={`font-medium ${themeClasses.text.primary}`}>Last updated:</span>
+                        <span className={`ml-2 ${themeClasses.text.secondary}`}>
+                          {new Date(selectedConcept.updatedAt).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
