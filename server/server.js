@@ -11,6 +11,7 @@ import adminrouter from "./Routes/adminrouter.js";
 import contentrouter from "./Routes/contentrouter.js";
 import aptituderouter from "./Routes/aptitudeRouter.js";
 import coreConceptRouter from "./Routes/coreConceptRouter.js";
+import notificationRouter from "./Routes/notificationRouter.js";
 import bodyParser from "body-parser";
 
 connectDB();
@@ -28,6 +29,7 @@ app.use("/admin", adminrouter);
 app.use("/content", contentrouter);
 app.use("/aptitude", aptituderouter);
 app.use("/core-concepts", coreConceptRouter);
+app.use("/notifications", notificationRouter);
 
 //Routes
 app.get("/", (req, res) => {

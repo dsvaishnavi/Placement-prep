@@ -6,6 +6,7 @@ import UserManagement from '../components/UserManagement'
 import AptitudeQuestionManagement from '../components/AptitudeQuestionManagement'
 import CoreConceptManagement from '../components/CoreConceptManagement'
 import DashboardOverview from '../components/DashboardOverview'
+import NotificationManagement from '../components/NotificationManagement'
 import { 
   // Navigation & Layout Icons
   Menu, Search, Bell, User, Home, Users, HelpCircle, 
@@ -31,6 +32,10 @@ function Admin({ theme = 'light', contentManagerMode = false, toggleTheme }) {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
   
+  // State for notifications
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  
   // Refs for dropdown elements
   const profileDropdownRef = useRef(null);
   const notificationDropdownRef = useRef(null);
@@ -51,6 +56,86 @@ function Admin({ theme = 'light', contentManagerMode = false, toggleTheme }) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+  
+  // Fetch notifications
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:3000/notifications/my-notifications', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          setNotifications(data.notifications);
+          setUnreadCount(data.unreadCount);
+        }
+      } catch (error) {
+        console.error('Failed to fetch notifications');
+      }
+    };
+
+    if (user) {
+      fetchNotifications();
+      // Refresh notifications every 30 seconds
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+  
+  // Mark notification as read
+  const markAsRead = async (notificationId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await fetch(`http://localhost:3000/notifications/mark-read/${notificationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Update local state
+      setNotifications(notifications.map(n => 
+        n.id === notificationId ? { ...n, read: true } : n
+      ));
+      setUnreadCount(Math.max(0, unreadCount - 1));
+    } catch (error) {
+      console.error('Failed to mark notification as read');
+    }
+  };
+  
+  // Mark all as read
+  const markAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await fetch('http://localhost:3000/notifications/mark-all-read', {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Update local state
+      setNotifications(notifications.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+      showToast('All notifications marked as read', 'success');
+    } catch (error) {
+      showToast('Failed to mark all as read', 'error');
+    }
+  };
+  
+  // Get time ago string
+  const getTimeAgo = (date) => {
+    const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+    
+    if (seconds < 60) return 'Just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+    return `${Math.floor(seconds / 86400)} days ago`;
+  };
   
   // Check access permissions
   if (!user) {
@@ -170,13 +255,6 @@ function Admin({ theme = 'light', contentManagerMode = false, toggleTheme }) {
       showToast('Error logging out', 'error');
     }
   };
-
-  // Mock notifications data
-  const notifications = [
-    { id: 1, title: 'New user registered', message: 'John Doe has joined the platform', time: '2 min ago', unread: true },
-    { id: 2, title: 'Question approved', message: 'Your aptitude question has been approved', time: '1 hour ago', unread: true },
-    { id: 3, title: 'System update', message: 'Platform maintenance scheduled for tonight', time: '3 hours ago', unread: false },
-  ];
   
   // Navigation modules configuration based on user role
   const getAvailableModules = () => {
@@ -190,6 +268,7 @@ function Admin({ theme = 'light', contentManagerMode = false, toggleTheme }) {
     const adminModules = [
       { id: 'dashboard', label: 'Dashboard', icon: Home, color: 'blue' },
       { id: 'users', label: 'User Management', icon: Users, color: 'purple' },
+      { id: 'notifications', label: 'Notifications', icon: Bell, color: 'blue' },
       { id: 'settings', label: 'Settings', icon: Settings, color: 'gray' }
     ];
     
@@ -244,6 +323,14 @@ function Admin({ theme = 'light', contentManagerMode = false, toggleTheme }) {
           <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
             <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text.primary}`}>Access Denied</h2>
             <p className={themeClasses.text.secondary}>User management is only available to administrators.</p>
+          </div>
+        )
+      case 'notifications':
+        // Only admins can access notification management
+        return isAdmin ? <NotificationManagement theme={theme} /> : (
+          <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
+            <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text.primary}`}>Access Denied</h2>
+            <p className={themeClasses.text.secondary}>Notification management is only available to administrators.</p>
           </div>
         )
       case 'aptitude':
@@ -351,38 +438,92 @@ function Admin({ theme = 'light', contentManagerMode = false, toggleTheme }) {
                   title="Notifications"
                 >
                   <Bell className={`w-5 h-5 ${themeClasses.text.secondary}`} />
-                  {notifications.some(n => n.unread) && (
+                  {unreadCount > 0 && (
                     <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                   )}
                 </button>
                 
                 {/* Notifications Dropdown Menu */}
                 {notificationDropdownOpen && (
-                  <div className={`absolute right-0 mt-2 w-80 rounded-lg border shadow-lg z-50 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-                    <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                      <h3 className={`font-semibold ${themeClasses.text.primary}`}>Notifications</h3>
+                  <div className={`absolute right-0 mt-2 w-96 rounded-lg border shadow-lg z-50 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                      <div>
+                        <h3 className={`font-semibold ${themeClasses.text.primary}`}>Notifications</h3>
+                        {unreadCount > 0 && (
+                          <p className={`text-xs ${themeClasses.text.secondary}`}>{unreadCount} unread</p>
+                        )}
+                      </div>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={markAllAsRead}
+                          className="text-xs text-blue-500 hover:text-blue-600 font-medium"
+                        >
+                          Mark all read
+                        </button>
+                      )}
                     </div>
-                    <div className="max-h-64 overflow-y-auto">
-                      {notifications.map((notification) => (
-                        <div key={notification.id} className={`p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 ${notification.unread ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''}`}>
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <p className={`text-sm font-medium ${themeClasses.text.primary}`}>{notification.title}</p>
-                              <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>{notification.message}</p>
-                            </div>
-                            {notification.unread && (
-                              <div className="w-2 h-2 bg-blue-500 rounded-full ml-2 mt-1"></div>
-                            )}
-                          </div>
-                          <p className={`text-xs mt-2 ${themeClasses.text.secondary}`}>{notification.time}</p>
+                    <div className="max-h-96 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="p-8 text-center">
+                          <Bell className={`w-12 h-12 mx-auto mb-2 ${themeClasses.text.secondary}`} />
+                          <p className={`text-sm ${themeClasses.text.secondary}`}>No notifications</p>
                         </div>
-                      ))}
+                      ) : (
+                        notifications.map((notification) => (
+                          <div 
+                            key={notification.id} 
+                            onClick={() => {
+                              if (!notification.read) {
+                                markAsRead(notification.id);
+                              }
+                            }}
+                            className={`p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors ${
+                              !notification.read ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''
+                            }`}
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <p className={`text-sm font-medium ${themeClasses.text.primary}`}>
+                                  {notification.title}
+                                </p>
+                                <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>
+                                  {notification.message}
+                                </p>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                    notification.type === 'success' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                                    notification.type === 'warning' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                                    notification.type === 'error' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                                  }`}>
+                                    {notification.type}
+                                  </span>
+                                  <p className={`text-xs ${themeClasses.text.secondary}`}>
+                                    {getTimeAgo(notification.createdAt)}
+                                  </p>
+                                </div>
+                              </div>
+                              {!notification.read && (
+                                <div className="w-2 h-2 bg-blue-500 rounded-full ml-2 mt-1"></div>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
-                    <div className="p-3 border-t border-gray-200 dark:border-gray-700">
-                      <button className={`w-full text-sm text-blue-500 hover:text-blue-600 font-medium`}>
-                        View all notifications
-                      </button>
-                    </div>
+                    {isAdmin && (
+                      <div className="p-3 border-t border-gray-200 dark:border-gray-700">
+                        <button 
+                          onClick={() => {
+                            setNotificationDropdownOpen(false);
+                            setActiveModule('notifications');
+                          }}
+                          className={`w-full text-sm text-blue-500 hover:text-blue-600 font-medium`}
+                        >
+                          Manage notifications
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -605,6 +746,7 @@ function Admin({ theme = 'light', contentManagerMode = false, toggleTheme }) {
               {activeModule === 'aptitude' && 'Create and manage aptitude test questions'}
               {activeModule === 'concepts' && 'Manage educational content and core concepts'}
               {activeModule === 'dashboard' && 'Overview of platform analytics and metrics'}
+              {activeModule === 'notifications' && 'Create and manage system notifications'}
               {activeModule === 'settings' && 'Configure platform settings and preferences'}
             </p>
           </div>
