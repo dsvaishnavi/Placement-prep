@@ -76,7 +76,7 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
     description: '',
     subject: '',
     difficulty: 'Beginner',
-    modules: [{ title: '', content: '' }],
+    modules: [],
     youtubeLink: '',
     status: 'Draft',
     tags: []
@@ -165,7 +165,17 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
   const handleCreateConcept = async (e) => {
     e.preventDefault()
     
-    console.log('Creating concept with data:', conceptForm)
+    // Filter out empty modules before sending
+    const filteredModules = conceptForm.modules.filter(
+      module => module.title && module.title.trim() !== '' && module.content && module.content.trim() !== ''
+    )
+    
+    const dataToSend = {
+      ...conceptForm,
+      modules: filteredModules
+    }
+    
+    console.log('Creating concept with data:', dataToSend)
     
     try {
       const token = localStorage.getItem('token')
@@ -181,7 +191,7 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(conceptForm)
+        body: JSON.stringify(dataToSend)
       })
 
       console.log('Create response status:', response.status)
@@ -200,6 +210,10 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
       }
     } catch (error) {
       console.error('Error creating concept:', error)
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack
+      })
       showToast.error('Error creating core concept: ' + error.message)
     }
   }
@@ -207,6 +221,19 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
   // Handle form submission for updating concept
   const handleUpdateConcept = async (e) => {
     e.preventDefault()
+    
+    // Filter out empty modules before sending
+    const filteredModules = conceptForm.modules.filter(
+      module => module.title && module.title.trim() !== '' && module.content && module.content.trim() !== ''
+    )
+    
+    const dataToSend = {
+      ...conceptForm,
+      modules: filteredModules
+    }
+    
+    console.log('Updating concept with data:', dataToSend)
+    
     try {
       const token = localStorage.getItem('token')
       
@@ -216,8 +243,11 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(conceptForm)
+        body: JSON.stringify(dataToSend)
       })
+
+      const data = await response.json()
+      console.log('Update response:', data)
 
       if (response.ok) {
         showToast.success('Core concept updated successfully!')
@@ -226,12 +256,16 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
         fetchConcepts(currentPage)
         fetchStats()
       } else {
-        const data = await response.json()
+        console.error('Failed to update concept:', data)
         showToast.error(data.message || 'Failed to update core concept')
       }
     } catch (error) {
       console.error('Error updating concept:', error)
-      showToast.error('Error updating core concept')
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack
+      })
+      showToast.error('Error updating core concept: ' + error.message)
     }
   }
 
@@ -273,7 +307,7 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
       description: '',
       subject: '',
       difficulty: 'Beginner',
-      modules: [{ title: '', content: '' }],
+      modules: [],
       youtubeLink: '',
       status: 'Draft',
       tags: []
@@ -293,7 +327,7 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
         description: concept.description,
         subject: concept.subject,
         difficulty: concept.difficulty,
-        modules: concept.modules && concept.modules.length > 0 ? concept.modules : [{ title: '', content: '' }],
+        modules: concept.modules && concept.modules.length > 0 ? concept.modules : [],
         youtubeLink: concept.youtubeLink || '',
         status: concept.status,
         tags: concept.tags || []
@@ -649,15 +683,16 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
       {/* Add/Edit Modal */}
       {(showAddModal || showEditModal) && (
         <div className="modal-overlay">
-          {/* Transparent Backdrop - No black background */}
+          {/* Black Background Overlay */}
           <div 
             className="fixed inset-0 transition-opacity"
             onClick={closeModal}
+            aria-hidden="true"
           ></div>
           
           {/* Modal Container */}
           <div className="modal-container">
-            <div className={`modal-content ${themeClasses.cardBg}`}>
+            <div className={`modal-content border-2 ${themeClasses.cardBg}`}>
               {/* Modal Header */}
               <div className={`sticky top-0 z-10 flex items-center justify-between border-b px-6 py-4 ${isDark ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-white'} rounded-t-xl`}>
                 <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>
@@ -891,15 +926,16 @@ const CoreConceptManagement = ({ theme = 'light' }) => {
       {/* View Modal */}
       {showViewModal && selectedConcept && (
         <div className="modal-overlay">
-          {/* Transparent Backdrop - No black background */}
+          {/* Black Background Overlay */}
           <div 
             className="fixed inset-0 transition-opacity"
             onClick={closeModal}
+            aria-hidden="true"
           ></div>
           
           {/* Modal Container */}
           <div className="modal-container">
-            <div className={`modal-content ${themeClasses.cardBg}`}>
+            <div className={`modal-content border-2 ${themeClasses.cardBg}`}>
               {/* Modal Header */}
               <div className={`sticky top-0 z-10 flex items-center justify-between border-b px-6 py-4 ${isDark ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-white'} rounded-t-xl`}>
                 <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>

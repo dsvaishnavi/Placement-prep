@@ -8,7 +8,7 @@ import {
   MessageSquare, Book, SpellCheck, Eye,
   SortAsc, SortDesc, X, Play, Zap,
   TrendingUp as TrendingUpIcon, AlertCircle,
-  CheckCircle
+  CheckCircle, Bookmark
 } from "lucide-react";
 
 function Aptitude({ theme }) {
@@ -16,8 +16,10 @@ function Aptitude({ theme }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedDifficulty, setSelectedDifficulty] = useState("All");
+  const [selectedTopic, setSelectedTopic] = useState("All Topics");
   const [sortBy, setSortBy] = useState("default");
   const [expandedSubtopic, setExpandedSubtopic] = useState(null);
+  const [expandedProblem, setExpandedProblem] = useState(null);
 
   // Overview cards data
   const overviewCards = [
@@ -482,6 +484,11 @@ function Aptitude({ theme }) {
       result = result.filter(subtopic => subtopic.category === selectedCategory);
     }
 
+    // Apply topic filter
+    if (selectedTopic !== "All Topics") {
+      result = result.filter(subtopic => subtopic.name === selectedTopic);
+    }
+
     // Apply difficulty filter
     if (selectedDifficulty !== "All") {
       result = result.filter(subtopic => subtopic.difficulty === selectedDifficulty);
@@ -519,7 +526,7 @@ function Aptitude({ theme }) {
     }
 
     return result;
-  }, [searchQuery, selectedCategory, selectedDifficulty, sortBy]);
+  }, [searchQuery, selectedCategory, selectedTopic, selectedDifficulty, sortBy]);
 
   // Statistics
   const stats = useMemo(() => {
@@ -530,6 +537,22 @@ function Aptitude({ theme }) {
 
     return { total, completed, avgProgress: Math.round(avgProgress), totalProblems };
   }, []);
+
+  // Create filtered problems from subtopics
+  const filteredProblems = useMemo(() => {
+    return filteredSubtopics.map((subtopic, index) => ({
+      id: subtopic.id,
+      number: index + 1,
+      name: subtopic.name,
+      category: subtopic.category,
+      topic: subtopic.name,
+      difficulty: subtopic.difficulty,
+      description: subtopic.description,
+      icon: subtopic.icon,
+      problems: subtopic.problems,
+      progress: subtopic.progress
+    }));
+  }, [filteredSubtopics]);
 
   // Handle assessment start for overview cards
   const handleStartAssessment = (category) => {
@@ -543,13 +566,37 @@ function Aptitude({ theme }) {
     // Add your practice logic here
   };
 
+  // Handle view solution
+  const handleViewSolution = (problem) => {
+    console.log(`Viewing solution for: ${problem.name}`);
+    // Add your solution view logic here
+  };
+
+  // Handle bookmark
+  const handleBookmark = (problem) => {
+    console.log(`Bookmarking: ${problem.name}`);
+    // Add your bookmark logic here
+  };
+
   // Get difficulty color
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
-      case "Easy": return "bg-green-100 text-green-800 border-green-200";
-      case "Medium": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "Hard": return "bg-red-100 text-red-800 border-red-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
+      case "Easy": 
+        return theme === 'dark' 
+          ? "bg-green-500/20 text-green-400 border-green-500/30" 
+          : "bg-green-100 text-green-800 border-green-200";
+      case "Medium": 
+        return theme === 'dark' 
+          ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" 
+          : "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "Hard": 
+        return theme === 'dark' 
+          ? "bg-red-500/20 text-red-400 border-red-500/30" 
+          : "bg-red-100 text-red-800 border-red-200";
+      default: 
+        return theme === 'dark' 
+          ? "bg-gray-500/20 text-gray-400 border-gray-500/30" 
+          : "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
@@ -569,12 +616,22 @@ function Aptitude({ theme }) {
 
   // Get overview card progress color
   const getCardProgressColor = (progress) => {
-    if (progress >= 70) return "text-green-600 bg-green-100";
-    if (progress >= 40) return "text-yellow-600 bg-yellow-100";
-    return "text-red-600 bg-red-100";
+    if (progress >= 70) {
+      return theme === 'dark' 
+        ? "text-green-400 bg-green-500/20" 
+        : "text-green-600 bg-green-100";
+    }
+    if (progress >= 40) {
+      return theme === 'dark' 
+        ? "text-yellow-400 bg-yellow-500/20" 
+        : "text-yellow-600 bg-yellow-100";
+    }
+    return theme === 'dark' 
+      ? "text-red-400 bg-red-500/20" 
+      : "text-red-600 bg-red-100";
   };
 
-  return (
+ return (
     <div className={`min-h-screen pt-16 ${theme === 'dark'
       ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
       : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
@@ -678,7 +735,7 @@ function Aptitude({ theme }) {
               </div>
               <div>
                 <div className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{stats.total}</div>
-                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Total Topics</div>
+                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Total Questions</div>
               </div>
             </div>
           </div>
@@ -712,7 +769,7 @@ function Aptitude({ theme }) {
               </div>
               <div>
                 <div className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{stats.avgProgress}%</div>
-                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Avg. Progress</div>
+                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Accuracy Rate</div>
               </div>
             </div>
           </div>
@@ -729,24 +786,24 @@ function Aptitude({ theme }) {
               </div>
               <div>
                 <div className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{stats.totalProblems}</div>
-                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Total Problems</div>
+                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Topics Covered</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Problem Explorer Header */}
+        {/* Problems Explorer Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Problem Explorer</h2>
-            <p className={`text-muted ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Browse and practice all aptitude topics</p>
+            <h2 className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Problems Explorer</h2>
+            <p className={`text-muted ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Browse and practice aptitude questions by category and topic</p>
           </div>
           <div className={`flex items-center gap-2 text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
             <CheckCircle className="w-4 h-4 text-green-500" />
-            <span>{stats.completed} completed</span>
+            <span>{stats.completed} solved</span>
             <span className="mx-2">•</span>
             <AlertCircle className="w-4 h-4 text-amber-500" />
-            <span>{stats.total - stats.completed} remaining</span>
+            <span>{stats.total - stats.completed} unsolved</span>
           </div>
         </div>
 
@@ -761,7 +818,7 @@ function Aptitude({ theme }) {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search topics, categories, or keywords..."
+                placeholder="Search questions, topics, or keywords..."
                 className={`w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all ${theme === 'dark' ? 'bg-gray-800/50 text-white' : 'bg-white text-gray-900'}`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -778,7 +835,7 @@ function Aptitude({ theme }) {
 
             {/* Filters and Sort */}
             <div className="flex flex-wrap gap-3 w-full lg:w-auto">
-              {/* Category Filter */}
+              {/* Category Filter - Updated */}
               <div className="relative">
                 <select
                   className={`appearance-none pl-10 pr-8 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all ${theme === 'dark' ? 'bg-gray-800/50 text-white' : 'bg-white text-gray-900'}`}
@@ -790,6 +847,33 @@ function Aptitude({ theme }) {
                   ))}
                 </select>
                 <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              </div>
+
+              {/* Topic Filter - Added */}
+              <div className="relative">
+                <select
+                  className={`appearance-none pl-10 pr-8 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all ${theme === 'dark' ? 'bg-gray-800/50 text-white' : 'bg-white text-gray-900'}`}
+                  value={selectedTopic}
+                  onChange={(e) => setSelectedTopic(e.target.value)}
+                >
+                  <option value="All Topics">All Topics</option>
+                  <option value="Algebra">Algebra</option>
+                  <option value="Geometry">Geometry</option>
+                  <option value="Arithmetic">Arithmetic</option>
+                  <option value="Number Series">Number Series</option>
+                  <option value="Data Interpretation">Data Interpretation</option>
+                  <option value="Logical Puzzles">Logical Puzzles</option>
+                  <option value="Verbal Reasoning">Verbal Reasoning</option>
+                  <option value="Quantitative Comparison">Quantitative Comparison</option>
+                  <option value="Percentages">Percentages</option>
+                  <option value="Ratios & Proportions">Ratios & Proportions</option>
+                  <option value="Time & Work">Time & Work</option>
+                  <option value="Probability">Probability</option>
+                  <option value="Permutations">Permutations</option>
+                  <option value="Profit & Loss">Profit & Loss</option>
+                </select>
+                <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               </div>
 
@@ -808,7 +892,7 @@ function Aptitude({ theme }) {
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               </div>
 
-              {/* Sort By */}
+              {/* Sort By - Updated */}
               <div className="relative">
                 <select
                   className={`appearance-none pl-10 pr-8 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all ${theme === 'dark' ? 'bg-gray-800/50 text-white' : 'bg-white text-gray-900'}`}
@@ -816,12 +900,13 @@ function Aptitude({ theme }) {
                   onChange={(e) => setSortBy(e.target.value)}
                 >
                   <option value="default">Sort: Default</option>
+                  <option value="question-asc">Sort: Question # (Asc)</option>
+                  <option value="question-desc">Sort: Question # (Desc)</option>
                   <option value="name-asc">Sort: A-Z</option>
                   <option value="name-desc">Sort: Z-A</option>
-                  <option value="progress-desc">Sort: Progress (High to Low)</option>
-                  <option value="progress-asc">Sort: Progress (Low to High)</option>
-                  <option value="problems-desc">Sort: Problems (High to Low)</option>
                   <option value="difficulty">Sort: Difficulty</option>
+                  <option value="category">Sort: Category</option>
+                  <option value="topic">Sort: Topic</option>
                 </select>
                 {sortBy.includes("desc") ? (
                   <SortDesc className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -834,12 +919,20 @@ function Aptitude({ theme }) {
           </div>
 
           {/* Active Filters */}
-          {(selectedCategory !== "All" || selectedDifficulty !== "All" || searchQuery) && (
+          {(selectedCategory !== "All" || selectedDifficulty !== "All" || selectedTopic !== "All Topics" || searchQuery) && (
             <div className="flex flex-wrap gap-2 mt-4">
               {selectedCategory !== "All" && (
                 <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${theme === 'dark' ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-100 text-blue-800'}`}>
                   Category: {selectedCategory}
                   <button onClick={() => setSelectedCategory("All")}>
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {selectedTopic !== "All Topics" && (
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${theme === 'dark' ? 'bg-green-500/20 text-green-300' : 'bg-green-100 text-green-800'}`}>
+                  Topic: {selectedTopic}
+                  <button onClick={() => setSelectedTopic("All Topics")}>
                     <X className="w-3 h-3" />
                   </button>
                 </span>
@@ -853,7 +946,7 @@ function Aptitude({ theme }) {
                 </span>
               )}
               {searchQuery && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm">
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${theme === 'dark' ? 'bg-gray-700/50 text-gray-300' : 'bg-gray-100 text-gray-800'}`}>
                   Search: "{searchQuery}"
                   <button onClick={() => setSearchQuery("")}>
                     <X className="w-3 h-3" />
@@ -864,9 +957,10 @@ function Aptitude({ theme }) {
                 onClick={() => {
                   setSelectedCategory("All");
                   setSelectedDifficulty("All");
+                  setSelectedTopic("All Topics");
                   setSearchQuery("");
                 }}
-                className="text-sm text-blue-600 hover:text-blue-800"
+                className={`text-sm ${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'}`}
               >
                 Clear all filters
               </button>
@@ -874,173 +968,208 @@ function Aptitude({ theme }) {
           )}
         </div>
 
-        {/* Topics Table/Grid */}
-        <div className={`rounded-xl border overflow-hidden ${theme === 'dark' ? 'bg-gray-800/30 border-gray-700' : 'bg-white border-blue-100'}`}>
-          {/* Table Header */}
-          <div className={`hidden lg:grid grid-cols-12 gap-4 p-6 border-b ${theme === 'dark' ? 'border-gray-700 bg-gray-800/50 text-gray-300' : 'border-gray-100 bg-gray-50 text-gray-600'} text-sm font-semibold`}>
-            <div className="col-span-4">Topic</div>
+        {/* Problems Table */}
+        <div className={`rounded-xl border overflow-hidden ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-white/70 border-gray-200/60'}`}>
+          {/* Table Header - Updated */}
+          <div className={`hidden lg:grid grid-cols-12 gap-4 p-6 border-b ${theme === 'dark' ? 'border-white/10 bg-white/5 text-gray-300' : 'border-gray-100 bg-gray-50 text-gray-600'} text-sm font-semibold`}>
+            <div className="col-span-1 text-center">#</div>
+            <div className="col-span-4">Question</div>
             <div className="col-span-2">Category</div>
-            <div className="col-span-2">Difficulty</div>
-            <div className="col-span-1 text-center">Problems</div>
-            <div className="col-span-2 text-center">Progress</div>
-            <div className="col-span-1 text-center">Action</div>
+            <div className="col-span-2">Topic</div>
+            <div className="col-span-1 text-center">Difficulty</div>
+            <div className="col-span-2 text-center">Actions</div>
           </div>
 
-          {/* Topics List */}
-          <div className="divide-y divide-gray-100">
-            {filteredSubtopics.length > 0 ? (
-              filteredSubtopics.map((subtopic) => {
-                const Icon = subtopic.icon;
-                const isExpanded = expandedSubtopic === subtopic.id;
+          {/* Problems List - Updated */}
+          <div className={`divide-y ${theme === 'dark' ? 'divide-white/10' : 'divide-gray-100'}`}>
+            {filteredProblems.length > 0 ? (
+              filteredProblems.map((problem) => {
+                const Icon = problem.icon || BookOpen;
+                const isExpanded = expandedProblem === problem.id;
 
                 return (
-                  <div key={subtopic.id} className={`p-6 transition-all duration-300 ${theme === 'dark' ? 'hover:bg-white/5 hover:backdrop-blur-md hover:shadow-lg hover:shadow-blue-500/10' : 'hover:bg-blue-50/30 hover:backdrop-blur-sm hover:shadow-md'}`}>
-                    {/* Desktop View */}
+                  <div key={problem.id} className={`p-6 transition-all duration-300 ${theme === 'dark' ? 'hover:bg-white/10 hover:backdrop-blur-md hover:shadow-lg hover:shadow-blue-500/10' : 'hover:bg-blue-50/30 hover:backdrop-blur-sm hover:shadow-md'}`}>
+                    {/* Desktop View - Updated */}
                     <div className="hidden lg:grid grid-cols-12 gap-4 items-center">
+                      {/* Question Number */}
+                      <div className="col-span-1 text-center">
+                        <div className={`font-bold text-lg ${theme === 'dark' ? 'text-blue-400' : 'text-primary'}`}>
+                          {problem.number}
+                        </div>
+                      </div>
+                      
+                      {/* Question */}
                       <div className="col-span-4">
                         <div className="flex items-center gap-3">
                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${theme === 'dark' ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
                             <Icon className="w-5 h-5 text-blue-600" />
                           </div>
                           <div>
-                            <div className="font-semibold text-primary">{subtopic.name}</div>
-                            <div className="text-sm text-muted">{subtopic.description}</div>
+                            <div className={`font-semibold ${theme === 'dark' ? 'text-blue-400' : 'text-primary'}`}>
+                              {problem.title}
+                            </div>
+                            <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-muted'}`}>
+                              {problem.description.substring(0, 60)}...
+                            </div>
                           </div>
                         </div>
                       </div>
+                      
+                      {/* Category */}
                       <div className="col-span-2">
-                        <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm">
-                          {subtopic.category}
+                        <span className={`px-3 py-1 rounded-full text-sm ${theme === 'dark' ? 'bg-gray-700/50 text-gray-300' : 'bg-gray-100 text-gray-800'}`}>
+                          {problem.category}
                         </span>
                       </div>
+                      
+                      {/* Topic */}
                       <div className="col-span-2">
-                        <span className={`px-3 py-1 rounded-full border text-sm ${getDifficultyColor(subtopic.difficulty)}`}>
-                          {subtopic.difficulty}
+                        <span className={`px-3 py-1 rounded-full border text-sm ${theme === 'dark' ? 'border-green-500/30 bg-green-500/10 text-green-300' : 'border-green-200 bg-green-100 text-green-800'}`}>
+                          {problem.topic}
                         </span>
                       </div>
+                      
+                      {/* Difficulty */}
                       <div className="col-span-1 text-center">
-                        <div className="font-semibold text-primary">{subtopic.problems}</div>
-                        <div className="text-xs text-muted">problems</div>
+                        <span className={`px-3 py-1 rounded-full border text-sm ${getDifficultyColor(problem.difficulty)}`}>
+                          {problem.difficulty}
+                        </span>
                       </div>
+                      
+                      {/* Actions */}
                       <div className="col-span-2">
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-xs">
-                            <span className={`font-semibold ${getProgressTextColor(subtopic.progress)}`}>
-                              {subtopic.progress}%
-                            </span>
-                          </div>
-                          <div className={`w-full h-2 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} rounded-full overflow-hidden`}>
-                            <div
-                              className={`h-full ${getProgressColor(subtopic.progress)} rounded-full transition-all duration-500`}
-                              style={{ width: `${subtopic.progress}%` }}
-                            ></div>
-                          </div>
+                        <div className="flex gap-2 justify-center">
+                          <button
+                            onClick={() => handleSolveProblem(problem)}
+                            className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:opacity-90 transition-opacity text-sm"
+                          >
+                            Solve
+                          </button>
+                          <button
+                            onClick={() => handleViewSolution(problem)}
+                            className={`px-3 py-2 rounded-lg border ${theme === 'dark' ? 'border-gray-600 text-gray-300 hover:bg-gray-700/50' : 'border-gray-300 text-gray-700 hover:bg-gray-100'} text-sm`}
+                          >
+                            Solution
+                          </button>
+                          <button
+                            onClick={() => handleBookmark(problem)}
+                            className={`p-2 rounded-lg ${theme === 'dark' ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100'}`}
+                          >
+                            <Bookmark className={`w-4 h-4 ${problem.bookmarked ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400'}`} />
+                          </button>
                         </div>
-                      </div>
-                      <div className="col-span-1 text-center">
-                        <button
-                          onClick={() => handlePractice(subtopic)}
-                          className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:opacity-90 transition-opacity"
-                        >
-                          Practice
-                        </button>
                       </div>
                     </div>
 
-                    {/* Mobile View */}
+                    {/* Mobile View - Updated */}
                     <div className="lg:hidden">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${theme === 'dark' ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
-                            <Icon className="w-5 h-5 text-blue-600" />
+                            <div className={`font-bold ${theme === 'dark' ? 'text-blue-400' : 'text-primary'}`}>
+                              #{problem.number}
+                            </div>
                           </div>
                           <div>
-                            <div className="font-semibold text-primary">{subtopic.name}</div>
-                            <div className="text-sm text-muted">{subtopic.category}</div>
+                            <div className={`font-semibold ${theme === 'dark' ? 'text-blue-400' : 'text-primary'}`}>
+                              {problem.title}
+                            </div>
+                            <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-muted'}`}>
+                              {problem.category} • {problem.topic}
+                            </div>
                           </div>
                         </div>
                         <button
-                          onClick={() => setExpandedSubtopic(isExpanded ? null : subtopic.id)}
+                          onClick={() => handleBookmark(problem)}
                           className="p-2"
                         >
-                          {isExpanded ? (
-                            <ChevronUp className="w-5 h-5 text-gray-400" />
-                          ) : (
-                            <ChevronDown className="w-5 h-5 text-gray-400" />
-                          )}
+                          <Bookmark className={`w-5 h-5 ${problem.bookmarked ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400'}`} />
                         </button>
                       </div>
 
-                      <div className="flex flex-wrap gap-3 mb-4">
-                        <span className={`px-3 py-1 rounded-full border text-sm ${getDifficultyColor(subtopic.difficulty)}`}>
-                          {subtopic.difficulty}
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        <span className={`px-3 py-1 rounded-full border text-sm ${getDifficultyColor(problem.difficulty)}`}>
+                          {problem.difficulty}
                         </span>
-                        <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm">
-                          {subtopic.type}
+                        <span className={`px-3 py-1 rounded-full text-sm ${theme === 'dark' ? 'bg-gray-700/50 text-gray-300' : 'bg-gray-100 text-gray-800'}`}>
+                          {problem.category}
                         </span>
-                        <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-sm">
-                          {subtopic.problems} problems
+                        <span className={`px-3 py-1 rounded-full text-sm ${theme === 'dark' ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-800'}`}>
+                          {problem.topic}
                         </span>
                       </div>
 
-                      <div className="space-y-2 mb-4">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted">Progress</span>
-                          <span className={`font-semibold ${getProgressTextColor(subtopic.progress)}`}>
-                            {subtopic.progress}%
-                          </span>
-                        </div>
-                        <div className={`w-full h-2 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} rounded-full overflow-hidden`}>
-                          <div
-                            className={`h-full ${getProgressColor(subtopic.progress)} rounded-full transition-all duration-500`}
-                            style={{ width: `${subtopic.progress}%` }}
-                          ></div>
-                        </div>
+                      <div className="mb-4">
+                        <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                          {problem.description}
+                        </p>
                       </div>
+
+                      <button
+                        onClick={() => setExpandedProblem(isExpanded ? null : problem.id)}
+                        className={`w-full flex items-center justify-center gap-2 py-2 mb-4 rounded-lg ${theme === 'dark' ? 'bg-gray-800/50 text-gray-300' : 'bg-gray-100 text-gray-700'}`}
+                      >
+                        {isExpanded ? 'Show Less' : 'Show More'}
+                        {isExpanded ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
+                      </button>
 
                       {isExpanded && (
                         <div className={`mt-4 p-4 ${theme === 'dark' ? 'bg-gray-800/50' : 'bg-gray-50'} rounded-lg`}>
-                          <p className={`text-sm mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>{subtopic.description}</p>
-                          <div className="flex justify-between items-center">
+                          <div className="flex justify-between items-center mb-3">
                             <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                              {subtopic.marks} marks • {subtopic.type}
+                              Problem Details
                             </div>
-                            <button
-                              onClick={() => handlePractice(subtopic)}
-                              className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:opacity-90 transition-opacity"
-                            >
-                              Start Practice
-                            </button>
+                            <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                              ID: {problem.id}
+                            </div>
+                          </div>
+                          <div className={`text-sm mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                            <strong>Type:</strong> {problem.type || 'Standard'} • 
+                            <strong> Marks:</strong> {problem.marks || '1'} • 
+                            <strong> Status:</strong> <span className={`font-medium ${problem.solved ? 'text-green-600' : 'text-amber-600'}`}>
+                              {problem.solved ? 'Solved' : 'Unsolved'}
+                            </span>
                           </div>
                         </div>
                       )}
 
-                      {!isExpanded && (
+                      <div className="flex gap-2 mt-4">
                         <button
-                          onClick={() => handlePractice(subtopic)}
-                          className="w-full mt-4 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:opacity-90 transition-opacity"
+                          onClick={() => handleSolveProblem(problem)}
+                          className="flex-1 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:opacity-90 transition-opacity"
                         >
-                          Practice Now
+                          Solve Now
                         </button>
-                      )}
+                        <button
+                          onClick={() => handleViewSolution(problem)}
+                          className="flex-1 py-3 rounded-lg border border-blue-500 text-blue-600 font-medium hover:bg-blue-50 transition-colors"
+                        >
+                          View Solution
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
               })
             ) : (
               <div className="p-12 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                  <Search className={`w-8 h-8 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} />
+                <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${theme === 'dark' ? 'bg-gray-700/50' : 'bg-gray-100'}`}>
+                  <Search className={`w-8 h-8 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} />
                 </div>
-                <h3 className={`text-lg font-semibold mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>No topics found</h3>
+                <h3 className={`text-lg font-semibold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>No problems found</h3>
                 <p className={`mb-6 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Try adjusting your search or filters</p>
                 <button
                   onClick={() => {
                     setSelectedCategory("All");
                     setSelectedDifficulty("All");
+                    setSelectedTopic("All Topics");
                     setSearchQuery("");
                   }}
-                  className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
+                  className={`px-6 py-2 rounded-lg font-medium transition-colors ${theme === 'dark' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
                 >
                   Clear Filters
                 </button>
@@ -1049,24 +1178,48 @@ function Aptitude({ theme }) {
           </div>
         </div>
 
+        {/* Pagination - Added */}
+        <div className="mt-6 flex items-center justify-between">
+          <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            Showing {Math.min(filteredProblems.length, 1)}-{filteredProblems.length} of {filteredProblems.length} problems
+          </div>
+          <div className="flex gap-2">
+            <button className={`px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-gray-700 text-gray-300 hover:bg-gray-700/50' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}>
+              Previous
+            </button>
+            <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium">
+              1
+            </button>
+            <button className={`px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-gray-700 text-gray-300 hover:bg-gray-700/50' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}>
+              2
+            </button>
+            <button className={`px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-gray-700 text-gray-300 hover:bg-gray-700/50' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}>
+              3
+            </button>
+            <button className={`px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-gray-700 text-gray-300 hover:bg-gray-700/50' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}>
+              Next
+            </button>
+          </div>
+        </div>
+
         {/* Info Footer */}
-        <div className={`mt-8 p-6 rounded-xl border ${theme === 'dark' ? 'bg-gradient-to-r from-gray-800/50 to-gray-900/50 border-gray-700' : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200'}`}>
+        <div className={`mt-8 p-6 rounded-xl border ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200'}`}>
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${theme === 'dark' ? 'bg-white/10' : 'bg-white'}`}>
-                <Zap className="w-6 h-6 text-blue-600" />
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${theme === 'dark' ? 'bg-blue-500/20' : 'bg-white'}`}>
+                <Zap className={`w-6 h-6 ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`} />
               </div>
               <div>
-                <h4 className="font-semibold text-primary">Pro Tips for Success</h4>
-                <p className="text-sm text-muted">Practice daily, track progress, and focus on weak areas to improve faster.</p>
+                <h4 className={`font-semibold ${theme === 'dark' ? 'text-blue-400' : 'text-primary'}`}>Pro Tips for Success</h4>
+                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-muted'}`}>Practice daily, track progress, and focus on weak areas to improve faster.</p>
               </div>
             </div>
             <div className="flex gap-3">
               <button className={`px-6 py-3 rounded-lg border font-medium transition-colors ${theme === 'dark' ? 'border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20' : 'border-blue-200 bg-white text-blue-600 hover:bg-blue-50'}`}>
-                Download Study Plan
+                Export Questions
               </button>
               <button className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium hover:opacity-90 transition-opacity">
-                Take Mock Test
+                Take Random Quiz
               </button>
             </div>
           </div>

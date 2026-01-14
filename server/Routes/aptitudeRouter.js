@@ -14,6 +14,7 @@ router.get("/", auth, requireRole(['admin', 'content-manager']), async (req, res
             difficulty = '', 
             topic = '', 
             status = '',
+            category = '',
             sortBy = 'createdAt',
             sortOrder = 'desc'
         } = req.query;
@@ -39,6 +40,10 @@ router.get("/", auth, requireRole(['admin', 'content-manager']), async (req, res
         
         if (status) {
             searchQuery.status = status;
+        }
+
+        if (category) {
+            searchQuery.category = category;
         }
 
         // Build sort object
@@ -111,6 +116,7 @@ router.post("/", auth, requireRole(['admin', 'content-manager']), async (req, re
             options,
             correctAnswer,
             difficulty,
+            category,
             topic,
             solution,
             status,
@@ -118,10 +124,10 @@ router.post("/", auth, requireRole(['admin', 'content-manager']), async (req, re
         } = req.body;
 
         // Validation
-        if (!question || !options || !correctAnswer || !difficulty || !topic) {
+        if (!question || !options || !correctAnswer || !difficulty || !category || !topic) {
             return res.status(400).json({
                 success: false,
-                message: "Required fields: question, options, correctAnswer, difficulty, topic"
+                message: "Required fields: question, options, correctAnswer, difficulty, category, topic"
             });
         }
 
@@ -151,6 +157,7 @@ router.post("/", auth, requireRole(['admin', 'content-manager']), async (req, re
             },
             correctAnswer,
             difficulty,
+            category,
             topic: topic.trim(),
             solution: solution ? solution.trim() : '',
             status: status || 'Draft',
@@ -169,6 +176,7 @@ router.post("/", auth, requireRole(['admin', 'content-manager']), async (req, re
             },
             correctAnswer,
             difficulty,
+            category,
             topic: topic.trim(),
             solution: solution ? solution.trim() : '',
             status: status || 'Draft',
@@ -230,6 +238,7 @@ router.put("/:id", auth, requireRole(['admin', 'content-manager']), async (req, 
             options,
             correctAnswer,
             difficulty,
+            category,
             topic,
             solution,
             status,
@@ -276,6 +285,7 @@ router.put("/:id", auth, requireRole(['admin', 'content-manager']), async (req, 
         }
         if (correctAnswer) updateData.correctAnswer = correctAnswer;
         if (difficulty) updateData.difficulty = difficulty;
+        if (category) updateData.category = category;
         if (topic) updateData.topic = topic.trim();
         if (solution !== undefined) updateData.solution = solution.trim();
         if (status) updateData.status = status;

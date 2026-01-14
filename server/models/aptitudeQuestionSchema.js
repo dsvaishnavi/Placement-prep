@@ -44,6 +44,12 @@ const aptitudeQuestionSchema = new Schema({
         enum: ['Easy', 'Medium', 'Hard'],
         default: 'Medium'
     },
+    category: {
+        type: String,
+        required: true,
+        enum: ['Quantitative', 'Logical Reasoning', 'Verbal', 'Non-verbal'],
+        trim: true
+    },
     topic: {
         type: String,
         required: true,
@@ -81,7 +87,7 @@ const aptitudeQuestionSchema = new Schema({
 });
 
 // Index for better query performance
-aptitudeQuestionSchema.index({ topic: 1, difficulty: 1, status: 1 });
+aptitudeQuestionSchema.index({ topic: 1, difficulty: 1, status: 1, category: 1 });
 aptitudeQuestionSchema.index({ createdAt: -1 });
 
 // Pre-save middleware to auto-generate question number

@@ -7,7 +7,6 @@ import Footer from './components/Footer' // Import the Footer
 import AppRoutes from './routes/AppRoutes'
 import LoadingSpinner from './components/LoadingSpinner'
 import { useSessionManager } from './hooks/useSessionManager'
-import SessionDebug from './components/SessionDebug'
 
 function App() {
   const [landingTheme, setLandingTheme] = useState('dark')
@@ -84,9 +83,6 @@ function App() {
 
       {/* Conditionally render Footer */}
       {showFooter && <Footer theme={appTheme} />}
-      
-      {/* Session Debug Component (Development Only) */}
-      <SessionDebug theme={currentTheme} />
       
       {isLoading && <LoadingSpinner theme={currentTheme} />}
     </div>

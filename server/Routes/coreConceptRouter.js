@@ -132,10 +132,18 @@ router.post("/", auth, requireRole(['admin', 'content-manager']), async (req, re
             });
         }
 
-        // Validate modules if provided
+        // Validate and filter modules if provided
+        let validModules = [];
         if (modules && Array.isArray(modules)) {
-            for (let i = 0; i < modules.length; i++) {
-                const module = modules[i];
+            validModules = modules.filter(module => {
+                // Only include modules that have both title and content
+                return module.title && module.title.trim() !== '' && 
+                       module.content && module.content.trim() !== '';
+            });
+            
+            // Validate that filtered modules have proper structure
+            for (let i = 0; i < validModules.length; i++) {
+                const module = validModules[i];
                 if (!module.title || !module.content) {
                     return res.status(400).json({
                         success: false,
@@ -150,7 +158,7 @@ router.post("/", auth, requireRole(['admin', 'content-manager']), async (req, re
             description: description.trim(),
             subject,
             difficulty,
-            modules: modules || [],
+            modules: validModules,
             youtubeLink: youtubeLink ? youtubeLink.trim() : '',
             status: status || 'Draft',
             tags: tags || [],
@@ -163,15 +171,16 @@ router.post("/", auth, requireRole(['admin', 'content-manager']), async (req, re
             description: description.trim(),
             subject,
             difficulty,
-            modules: modules ? modules.map((module, index) => ({
+            modules: validModules.map((module, index) => ({
                 title: module.title.trim(),
                 content: module.content.trim(),
                 order: index
-            })) : [],
+            })),
             youtubeLink: youtubeLink ? youtubeLink.trim() : '',
             status: status || 'Draft',
             tags: tags || [],
-            createdBy: req.user._id
+            createdBy: req.user._id,
+            isActive: true  // Explicitly set to true
         });
 
         console.log('About to save core concept...');
@@ -243,10 +252,18 @@ router.put("/:id", auth, requireRole(['admin', 'content-manager']), async (req, 
             });
         }
 
-        // Validate modules if provided
+        // Validate and filter modules if provided
+        let validModules = [];
         if (modules && Array.isArray(modules)) {
-            for (let i = 0; i < modules.length; i++) {
-                const module = modules[i];
+            validModules = modules.filter(module => {
+                // Only include modules that have both title and content
+                return module.title && module.title.trim() !== '' && 
+                       module.content && module.content.trim() !== '';
+            });
+            
+            // Validate that filtered modules have proper structure
+            for (let i = 0; i < validModules.length; i++) {
+                const module = validModules[i];
                 if (!module.title || !module.content) {
                     return res.status(400).json({
                         success: false,
@@ -265,8 +282,8 @@ router.put("/:id", auth, requireRole(['admin', 'content-manager']), async (req, 
         if (description) updateData.description = description.trim();
         if (subject) updateData.subject = subject;
         if (difficulty) updateData.difficulty = difficulty;
-        if (modules) {
-            updateData.modules = modules.map((module, index) => ({
+        if (modules !== undefined) {
+            updateData.modules = validModules.map((module, index) => ({
                 title: module.title.trim(),
                 content: module.content.trim(),
                 order: index

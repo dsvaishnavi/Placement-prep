@@ -497,7 +497,9 @@ canvas {
   bottom: 0;
   z-index: 9999;
   overflow-y: auto;
-  /* Removed black background */
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .modal-container {
@@ -514,8 +516,9 @@ canvas {
   max-width: 56rem; /* max-w-4xl */
   transform: scale(1);
   border-radius: 0.75rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   transition: all 0.3s ease;
+  border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Prevent body scroll when modal is open */
