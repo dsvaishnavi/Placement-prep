@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { flushSync } from 'react-dom'
 import { 
   Search, Plus, Edit, Trash2, Eye, CheckCircle, XCircle, 
   Filter, Bell, AlertCircle, Info, AlertTriangle,
@@ -6,7 +7,7 @@ import {
 } from 'lucide-react'
 import { showToast } from '../utils/toast'
 
-const NotificationManagement = ({ theme = 'light' }) => {
+const NotificationManagement = ({ theme = 'light', onNotificationChange }) => {
   const isDark = theme === 'dark'
   
   // Theme classes (matching AptitudeQuestionManagement pattern)
@@ -78,7 +79,7 @@ const NotificationManagement = ({ theme = 'light' }) => {
   })
 
   // Fetch notifications from API
-  const fetchNotifications = async (page = 1) => {
+  const fetchNotifications = async (page = 1, forceRefresh = false) => {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
@@ -188,11 +189,24 @@ const NotificationManagement = ({ theme = 'light' }) => {
       console.log('Create response:', data)
 
       if (response.ok) {
+        // Show success message
         showToast('Notification created successfully', 'success')
-        setShowAddModal(false)
-        resetForm()
-        fetchNotifications(currentPage)
-        fetchStats()
+        
+        // Force immediate state update to close modal using flushSync
+        flushSync(() => {
+          setShowAddModal(false)
+          resetForm()
+        })
+        
+        // Refresh data after modal is closed
+        setTimeout(() => {
+          fetchNotifications(1, true)
+          fetchStats()
+          // Notify parent component to refresh notifications
+          if (onNotificationChange) {
+            onNotificationChange()
+          }
+        }, 100)
       } else {
         showToast(data.message || 'Failed to create notification', 'error')
       }
@@ -224,12 +238,25 @@ const NotificationManagement = ({ theme = 'light' }) => {
       console.log('Update response:', data)
 
       if (response.ok) {
+        // Show success message
         showToast('Notification updated successfully', 'success')
-        setShowEditModal(false)
-        setSelectedNotification(null)
-        resetForm()
-        fetchNotifications(currentPage)
-        fetchStats()
+        
+        // Force immediate state update to close modal using flushSync
+        flushSync(() => {
+          setShowEditModal(false)
+          setSelectedNotification(null)
+          resetForm()
+        })
+        
+        // Refresh data after modal is closed
+        setTimeout(() => {
+          fetchNotifications(currentPage, true)
+          fetchStats()
+          // Notify parent component to refresh notifications
+          if (onNotificationChange) {
+            onNotificationChange()
+          }
+        }, 100)
       } else {
         showToast(data.message || 'Failed to update notification', 'error')
       }
@@ -258,8 +285,16 @@ const NotificationManagement = ({ theme = 'light' }) => {
 
       if (response.ok) {
         showToast('Notification deleted successfully', 'success')
-        fetchNotifications(currentPage)
-        fetchStats()
+        
+        // Refresh data - use setTimeout to ensure state updates happen first
+        setTimeout(() => {
+          fetchNotifications(currentPage, true)
+          fetchStats()
+          // Notify parent component to refresh notifications
+          if (onNotificationChange) {
+            onNotificationChange()
+          }
+        }, 0)
       } else {
         showToast(data.message || 'Failed to delete notification', 'error')
       }

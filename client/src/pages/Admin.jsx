@@ -57,27 +57,28 @@ function Admin({ theme = 'light', contentManagerMode = false, toggleTheme }) {
     };
   }, []);
   
-  // Fetch notifications
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3000/notifications/my-notifications', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        const data = await response.json();
-        if (data.success) {
-          setNotifications(data.notifications);
-          setUnreadCount(data.unreadCount);
+  // Fetch notifications function (defined outside useEffect so it can be called manually)
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:3000/notifications/my-notifications', {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-      } catch (error) {
-        console.error('Failed to fetch notifications');
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setNotifications(data.notifications);
+        setUnreadCount(data.unreadCount);
       }
-    };
+    } catch (error) {
+      console.error('Failed to fetch notifications');
+    }
+  };
 
+  // Fetch notifications on mount and set up interval
+  useEffect(() => {
     if (user) {
       fetchNotifications();
       // Refresh notifications every 30 seconds
@@ -327,7 +328,7 @@ function Admin({ theme = 'light', contentManagerMode = false, toggleTheme }) {
         )
       case 'notifications':
         // Only admins can access notification management
-        return isAdmin ? <NotificationManagement theme={theme} /> : (
+        return isAdmin ? <NotificationManagement theme={theme} onNotificationChange={fetchNotifications} /> : (
           <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
             <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text.primary}`}>Access Denied</h2>
             <p className={themeClasses.text.secondary}>Notification management is only available to administrators.</p>
@@ -770,7 +771,7 @@ function Admin({ theme = 'light', contentManagerMode = false, toggleTheme }) {
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
-        }
+        }Az
       `}</style>
     </div>
   )
