@@ -252,20 +252,13 @@ router.put("/aptitude-questions/:questionId", auth, requireContentManager, async
   }
 });
 
-// Delete aptitude question (Admin and Content Manager)
+// Delete aptitude question (permanent delete) (Admin and Content Manager)
 router.delete("/aptitude-questions/:questionId", auth, requireContentManager, async (req, res) => {
   try {
     const { questionId } = req.params;
 
-    // Soft delete by setting isActive to false
-    const question = await AptitudeQuestion.findByIdAndUpdate(
-      questionId,
-      { 
-        isActive: false,
-        lastModifiedBy: req.user._id
-      },
-      { new: true }
-    );
+    // Permanently delete from database
+    const question = await AptitudeQuestion.findByIdAndDelete(questionId);
     
     if (!question) {
       return res.status(404).json({
@@ -276,7 +269,7 @@ router.delete("/aptitude-questions/:questionId", auth, requireContentManager, as
 
     res.status(200).json({
       success: true,
-      message: "Question deleted successfully"
+      message: "Question permanently deleted from database"
     });
 
   } catch (error) {

@@ -322,27 +322,24 @@ router.put("/:id", auth, requireRole(['admin', 'content-manager']), async (req, 
     }
 });
 
-// Delete core concept (soft delete) (Admin and Content Manager)
+// Delete core concept (permanent delete) (Admin and Content Manager)
 router.delete("/:id", auth, requireRole(['admin', 'content-manager']), async (req, res) => {
     try {
         const concept = await CoreConcept.findById(req.params.id);
         
-        if (!concept || !concept.isActive) {
+        if (!concept) {
             return res.status(404).json({
                 success: false,
                 message: "Core concept not found"
             });
         }
 
-        // Soft delete by setting isActive to false
-        await CoreConcept.findByIdAndUpdate(req.params.id, { 
-            isActive: false,
-            updatedBy: req.user._id
-        });
+        // Permanently delete from database
+        await CoreConcept.findByIdAndDelete(req.params.id);
 
         res.status(200).json({
             success: true,
-            message: "Core concept deleted successfully"
+            message: "Core concept permanently deleted from database"
         });
 
     } catch (error) {

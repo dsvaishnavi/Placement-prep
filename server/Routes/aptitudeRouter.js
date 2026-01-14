@@ -311,27 +311,24 @@ router.put("/:id", auth, requireRole(['admin', 'content-manager']), async (req, 
     }
 });
 
-// Delete aptitude question (soft delete) (Admin and Content Manager)
+// Delete aptitude question (permanent delete) (Admin and Content Manager)
 router.delete("/:id", auth, requireRole(['admin', 'content-manager']), async (req, res) => {
     try {
         const question = await AptitudeQuestion.findById(req.params.id);
         
-        if (!question || !question.isActive) {
+        if (!question) {
             return res.status(404).json({
                 success: false,
                 message: "Question not found"
             });
         }
 
-        // Soft delete by setting isActive to false
-        await AptitudeQuestion.findByIdAndUpdate(req.params.id, { 
-            isActive: false,
-            updatedBy: req.user._id
-        });
+        // Permanently delete from database
+        await AptitudeQuestion.findByIdAndDelete(req.params.id);
 
         res.status(200).json({
             success: true,
-            message: "Question deleted successfully"
+            message: "Question permanently deleted from database"
         });
 
     } catch (error) {
