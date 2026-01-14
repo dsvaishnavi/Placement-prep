@@ -5,6 +5,7 @@ import ProtectedRoute from '../components/ProtectedRoute'
 // Main Pages
 import Home from '../pages/Home'
 import Aptitude from '../pages/Aptitude'
+import AptitudeExam from '../pages/AptitudeExam'
 import CoreConcepts from '../pages/CoreConcepts'
 import Progress from '../pages/Progress'
 import Login from '../pages/Login'
@@ -45,6 +46,11 @@ function AppRoutes({ landingTheme, setLandingTheme, appTheme, setAppTheme }) {
       <Route path="/aptitude" element={
         <ProtectedRoute theme={appTheme}>
           <Aptitude theme={appTheme} />
+        </ProtectedRoute>
+      } />
+      <Route path="/aptitude-exam" element={
+        <ProtectedRoute theme={appTheme}>
+          <AptitudeExam theme={appTheme} />
         </ProtectedRoute>
       } />
       <Route path="/core-concepts" element={

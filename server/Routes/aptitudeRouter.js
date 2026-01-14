@@ -435,4 +435,124 @@ router.patch("/bulk/status", auth, requireRole(['admin', 'content-manager']), as
     }
 });
 
+// ============= PUBLIC ROUTES FOR USERS =============
+
+// Get all published questions for users (no auth required)
+router.get("/public/questions", async (req, res) => {
+    try {
+        const { category, topic, difficulty } = req.query;
+
+        // Build query for published questions only
+        const query = { 
+            isActive: true, 
+            status: 'Published' 
+        };
+
+        if (category) query.category = category;
+        if (topic) query.topic = { $regex: topic, $options: 'i' };
+        if (difficulty) query.difficulty = difficulty;
+
+        const questions = await AptitudeQuestion
+            .find(query)
+            .select('-correctAnswer -solution -createdBy -updatedBy -__v')
+            .sort({ questionNumber: 1 });
+
+        res.status(200).json({
+            success: true,
+            questions,
+            total: questions.length
+        });
+
+    } catch (error) {
+        console.error("Get public questions error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch questions"
+        });
+    }
+});
+
+// Get questions for exam (with correct answers hidden until submission)
+router.get("/public/exam", async (req, res) => {
+    try {
+        const { category, topic, limit = 20 } = req.query;
+
+        // Build query for published questions only
+        const query = { 
+            isActive: true, 
+            status: 'Published' 
+        };
+
+        if (category) query.category = category;
+        if (topic) query.topic = { $regex: topic, $options: 'i' };
+
+        // Get random questions
+        const questions = await AptitudeQuestion.aggregate([
+            { $match: query },
+            { $sample: { size: parseInt(limit) } },
+            { $sort: { questionNumber: 1 } }
+        ]);
+
+        // Return questions with all data (frontend will handle answer reveal)
+        res.status(200).json({
+            success: true,
+            questions,
+            total: questions.length
+        });
+
+    } catch (error) {
+        console.error("Get exam questions error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch exam questions"
+        });
+    }
+});
+
+// Get question statistics for users
+router.get("/public/stats", async (req, res) => {
+    try {
+        const totalQuestions = await AptitudeQuestion.countDocuments({ 
+            isActive: true, 
+            status: 'Published' 
+        });
+
+        // Category breakdown
+        const categoryStats = await AptitudeQuestion.aggregate([
+            { $match: { isActive: true, status: 'Published' } },
+            { $group: { _id: '$category', count: { $sum: 1 } } }
+        ]);
+
+        // Difficulty breakdown
+        const difficultyStats = await AptitudeQuestion.aggregate([
+            { $match: { isActive: true, status: 'Published' } },
+            { $group: { _id: '$difficulty', count: { $sum: 1 } } }
+        ]);
+
+        // Topic breakdown
+        const topicStats = await AptitudeQuestion.aggregate([
+            { $match: { isActive: true, status: 'Published' } },
+            { $group: { _id: '$topic', count: { $sum: 1 } } },
+            { $sort: { count: -1 } }
+        ]);
+
+        res.status(200).json({
+            success: true,
+            stats: {
+                total: totalQuestions,
+                byCategory: categoryStats,
+                byDifficulty: difficultyStats,
+                byTopic: topicStats
+            }
+        });
+
+    } catch (error) {
+        console.error("Get public stats error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch statistics"
+        });
+    }
+});
+
 export default router;
