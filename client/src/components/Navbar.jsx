@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Menu, X, Rocket, Sun, Moon, MonitorSmartphone, LogOut, User, Settings, Shield, Edit } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import NotificationBell from './NotificationBell'
 
 const Navbar = ({ theme, setTheme }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -87,6 +88,9 @@ const Navbar = ({ theme, setTheme }) => {
 
           {/* Right Section */}
           <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Notification Bell - Only show when authenticated */}
+            {isAuthenticated && <NotificationBell theme={theme} />}
+
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
