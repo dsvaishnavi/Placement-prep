@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useNavigate, useLocation, useBlocker } from "react-router-dom";
 import axios from "axios";
 import {
   Clock, CheckCircle, XCircle, AlertCircle, 
   ChevronLeft, ChevronRight, Flag, Loader,
-  BookOpen, Target, Award, TrendingUp, Home
+  BookOpen, Target, Award, TrendingUp, Home, Maximize
 } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -25,6 +25,7 @@ function AptitudeExam({ theme }) {
   const [examCompleted, setExamCompleted] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [error, setError] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Fetch questions
   useEffect(() => {
@@ -57,6 +58,111 @@ function AptitudeExam({ theme }) {
       setLoading(false);
     }
   };
+
+  // Fullscreen management
+  const enterFullscreen = useCallback(async () => {
+    try {
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        await elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) {
+        await elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        await elem.msRequestFullscreen();
+      }
+      setIsFullscreen(true);
+    } catch (err) {
+      console.error("Error entering fullscreen:", err);
+    }
+  }, []);
+
+  const exitFullscreen = useCallback(async () => {
+    try {
+      if (document.exitFullscreen) {
+        await document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        await document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        await document.msExitFullscreen();
+      }
+      setIsFullscreen(false);
+    } catch (err) {
+      console.error("Error exiting fullscreen:", err);
+    }
+  }, []);
+
+  // Handle fullscreen change events
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isCurrentlyFullscreen = !!(
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.msFullscreenElement
+      );
+      setIsFullscreen(isCurrentlyFullscreen);
+
+      // If user exits fullscreen during exam, re-enter it
+      if (examStarted && !examCompleted && !isCurrentlyFullscreen) {
+        setTimeout(() => {
+          enterFullscreen();
+        }, 100);
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('msfullscreenchange', handleFullscreenChange);
+    };
+  }, [examStarted, examCompleted, enterFullscreen]);
+
+  // Prevent navigation during exam
+  useEffect(() => {
+    if (!examStarted || examCompleted) return;
+
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    };
+
+    const handlePopState = (e) => {
+      e.preventDefault();
+      window.history.pushState(null, '', window.location.href);
+      alert('You cannot navigate away during the exam. Please submit your exam first.');
+    };
+
+    // Push a state to prevent back navigation
+    window.history.pushState(null, '', window.location.href);
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [examStarted, examCompleted]);
+
+  // Exit fullscreen when exam is completed
+  useEffect(() => {
+    if (examCompleted) {
+      exitFullscreen();
+    }
+  }, [examCompleted, exitFullscreen]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (isFullscreen) {
+        exitFullscreen();
+      }
+    };
+  }, [isFullscreen, exitFullscreen]);
 
 
   // Timer effect
@@ -123,8 +229,21 @@ function AptitudeExam({ theme }) {
 
   // Submit exam
   const handleSubmitExam = () => {
-    setExamCompleted(true);
-    setShowResults(true);
+    const confirmSubmit = window.confirm(
+      `Are you sure you want to submit the exam?\n\nAnswered: ${Object.keys(answers).length}/${questions.length}\nUnanswered: ${questions.length - Object.keys(answers).length}`
+    );
+    
+    if (confirmSubmit) {
+      setExamCompleted(true);
+      setShowResults(true);
+      exitFullscreen();
+    }
+  };
+
+  // Start exam and enter fullscreen
+  const handleStartExam = async () => {
+    setExamStarted(true);
+    await enterFullscreen();
   };
 
   // Calculate results
@@ -260,6 +379,8 @@ function AptitudeExam({ theme }) {
                 Instructions:
               </h3>
               <ul className={`space-y-1 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                <li>• The exam will start in fullscreen mode automatically</li>
+                <li>• You cannot navigate away or exit during the exam</li>
                 <li>• Each question has 4 options, select the correct answer</li>
                 <li>• You can flag questions for review</li>
                 <li>• Navigate between questions using the navigation buttons</li>
@@ -279,9 +400,10 @@ function AptitudeExam({ theme }) {
                 Cancel
               </button>
               <button
-                onClick={() => setExamStarted(true)}
-                className="flex-1 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:opacity-90 transition-opacity"
+                onClick={handleStartExam}
+                className="flex-1 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
               >
+                <Maximize className="w-4 h-4" />
                 Start Exam
               </button>
             </div>
@@ -377,10 +499,14 @@ function AptitudeExam({ theme }) {
               </div>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => navigate('/aptitude')}
-                className="flex-1 py-3 rounded-lg border border-gray-300 font-medium hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+                className={`flex-1 py-3 rounded-lg border font-medium transition-colors flex items-center justify-center gap-2 ${
+                  theme === 'dark' 
+                    ? 'border-gray-600 text-gray-300 hover:bg-gray-700/50' 
+                    : 'border-gray-300 text-gray-700 hover:bg-gray-100'
+                }`}
               >
                 <Home className="w-4 h-4" />
                 Back to Aptitude
@@ -409,7 +535,7 @@ function AptitudeExam({ theme }) {
   const isFlagged = flagged.has(currentQuestionIndex);
 
   return (
-    <div className={`min-h-screen pt-16 ${
+    <div className={`min-h-screen ${
       theme === 'dark' ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black' : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
     }`}>
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -586,12 +712,20 @@ function AptitudeExam({ theme }) {
                 Previous
               </button>
 
-              {!examCompleted && (
+              {!examCompleted ? (
                 <button
                   onClick={handleSubmitExam}
                   className="px-6 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium hover:opacity-90 transition-opacity"
                 >
                   Submit Exam
+                </button>
+              ) : (
+                <button
+                  onClick={() => navigate('/aptitude')}
+                  className="flex items-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:opacity-90 transition-opacity"
+                >
+                  <Home className="w-4 h-4" />
+                  Back to App
                 </button>
               )}
 

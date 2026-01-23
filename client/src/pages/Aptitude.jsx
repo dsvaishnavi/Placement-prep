@@ -61,7 +61,6 @@ function Aptitude({ theme }) {
   // State for filters and search
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedDifficulty, setSelectedDifficulty] = useState("All");
   const [selectedTopic, setSelectedTopic] = useState("All Topics");
   const [sortBy, setSortBy] = useState("default");
   const [expandedSubtopic, setExpandedSubtopic] = useState(null);
@@ -101,8 +100,6 @@ function Aptitude({ theme }) {
   const allTopicNames = useMemo(() => {
     return ["All Topics", ...ALL_TOPICS.map(t => t.name)];
   }, []);
-
-  const difficulties = ["All", "Easy", "Medium", "Hard"];
 
   // Create topic data with question counts
   const topicsWithData = useMemo(() => {
@@ -173,9 +170,9 @@ function Aptitude({ theme }) {
     };
 
     const descriptions = {
-      'Quantitative': "Algebra, arithmetic, data interpretation, and geometry",
-      'Logical Reasoning': "Pattern recognition, puzzles, and analytical reasoning",
-      'Verbal': "Reading comprehension, grammar, and vocabulary",
+      'Quantitative': "Algebra, arithmetic, data interpretation, Trignometry, Number System, Probabitlity, Permutations & Combinations, Percentages, Profit & Loss, Simple & Compound Interest, Time, Speed & Distance, and geometry",
+      'Logical Reasoning': "Pattern recognition, Number Series, Letter Series, Blood Relations, Direction Sense, Seating Arrangement, Syllogism, Puzzles, Logical Deduction, Data Sufficiency, and Analytical reasoning",
+      'Verbal': "Reading comprehension, Spotting Errors, Synonyms, Antonyms, Reading Comprehension, Sentence Correction, Para Jumbles, Cloze Test, Idioms and Phrases, Grammar, and Vocabulary",
       'Non-verbal': "Visual reasoning and pattern analysis"
     };
 
@@ -248,11 +245,6 @@ function Aptitude({ theme }) {
       result = result.filter(topic => topic.name === selectedTopic);
     }
 
-    // Apply difficulty filter
-    if (selectedDifficulty !== "All") {
-      result = result.filter(topic => topic.difficulty === selectedDifficulty);
-    }
-
     // Apply sorting
     switch (sortBy) {
       case "name-asc":
@@ -260,10 +252,6 @@ function Aptitude({ theme }) {
         break;
       case "name-desc":
         result.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      case "difficulty":
-        const difficultyOrder = { "Easy": 1, "Medium": 2, "Hard": 3 };
-        result.sort((a, b) => difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]);
         break;
       case "category":
         result.sort((a, b) => a.category.localeCompare(b.category));
@@ -274,7 +262,7 @@ function Aptitude({ theme }) {
     }
 
     return result;
-  }, [topicsWithData, searchQuery, selectedCategory, selectedTopic, selectedDifficulty, sortBy]);
+  }, [topicsWithData, searchQuery, selectedCategory, selectedTopic, sortBy]);
 
   // Statistics
   const stats = useMemo(() => {
@@ -427,43 +415,27 @@ function Aptitude({ theme }) {
                 {/* Card Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${card.iconBg}`}>
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${card.iconBg}`}>
                       <Icon className={`w-6 h-6 ${card.text}`} />
                     </div>
-                    <div>
-                      <h3 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{card.title}</h3>
-                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{card.description}</p>
+                    <div className="flex-1 min-w-0">
+                      <h3 className={`text-xl font-bold mb-1 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{card.title}</h3>
                     </div>
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                  <div className={`px-3 py-1 rounded-full text-sm font-semibold flex-shrink-0 ${
                     theme === 'dark' ? 'text-green-400 bg-green-500/20' : 'text-green-600 bg-green-50'
                   }`}>
                     {card.progress}%
                   </div>
                 </div>
 
-                {/* Progress Bar */}
-                <div className="mb-6">
-                  <div className="flex justify-between text-xs mb-2">
-                    <span className={`font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Overall Progress</span>
-                    <span className={`font-semibold ${progressColor}`}>{card.progress}%</span>
-                  </div>
-                  <div className={`w-full h-2 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} rounded-full overflow-hidden`}>
-                    <div
-                      className={`h-full ${getProgressColor(card.progress)} rounded-full transition-all duration-500`}
-                      style={{ width: `${card.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                {/* Stats */}
-                <div className="flex justify-between mb-6">
-                  {card.stats.map((stat, statIndex) => (
-                    <div key={statIndex} className="text-center">
-                      <div className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{stat.value}</div>
-                      <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{stat.label}</div>
-                    </div>
-                  ))}
+                {/* Description Box */}
+                <div className={`mb-4 p-3 rounded-lg border ${
+                  theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-gray-50/80 border-gray-200/60'
+                }`}>
+                  <p className={`text-xs leading-relaxed ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {card.description}
+                  </p>
                 </div>
 
                 {/* Action Button */}
@@ -479,61 +451,7 @@ function Aptitude({ theme }) {
           })}
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className={`rounded-xl border p-6 ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-white/70 border-gray-200/60'}`}>
-            <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                theme === 'dark' ? 'bg-gradient-to-br from-blue-500/20 to-green-500/20' : 'bg-gradient-to-br from-blue-100 to-green-100'
-              }`}>
-                <BookOpen className="w-6 h-6 text-blue-500" />
-              </div>
-              <div>
-                <div className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{stats.totalTopics}</div>
-                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Total Topics</div>
-              </div>
-            </div>
-          </div>
-          <div className={`rounded-xl border p-6 ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-white/70 border-gray-200/60'}`}>
-            <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                theme === 'dark' ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/20' : 'bg-gradient-to-br from-green-100 to-emerald-100'
-              }`}>
-                <Target className="w-6 h-6 text-green-500" />
-              </div>
-              <div>
-                <div className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{stats.uniqueTopics}</div>
-                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Available</div>
-              </div>
-            </div>
-          </div>
-          <div className={`rounded-xl border p-6 ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-white/70 border-gray-200/60'}`}>
-            <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                theme === 'dark' ? 'bg-gradient-to-br from-purple-500/20 to-pink-500/20' : 'bg-gradient-to-br from-purple-100 to-pink-100'
-              }`}>
-                <BarChart3 className="w-6 h-6 text-purple-500" />
-              </div>
-              <div>
-                <div className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{stats.avgProgress}%</div>
-                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Avg. Progress</div>
-              </div>
-            </div>
-          </div>
-          <div className={`rounded-xl border p-6 ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-white/70 border-gray-200/60'}`}>
-            <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                theme === 'dark' ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20' : 'bg-gradient-to-br from-amber-100 to-orange-100'
-              }`}>
-                <Hash className="w-6 h-6 text-amber-500" />
-              </div>
-              <div>
-                <div className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{stats.total}</div>
-                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Total Problems</div>
-              </div>
-            </div>
-          </div>
-        </div>
+        
 
         {/* Problem Explorer Header */}
         <div className="flex items-center justify-between mb-6">
@@ -616,23 +534,6 @@ function Aptitude({ theme }) {
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               </div>
 
-              {/* Difficulty Filter */}
-              <div className="relative">
-                <select
-                  className={`appearance-none pl-10 pr-8 py-3 rounded-lg border focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all ${
-                    theme === 'dark' ? 'bg-gray-800/50 text-white border-gray-700' : 'bg-white text-gray-900 border-gray-200'
-                  }`}
-                  value={selectedDifficulty}
-                  onChange={(e) => setSelectedDifficulty(e.target.value)}
-                >
-                  {difficulties.map(diff => (
-                    <option key={diff} value={diff}>{diff}</option>
-                  ))}
-                </select>
-                <Target className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              </div>
-
               {/* Sort By */}
               <div className="relative">
                 <select
@@ -645,7 +546,6 @@ function Aptitude({ theme }) {
                   <option value="default">Sort: Default</option>
                   <option value="name-asc">Sort: A-Z</option>
                   <option value="name-desc">Sort: Z-A</option>
-                  <option value="difficulty">Sort: Difficulty</option>
                   <option value="category">Sort: Category</option>
                 </select>
                 {sortBy.includes("desc") ? (
@@ -659,7 +559,7 @@ function Aptitude({ theme }) {
           </div>
 
           {/* Active Filters */}
-          {(selectedCategory !== "All" || selectedDifficulty !== "All" || selectedTopic !== "All Topics" || searchQuery) && (
+          {(selectedCategory !== "All" || selectedTopic !== "All Topics" || searchQuery) && (
             <div className="flex flex-wrap gap-2 mt-4">
               {selectedCategory !== "All" && (
                 <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${
@@ -681,16 +581,6 @@ function Aptitude({ theme }) {
                   </button>
                 </span>
               )}
-              {selectedDifficulty !== "All" && (
-                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${
-                  theme === 'dark' ? 'bg-purple-500/20 text-purple-300' : 'bg-purple-100 text-purple-800'
-                }`}>
-                  Difficulty: {selectedDifficulty}
-                  <button onClick={() => setSelectedDifficulty("All")}>
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
               {searchQuery && (
                 <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${
                   theme === 'dark' ? 'bg-gray-700/50 text-gray-300' : 'bg-gray-100 text-gray-800'
@@ -704,7 +594,6 @@ function Aptitude({ theme }) {
               <button
                 onClick={() => {
                   setSelectedCategory("All");
-                  setSelectedDifficulty("All");
                   setSelectedTopic("All Topics");
                   setSearchQuery("");
                 }}
@@ -722,12 +611,11 @@ function Aptitude({ theme }) {
           theme === 'dark' ? 'bg-gray-800/30 border-gray-700' : 'bg-white border-blue-100'
         }`}>
           {/* Table Header */}
-          <div className={`hidden lg:grid grid-cols-12 gap-4 p-6 border-b ${
+          <div className={`hidden lg:grid grid-cols-10 gap-4 p-6 border-b ${
             theme === 'dark' ? 'border-gray-700 bg-gray-800/50 text-gray-300' : 'border-gray-100 bg-gray-50 text-gray-600'
           } text-sm font-semibold`}>
             <div className="col-span-4">Topic</div>
             <div className="col-span-2">Category</div>
-            <div className="col-span-2">Difficulty</div>
             <div className="col-span-1 text-center">Problems</div>
             <div className="col-span-2 text-center">Status</div>
             <div className="col-span-1 text-center">Action</div>
@@ -751,7 +639,7 @@ function Aptitude({ theme }) {
                     theme === 'dark' ? 'hover:bg-white/5 hover:backdrop-blur-md hover:shadow-lg hover:shadow-blue-500/10' : 'hover:bg-blue-50/30 hover:backdrop-blur-sm hover:shadow-md'
                   }`}>
                     {/* Desktop View */}
-                    <div className="hidden lg:grid grid-cols-12 gap-4 items-center">
+                    <div className="hidden lg:grid grid-cols-10 gap-4 items-center">
                       <div className="col-span-4">
                         <div className="flex items-center gap-3">
                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
@@ -772,11 +660,6 @@ function Aptitude({ theme }) {
                           theme === 'dark' ? 'bg-gray-700/50 text-gray-300' : 'bg-gray-100 text-gray-800'
                         }`}>
                           {topic.category}
-                        </span>
-                      </div>
-                      <div className="col-span-2">
-                        <span className={`px-3 py-1 rounded-full border text-sm ${getDifficultyColor(topic.difficulty)}`}>
-                          {topic.difficulty}
                         </span>
                       </div>
                       <div className="col-span-1 text-center">
@@ -843,9 +726,6 @@ function Aptitude({ theme }) {
                       </div>
 
                       <div className="flex flex-wrap gap-3 mb-4">
-                        <span className={`px-3 py-1 rounded-full border text-sm ${getDifficultyColor(topic.difficulty)}`}>
-                          {topic.difficulty}
-                        </span>
                         <span className={`px-3 py-1 rounded-full text-sm ${
                           theme === 'dark' ? 'bg-gray-700/50 text-gray-300' : 'bg-gray-100 text-gray-800'
                         }`}>
@@ -904,7 +784,6 @@ function Aptitude({ theme }) {
                 <button
                   onClick={() => {
                     setSelectedCategory("All");
-                    setSelectedDifficulty("All");
                     setSelectedTopic("All Topics");
                     setSearchQuery("");
                   }}
