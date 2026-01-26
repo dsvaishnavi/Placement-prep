@@ -1,6 +1,8 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import userModel from "../models/userSchema.js";
+import AptitudeQuestion from "../models/aptitudeQuestionSchema.js";
+import CoreConcept from "../models/coreConceptSchema.js";
 import auth, { requireAdmin, requireContentManager, requireRole } from "../middleware/auth.js";
 
 const router = express.Router();
@@ -51,42 +53,140 @@ router.get("/users", auth, requireAdmin, async (req, res) => {
 // Get platform statistics (Admin and Content Manager)
 router.get("/stats", auth, requireRole(['admin', 'content-manager']), async (req, res) => {
   try {
+    // User statistics
     const totalUsers = await userModel.countDocuments();
     const activeUsers = await userModel.countDocuments({ isActive: true });
     const adminUsers = await userModel.countDocuments({ role: 'admin' });
     const contentManagers = await userModel.countDocuments({ role: 'content-manager' });
     const regularUsers = await userModel.countDocuments({ role: 'user' });
+    const verifiedUsers = await userModel.countDocuments({ emailverified: true });
 
-    // Mock data for other statistics (replace with actual models when available)
+    // Aptitude Questions statistics
+    const totalAptitudeQuestions = await AptitudeQuestion.countDocuments({ isActive: true });
+    const publishedAptitude = await AptitudeQuestion.countDocuments({ status: 'Published', isActive: true });
+    const draftAptitude = await AptitudeQuestion.countDocuments({ status: 'Draft', isActive: true });
+    const easyQuestions = await AptitudeQuestion.countDocuments({ difficulty: 'Easy', isActive: true });
+    const mediumQuestions = await AptitudeQuestion.countDocuments({ difficulty: 'Medium', isActive: true });
+    const hardQuestions = await AptitudeQuestion.countDocuments({ difficulty: 'Hard', isActive: true });
+
+    // Aptitude by category
+    const quantitativeQuestions = await AptitudeQuestion.countDocuments({ category: 'Quantitative', isActive: true });
+    const logicalQuestions = await AptitudeQuestion.countDocuments({ category: 'Logical Reasoning', isActive: true });
+    const verbalQuestions = await AptitudeQuestion.countDocuments({ category: 'Verbal', isActive: true });
+    const nonVerbalQuestions = await AptitudeQuestion.countDocuments({ category: 'Non-verbal', isActive: true });
+
+    // Core Concepts statistics
+    const totalCoreConcepts = await CoreConcept.countDocuments({ isActive: true });
+    const publishedConcepts = await CoreConcept.countDocuments({ status: 'Published', isActive: true });
+    const draftConcepts = await CoreConcept.countDocuments({ status: 'Draft', isActive: true });
+    const archivedConcepts = await CoreConcept.countDocuments({ status: 'Archived', isActive: true });
+
+    // Core Concepts by subject
+    const dataStructures = await CoreConcept.countDocuments({ subject: 'Data Structures', isActive: true });
+    const algorithms = await CoreConcept.countDocuments({ subject: 'Algorithms', isActive: true });
+    const operatingSystems = await CoreConcept.countDocuments({ subject: 'Operating Systems', isActive: true });
+    const dbms = await CoreConcept.countDocuments({ subject: 'DBMS', isActive: true });
+    const networks = await CoreConcept.countDocuments({ subject: 'Computer Networks', isActive: true });
+    const systemDesign = await CoreConcept.countDocuments({ subject: 'System Design', isActive: true });
+
+    // Core Concepts by difficulty
+    const beginnerConcepts = await CoreConcept.countDocuments({ difficulty: 'Beginner', isActive: true });
+    const intermediateConcepts = await CoreConcept.countDocuments({ difficulty: 'Intermediate', isActive: true });
+    const advancedConcepts = await CoreConcept.countDocuments({ difficulty: 'Advanced', isActive: true });
+
+    // Get recent registrations (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const recentRegistrations = await userModel.countDocuments({ 
+      createdAt: { $gte: thirtyDaysAgo } 
+    });
+
+    // Get recent content (last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const recentAptitudeQuestions = await AptitudeQuestion.countDocuments({ 
+      createdAt: { $gte: sevenDaysAgo },
+      isActive: true
+    });
+    const recentCoreConcepts = await CoreConcept.countDocuments({ 
+      createdAt: { $gte: sevenDaysAgo },
+      isActive: true
+    });
+
+    // Calculate growth percentages (mock for now, can be enhanced with historical data)
+    const userGrowth = totalUsers > 0 ? Math.round((recentRegistrations / totalUsers) * 100) : 0;
+    const contentGrowth = totalAptitudeQuestions > 0 ? Math.round((recentAptitudeQuestions / totalAptitudeQuestions) * 100) : 0;
+
     const stats = {
       users: {
         total: totalUsers,
         active: activeUsers,
         inactive: totalUsers - activeUsers,
+        verified: verifiedUsers,
+        unverified: totalUsers - verifiedUsers,
+        recentRegistrations,
+        growth: userGrowth,
         byRole: {
           admin: adminUsers,
           contentManager: contentManagers,
           user: regularUsers
         }
       },
+      aptitudeQuestions: {
+        total: totalAptitudeQuestions,
+        published: publishedAptitude,
+        draft: draftAptitude,
+        recent: recentAptitudeQuestions,
+        byDifficulty: {
+          easy: easyQuestions,
+          medium: mediumQuestions,
+          hard: hardQuestions
+        },
+        byCategory: {
+          quantitative: quantitativeQuestions,
+          logical: logicalQuestions,
+          verbal: verbalQuestions,
+          nonVerbal: nonVerbalQuestions
+        }
+      },
+      coreConcepts: {
+        total: totalCoreConcepts,
+        published: publishedConcepts,
+        draft: draftConcepts,
+        archived: archivedConcepts,
+        recent: recentCoreConcepts,
+        bySubject: {
+          dataStructures,
+          algorithms,
+          operatingSystems,
+          dbms,
+          networks,
+          systemDesign
+        },
+        byDifficulty: {
+          beginner: beginnerConcepts,
+          intermediate: intermediateConcepts,
+          advanced: advancedConcepts
+        }
+      },
       content: {
-        // These would come from actual content models
-        aptitudeQuestions: 856,
-        coreConcepts: 124,
-        publishedContent: 642,
-        draftContent: 187
+        total: totalAptitudeQuestions + totalCoreConcepts,
+        published: publishedAptitude + publishedConcepts,
+        draft: draftAptitude + draftConcepts,
+        growth: contentGrowth
       },
       engagement: {
-        // Mock engagement data
+        // Mock engagement data (can be enhanced with actual tracking)
         averageScore: 72,
-        testsCompleted: 1248,
-        studyHours: 3456
+        testsCompleted: totalAptitudeQuestions * 2,
+        studyHours: Math.round(totalCoreConcepts * 1.5)
       }
     };
 
     res.status(200).json({
       success: true,
-      stats
+      stats,
+      timestamp: new Date().toISOString()
     });
 
   } catch (error) {

@@ -7,7 +7,6 @@ import Footer from './components/Footer' // Import the Footer
 import AppRoutes from './routes/AppRoutes'
 import LoadingSpinner from './components/LoadingSpinner'
 import { useSessionManager } from './hooks/useSessionManager'
-import SessionDebug from './components/SessionDebug'
 
 function App() {
   const [landingTheme, setLandingTheme] = useState('dark')
@@ -54,15 +53,16 @@ function App() {
     }
   }
 
-  // Check if we should show navbar (exclude landing page, auth pages, admin pages, and test pages)
+  // Check if we should show navbar (exclude landing page, auth pages, admin pages, test pages, and exam pages)
   const authPages = ['/login', '/signup', '/admin-setup']
   const adminPages = ['/admin']
   const testPages = ['/toast-test']
-  const excludedPages = ['/', ...authPages, ...adminPages, ...testPages]
+  const examPages = ['/aptitude-exam']
+  const excludedPages = ['/', ...authPages, ...adminPages, ...testPages, ...examPages]
   const showNavbar = !excludedPages.includes(location.pathname)
   
-  // Check if we should show footer (not on landing page)
-  const showFooter = location.pathname !== '/'
+  // Check if we should show footer (not on landing page or exam pages)
+  const showFooter = location.pathname !== '/' && !examPages.includes(location.pathname)
 
   return (
     <div className={`min-h-screen transition-all duration-300 relative flex flex-col ${currentTheme === 'dark'
@@ -84,9 +84,6 @@ function App() {
       </main>
 
       {showFooter && <Footer theme={appTheme} />}
-      
-      {/* Session Debug Component (Development Only) */}
-      <SessionDebug theme={currentTheme} />
       
       {isLoading && <LoadingSpinner theme={currentTheme} />}
     </div>

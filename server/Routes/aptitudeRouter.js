@@ -14,6 +14,7 @@ router.get("/", auth, requireRole(['admin', 'content-manager']), async (req, res
             difficulty = '', 
             topic = '', 
             status = '',
+            category = '',
             sortBy = 'createdAt',
             sortOrder = 'desc'
         } = req.query;
@@ -39,6 +40,10 @@ router.get("/", auth, requireRole(['admin', 'content-manager']), async (req, res
         
         if (status) {
             searchQuery.status = status;
+        }
+
+        if (category) {
+            searchQuery.category = category;
         }
 
         // Build sort object
@@ -111,6 +116,7 @@ router.post("/", auth, requireRole(['admin', 'content-manager']), async (req, re
             options,
             correctAnswer,
             difficulty,
+            category,
             topic,
             solution,
             status,
@@ -118,10 +124,10 @@ router.post("/", auth, requireRole(['admin', 'content-manager']), async (req, re
         } = req.body;
 
         // Validation
-        if (!question || !options || !correctAnswer || !difficulty || !topic) {
+        if (!question || !options || !correctAnswer || !difficulty || !category || !topic) {
             return res.status(400).json({
                 success: false,
-                message: "Required fields: question, options, correctAnswer, difficulty, topic"
+                message: "Required fields: question, options, correctAnswer, difficulty, category, topic"
             });
         }
 
@@ -151,6 +157,7 @@ router.post("/", auth, requireRole(['admin', 'content-manager']), async (req, re
             },
             correctAnswer,
             difficulty,
+            category,
             topic: topic.trim(),
             solution: solution ? solution.trim() : '',
             status: status || 'Draft',
@@ -169,6 +176,7 @@ router.post("/", auth, requireRole(['admin', 'content-manager']), async (req, re
             },
             correctAnswer,
             difficulty,
+            category,
             topic: topic.trim(),
             solution: solution ? solution.trim() : '',
             status: status || 'Draft',
@@ -230,6 +238,7 @@ router.put("/:id", auth, requireRole(['admin', 'content-manager']), async (req, 
             options,
             correctAnswer,
             difficulty,
+            category,
             topic,
             solution,
             status,
@@ -276,6 +285,7 @@ router.put("/:id", auth, requireRole(['admin', 'content-manager']), async (req, 
         }
         if (correctAnswer) updateData.correctAnswer = correctAnswer;
         if (difficulty) updateData.difficulty = difficulty;
+        if (category) updateData.category = category;
         if (topic) updateData.topic = topic.trim();
         if (solution !== undefined) updateData.solution = solution.trim();
         if (status) updateData.status = status;
@@ -301,27 +311,24 @@ router.put("/:id", auth, requireRole(['admin', 'content-manager']), async (req, 
     }
 });
 
-// Delete aptitude question (soft delete) (Admin and Content Manager)
+// Delete aptitude question (permanent delete) (Admin and Content Manager)
 router.delete("/:id", auth, requireRole(['admin', 'content-manager']), async (req, res) => {
     try {
         const question = await AptitudeQuestion.findById(req.params.id);
         
-        if (!question || !question.isActive) {
+        if (!question) {
             return res.status(404).json({
                 success: false,
                 message: "Question not found"
             });
         }
 
-        // Soft delete by setting isActive to false
-        await AptitudeQuestion.findByIdAndUpdate(req.params.id, { 
-            isActive: false,
-            updatedBy: req.user._id
-        });
+        // Permanently delete from database
+        await AptitudeQuestion.findByIdAndDelete(req.params.id);
 
         res.status(200).json({
             success: true,
-            message: "Question deleted successfully"
+            message: "Question permanently deleted from database"
         });
 
     } catch (error) {
@@ -424,6 +431,126 @@ router.patch("/bulk/status", auth, requireRole(['admin', 'content-manager']), as
         res.status(500).json({
             success: false,
             message: "Failed to update questions"
+        });
+    }
+});
+
+// ============= PUBLIC ROUTES FOR USERS =============
+
+// Get all published questions for users (no auth required)
+router.get("/public/questions", async (req, res) => {
+    try {
+        const { category, topic, difficulty } = req.query;
+
+        // Build query for published questions only
+        const query = { 
+            isActive: true, 
+            status: 'Published' 
+        };
+
+        if (category) query.category = category;
+        if (topic) query.topic = { $regex: topic, $options: 'i' };
+        if (difficulty) query.difficulty = difficulty;
+
+        const questions = await AptitudeQuestion
+            .find(query)
+            .select('-correctAnswer -solution -createdBy -updatedBy -__v')
+            .sort({ questionNumber: 1 });
+
+        res.status(200).json({
+            success: true,
+            questions,
+            total: questions.length
+        });
+
+    } catch (error) {
+        console.error("Get public questions error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch questions"
+        });
+    }
+});
+
+// Get questions for exam (with correct answers hidden until submission)
+router.get("/public/exam", async (req, res) => {
+    try {
+        const { category, topic, limit = 20 } = req.query;
+
+        // Build query for published questions only
+        const query = { 
+            isActive: true, 
+            status: 'Published' 
+        };
+
+        if (category) query.category = category;
+        if (topic) query.topic = { $regex: topic, $options: 'i' };
+
+        // Get random questions
+        const questions = await AptitudeQuestion.aggregate([
+            { $match: query },
+            { $sample: { size: parseInt(limit) } },
+            { $sort: { questionNumber: 1 } }
+        ]);
+
+        // Return questions with all data (frontend will handle answer reveal)
+        res.status(200).json({
+            success: true,
+            questions,
+            total: questions.length
+        });
+
+    } catch (error) {
+        console.error("Get exam questions error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch exam questions"
+        });
+    }
+});
+
+// Get question statistics for users
+router.get("/public/stats", async (req, res) => {
+    try {
+        const totalQuestions = await AptitudeQuestion.countDocuments({ 
+            isActive: true, 
+            status: 'Published' 
+        });
+
+        // Category breakdown
+        const categoryStats = await AptitudeQuestion.aggregate([
+            { $match: { isActive: true, status: 'Published' } },
+            { $group: { _id: '$category', count: { $sum: 1 } } }
+        ]);
+
+        // Difficulty breakdown
+        const difficultyStats = await AptitudeQuestion.aggregate([
+            { $match: { isActive: true, status: 'Published' } },
+            { $group: { _id: '$difficulty', count: { $sum: 1 } } }
+        ]);
+
+        // Topic breakdown
+        const topicStats = await AptitudeQuestion.aggregate([
+            { $match: { isActive: true, status: 'Published' } },
+            { $group: { _id: '$topic', count: { $sum: 1 } } },
+            { $sort: { count: -1 } }
+        ]);
+
+        res.status(200).json({
+            success: true,
+            stats: {
+                total: totalQuestions,
+                byCategory: categoryStats,
+                byDifficulty: difficultyStats,
+                byTopic: topicStats
+            }
+        });
+
+    } catch (error) {
+        console.error("Get public stats error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch statistics"
         });
     }
 });

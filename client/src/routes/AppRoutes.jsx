@@ -5,6 +5,8 @@ import ProtectedRoute from '../components/ProtectedRoute'
 // Main Pages
 import Home from '../pages/Home'
 import Aptitude from '../pages/Aptitude'
+import AptitudeExam from '../pages/AptitudeExam'
+import NoDataAvailable from '../pages/NoDataAvailable'
 import CoreConcepts from '../pages/CoreConcepts'
 import Progress from '../pages/Progress'
 import Login from '../pages/Login'
@@ -47,6 +49,16 @@ function AppRoutes({ landingTheme, setLandingTheme, appTheme, setAppTheme }) {
           <Aptitude theme={appTheme} />
         </ProtectedRoute>
       } />
+      <Route path="/aptitude-exam" element={
+        <ProtectedRoute theme={appTheme}>
+          <AptitudeExam theme={appTheme} />
+        </ProtectedRoute>
+      } />
+      <Route path="/no-data-available" element={
+        <ProtectedRoute theme={appTheme}>
+          <NoDataAvailable theme={appTheme} />
+        </ProtectedRoute>
+      } />
       <Route path="/core-concepts" element={
         <ProtectedRoute theme={appTheme}>
           <CoreConcepts theme={appTheme} />
@@ -60,14 +72,14 @@ function AppRoutes({ landingTheme, setLandingTheme, appTheme, setAppTheme }) {
       {/* Protected Admin Panel - Admin Only */}
       <Route path="/admin" element={
         <ProtectedRoute theme={appTheme} requiredRoles={['admin']}>
-          <Admin theme={appTheme} />
+          <Admin theme={appTheme} toggleTheme={() => setAppTheme(appTheme === 'dark' ? 'light' : 'dark')} />
         </ProtectedRoute>
       } />
       
       {/* Protected Content Management - Admin and Content Manager */}
       <Route path="/content-management" element={
         <ProtectedRoute theme={appTheme} requiredRoles={['admin', 'content-manager']}>
-          <Admin theme={appTheme} contentManagerMode={true} />
+          <Admin theme={appTheme} contentManagerMode={true} toggleTheme={() => setAppTheme(appTheme === 'dark' ? 'light' : 'dark')} />
         </ProtectedRoute>
       } />
       <Route path="/resumeanalyzer" element={

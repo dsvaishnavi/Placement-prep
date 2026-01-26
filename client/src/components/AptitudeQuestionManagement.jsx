@@ -55,6 +55,7 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
   const [difficultyFilter, setDifficultyFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [topicFilter, setTopicFilter] = useState('all')
+  const [categoryFilter, setCategoryFilter] = useState('all')
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1)
@@ -73,6 +74,7 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
     options: { A: '', B: '', C: '', D: '' },
     correctAnswer: '',
     difficulty: 'Medium',
+    category: '',
     topic: '',
     solution: '',
     status: 'Draft',
@@ -91,7 +93,8 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
         search: searchTerm,
         difficulty: difficultyFilter !== 'all' ? difficultyFilter : '',
         status: statusFilter !== 'all' ? statusFilter : '',
-        topic: topicFilter !== 'all' ? topicFilter : ''
+        topic: topicFilter !== 'all' ? topicFilter : '',
+        category: categoryFilter !== 'all' ? categoryFilter : ''
       })
 
       console.log('Fetching questions with params:', params.toString())
@@ -156,7 +159,7 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
   useEffect(() => {
     fetchQuestions(1)
     fetchStats()
-  }, [searchTerm, difficultyFilter, statusFilter, topicFilter])
+  }, [searchTerm, difficultyFilter, statusFilter, topicFilter, categoryFilter])
 
   // Handle form submission for creating question
   const handleCreateQuestion = async (e) => {
@@ -270,6 +273,7 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
       options: { A: '', B: '', C: '', D: '' },
       correctAnswer: '',
       difficulty: 'Medium',
+      category: '',
       topic: '',
       solution: '',
       status: 'Draft',
@@ -285,6 +289,7 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
       options: question.options,
       correctAnswer: question.correctAnswer,
       difficulty: question.difficulty,
+      category: question.category || '',
       topic: question.topic,
       solution: question.solution || '',
       status: question.status,
@@ -380,7 +385,7 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
         </div>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-6">
           <div className="relative">
             <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${themeClasses.text.secondary}`} />
             <input
@@ -391,6 +396,18 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          
+          <select
+            className={`px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+          >
+            <option value="all">All Categories</option>
+            <option value="Quantitative">Quantitative</option>
+            <option value="Logical Reasoning">Logical Reasoning</option>
+            <option value="Verbal">Verbal</option>
+            <option value="Non-verbal">Non-verbal</option>
+          </select>
           
           <select
             className={`px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
@@ -432,6 +449,7 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
             <thead>
               <tr className={`${themeClasses.table.header}`}>
                 <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Question</th>
+                <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Category</th>
                 <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Topic</th>
                 <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Difficulty</th>
                 <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Status</th>
@@ -442,7 +460,7 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
             <tbody className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="py-8 text-center">
+                  <td colSpan="7" className="py-8 text-center">
                     <div className="flex items-center justify-center">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                       <span className={`ml-2 ${themeClasses.text.secondary}`}>Loading questions...</span>
@@ -451,12 +469,12 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
                 </tr>
               ) : questions.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="py-8 text-center">
+                  <td colSpan="7" className="py-8 text-center">
                     <div className="flex flex-col items-center">
                       <HelpCircle className={`w-12 h-12 ${themeClasses.text.secondary} mb-2`} />
                       <p className={`${themeClasses.text.secondary}`}>No questions found</p>
                       <p className={`text-sm ${themeClasses.text.secondary} mt-1`}>
-                        {searchTerm || difficultyFilter !== 'all' || statusFilter !== 'all' || topicFilter !== 'all' 
+                        {searchTerm || difficultyFilter !== 'all' || statusFilter !== 'all' || topicFilter !== 'all' || categoryFilter !== 'all'
                           ? 'Try adjusting your filters' 
                           : 'Click "Add Question" to create your first question'
                         }
@@ -476,6 +494,11 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
                           Correct: Option {question.correctAnswer}
                         </p>
                       </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${themeClasses.iconBg.purple} ${isDark ? 'text-purple-400' : 'text-purple-800'}`}>
+                        {question.category || 'N/A'}
+                      </span>
                     </td>
                     <td className="py-4 px-6">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${themeClasses.iconBg.blue} ${isDark ? 'text-blue-400' : 'text-blue-800'}`}>
@@ -670,8 +693,25 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
                   </select>
                 </div>
 
-                {/* Topic and Difficulty */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Category, Topic and Difficulty */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
+                      Category *
+                    </label>
+                    <select
+                      required
+                      className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
+                      value={questionForm.category}
+                      onChange={(e) => setQuestionForm({ ...questionForm, category: e.target.value })}
+                    >
+                      <option value="">Select category</option>
+                      <option value="Quantitative">Quantitative</option>
+                      <option value="Logical Reasoning">Logical Reasoning</option>
+                      <option value="Verbal">Verbal</option>
+                      <option value="Non-verbal">Non-verbal</option>
+                    </select>
+                  </div>
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
                       Topic *
@@ -682,7 +722,7 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
                       className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
                       value={questionForm.topic}
                       onChange={(e) => setQuestionForm({ ...questionForm, topic: e.target.value })}
-                      placeholder="e.g., Logical Reasoning, Quantitative Aptitude"
+                      placeholder="e.g., Algebra, Puzzles, Grammar"
                     />
                   </div>
                   <div>
@@ -834,6 +874,10 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
                   <h4 className={`text-lg font-semibold mb-4 ${themeClasses.text.primary}`}>Question Details</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
+                      <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>Category</label>
+                      <p className={`mt-1 text-sm ${themeClasses.text.primary}`}>{selectedQuestion.category || 'N/A'}</p>
+                    </div>
+                    <div>
                       <label className={`block text-sm font-medium ${themeClasses.text.secondary}`}>Topic</label>
                       <p className={`mt-1 text-sm ${themeClasses.text.primary}`}>{selectedQuestion.topic}</p>
                     </div>
@@ -967,8 +1011,25 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
                   </select>
                 </div>
 
-                {/* Topic and Difficulty */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Category, Topic and Difficulty */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
+                      Category *
+                    </label>
+                    <select
+                      required
+                      className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
+                      value={questionForm.category}
+                      onChange={(e) => setQuestionForm({ ...questionForm, category: e.target.value })}
+                    >
+                      <option value="">Select category</option>
+                      <option value="Quantitative">Quantitative</option>
+                      <option value="Logical Reasoning">Logical Reasoning</option>
+                      <option value="Verbal">Verbal</option>
+                      <option value="Non-verbal">Non-verbal</option>
+                    </select>
+                  </div>
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
                       Topic *
@@ -979,7 +1040,7 @@ const AptitudeQuestionManagement = ({ theme = 'light' }) => {
                       className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
                       value={questionForm.topic}
                       onChange={(e) => setQuestionForm({ ...questionForm, topic: e.target.value })}
-                      placeholder="e.g., Logical Reasoning, Quantitative Aptitude"
+                      placeholder="e.g., Algebra, Puzzles, Grammar"
                     />
                   </div>
                   <div>

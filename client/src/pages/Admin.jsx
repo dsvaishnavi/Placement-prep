@@ -1,9 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { showToast } from '../utils/toast'
 import UserManagement from '../components/UserManagement'
 import AptitudeQuestionManagement from '../components/AptitudeQuestionManagement'
+import CoreConceptManagement from '../components/CoreConceptManagement'
+import DashboardOverview from '../components/DashboardOverview'
+import NotificationManagement from '../components/NotificationManagement'
 import { 
   // Navigation & Layout Icons
   Menu, Search, Bell, User, Home, Users, HelpCircle, 
@@ -12,14 +15,128 @@ import {
   Edit, Trash2, Eye, Star,
   Plus, Download,
   // Form & Content Icons
-  BarChart3, Lock
+  BarChart3, Lock, Hash, TrendingUp , Cpu , Database ,HardDrive , Server ,FileText,
+  // Theme & Profile Icons
+  Sun, Moon, UserCircle
 } from 'lucide-react'
 
-function Admin({ theme = 'light', contentManagerMode = false }) {
+
+
+function Admin({ theme = 'light', contentManagerMode = false, toggleTheme }) {
   // Theme helper functions
   const isDark = theme === 'dark';
   const navigate = useNavigate();
-  const { user, isAdmin, isContentManager, hasContentAccess } = useAuth();
+  const { user, isAdmin, isContentManager, hasContentAccess, logout } = useAuth();
+  
+  // State for dropdowns
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
+  
+  // State for notifications
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  
+  // Refs for dropdown elements
+  const profileDropdownRef = useRef(null);
+  const notificationDropdownRef = useRef(null);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+        setProfileDropdownOpen(false);
+      }
+      if (notificationDropdownRef.current && !notificationDropdownRef.current.contains(event.target)) {
+        setNotificationDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  
+  // Fetch notifications function (defined outside useEffect so it can be called manually)
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:3000/notifications/my-notifications', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setNotifications(data.notifications);
+        setUnreadCount(data.unreadCount);
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications');
+    }
+  };
+
+  // Fetch notifications on mount and set up interval
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+      // Refresh notifications every 30 seconds
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+  
+  // Mark notification as read
+  const markAsRead = async (notificationId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await fetch(`http://localhost:3000/notifications/mark-read/${notificationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Update local state
+      setNotifications(notifications.map(n => 
+        n.id === notificationId ? { ...n, read: true } : n
+      ));
+      setUnreadCount(Math.max(0, unreadCount - 1));
+    } catch (error) {
+      console.error('Failed to mark notification as read');
+    }
+  };
+  
+  // Mark all as read
+  const markAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await fetch('http://localhost:3000/notifications/mark-all-read', {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Update local state
+      setNotifications(notifications.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+      showToast('All notifications marked as read', 'success');
+    } catch (error) {
+      showToast('Failed to mark all as read', 'error');
+    }
+  };
+  
+  // Get time ago string
+  const getTimeAgo = (date) => {
+    const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+    
+    if (seconds < 60) return 'Just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+    return `${Math.floor(seconds / 86400)} days ago`;
+  };
   
   // Check access permissions
   if (!user) {
@@ -110,6 +227,7 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
       purple: 'from-purple-500 to-indigo-600',
       green: 'from-green-500 to-emerald-600',
       orange: 'from-amber-500 to-orange-600',
+      gray: 'from-gray-500 to-slate-600',
     }
   };
 
@@ -124,97 +242,20 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
   const [activeModule, setActiveModule] = useState(getDefaultModule())
   const [sidebarOpen, setSidebarOpen] = useState(true)
   
-  // Mock data for users
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      fullName: 'Alex Johnson',
-      email: 'alex.johnson@example.com',
-      role: 'Admin',
-      lastLogin: '2024-01-15 14:30',
-      registrationDate: '2023-12-01',
-      status: 'Active',
-      avatar: 'AJ'
-    },
-    {
-      id: 2,
-      fullName: 'Sarah Miller',
-      email: 'sarah.m@example.com',
-      role: 'Content Manager',
-      lastLogin: '2024-01-14 11:20',
-      registrationDate: '2023-11-15',
-      status: 'Active',
-      avatar: 'SM'
-    },
-    {
-      id: 3,
-      fullName: 'Robert Chen',
-      email: 'robert.chen@example.com',
-      role: 'Student',
-      lastLogin: '2024-01-13 09:45',
-      registrationDate: '2024-01-01',
-      status: 'Active',
-      avatar: 'RC'
-    },
-    {
-      id: 4,
-      fullName: 'Maria Garcia',
-      email: 'maria.g@example.com',
-      role: 'Student',
-      lastLogin: '2024-01-10 16:20',
-      registrationDate: '2023-12-20',
-      status: 'Inactive',
-      avatar: 'MG'
-    },
-    {
-      id: 5,
-      fullName: 'David Wilson',
-      email: 'david.w@example.com',
-      role: 'Student',
-      lastLogin: '2024-01-12 13:15',
-      registrationDate: '2023-12-10',
-      status: 'Active',
-      avatar: 'DW'
-    }
-  ])
-  
-  // Mock data for core concepts
-  const [coreConcepts, setCoreConcepts] = useState([
-    {
-      id: 1,
-      title: 'Data Structures - Arrays',
-      description: 'Understanding array data structure, operations, and time complexity',
-      subject: 'Data Structures',
-      topics: 15,
-      difficulty: 'Beginner',
-      status: 'Published',
-      lastUpdated: '2024-01-10'
-    },
-    {
-      id: 2,
-      title: 'Operating Systems - Processes',
-      description: 'Process management, scheduling algorithms, and synchronization',
-      subject: 'Operating Systems',
-      topics: 22,
-      difficulty: 'Intermediate',
-      status: 'Draft',
-      lastUpdated: '2024-01-12'
-    },
-    {
-      id: 3,
-      title: 'Database Normalization',
-      description: 'Normal forms, functional dependencies, and database design principles',
-      subject: 'DBMS',
-      topics: 18,
-      difficulty: 'Advanced',
-      status: 'Published',
-      lastUpdated: '2024-01-08'
-    }
-  ])
-  
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState('')
   const [userFilter, setUserFilter] = useState('all')
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+      showToast('Logged out successfully', 'success');
+      navigate('/login');
+    } catch (error) {
+      showToast('Error logging out', 'error');
+    }
+  };
   
   // Navigation modules configuration based on user role
   const getAvailableModules = () => {
@@ -228,6 +269,7 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
     const adminModules = [
       { id: 'dashboard', label: 'Dashboard', icon: Home, color: 'blue' },
       { id: 'users', label: 'User Management', icon: Users, color: 'purple' },
+      { id: 'notifications', label: 'Notifications', icon: Bell, color: 'blue' },
       { id: 'settings', label: 'Settings', icon: Settings, color: 'gray' }
     ];
     
@@ -250,361 +292,14 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
     return <UserManagement theme={theme} />
   }
   
-  // Reusable Core Concept Form Component
-  const CoreConceptForm = ({ onSubmit, initialData = {
-    title: '',
-    description: '',
-    subject: '',
-    difficulty: 'Beginner',
-    status: 'Draft'
-  }, mode = 'add' }) => {
-    const [formData, setFormData] = useState(initialData)
-    
-    const handleChange = (field, value) => {
-      setFormData(prev => ({ ...prev, [field]: value }))
-    }
-    
-    return (
-      <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
-        <h3 className={`text-lg font-semibold mb-6 ${themeClasses.text.primary}`}>
-          {mode === 'add' ? 'Add New Core Concept' : 'Edit Core Concept'}
-        </h3>
-        
-        <form onSubmit={(e) => {
-          e.preventDefault()
-          onSubmit(formData)
-        }}>
-          <div className="space-y-6">
-            {/* Concept Title */}
-            <div>
-              <label htmlFor="concept-title" className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-                Concept Title
-              </label>
-              <input
-                id="concept-title"
-                type="text"
-                className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                value={formData.title}
-                onChange={(e) => handleChange('title', e.target.value)}
-                placeholder="e.g., Data Structures - Arrays"
-                required
-              />
-            </div>
-            
-            {/* Description */}
-            <div>
-              <label htmlFor="concept-description" className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-                Description
-              </label>
-              <textarea
-                id="concept-description"
-                rows="4"
-                className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                value={formData.description}
-                onChange={(e) => handleChange('description', e.target.value)}
-                placeholder="Detailed description of the core concept..."
-                required
-              />
-            </div>
-            
-            {/* Subject & Difficulty */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="concept-subject" className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-                  Subject
-                </label>
-                <select
-                  id="concept-subject"
-                  className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                  value={formData.subject}
-                  onChange={(e) => handleChange('subject', e.target.value)}
-                  required
-                >
-                  <option value="">Select Subject</option>
-                  <option value="Data Structures">Data Structures</option>
-                  <option value="Algorithms">Algorithms</option>
-                  <option value="Operating Systems">Operating Systems</option>
-                  <option value="DBMS">DBMS</option>
-                  <option value="Computer Networks">Computer Networks</option>
-                  <option value="System Design">System Design</option>
-                </select>
-              </div>
-              
-              <div>
-                <label htmlFor="concept-difficulty" className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-                  Difficulty Level
-                </label>
-                <select
-                  id="concept-difficulty"
-                  className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                  value={formData.difficulty}
-                  onChange={(e) => handleChange('difficulty', e.target.value)}
-                >
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                </select>
-              </div>
-            </div>
-            
-            {/* Status */}
-            <div>
-              <label htmlFor="concept-status" className={`block text-sm font-medium mb-2 ${themeClasses.text.primary}`}>
-                Status
-              </label>
-              <select
-                id="concept-status"
-                className={`w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
-                value={formData.status}
-                onChange={(e) => handleChange('status', e.target.value)}
-              >
-                <option value="Draft">Draft</option>
-                <option value="Published">Published</option>
-                <option value="Archived">Archived</option>
-              </select>
-            </div>
-            
-            {/* Form Actions */}
-            <div className={`flex justify-end gap-3 pt-6 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-              <button
-                type="button"
-                className={`px-6 py-2 rounded-lg transition-colors ${themeClasses.button.secondary}`}
-                onClick={() => setFormData(initialData)}
-              >
-                Reset
-              </button>
-              <button
-                type="submit"
-                className={`px-6 py-2 rounded-lg transition-colors ${themeClasses.button.primary}`}
-              >
-                {mode === 'add' ? 'Add Concept' : 'Update Concept'}
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    )
-  }
-  
-  // Dashboard Overview Component
-  const DashboardOverview = () => {
-    const stats = [
-      { label: 'Total Users', value: '1,248', change: '+12%', icon: Users, color: 'blue' },
-      { label: 'Active Questions', value: '856', change: '+8%', icon: HelpCircle, color: 'green' },
-      { label: 'Core Concepts', value: '124', change: '+15%', icon: BookOpen, color: 'purple' },
-      { label: 'Avg. User Score', value: '72%', change: '+5%', icon: BarChart3, color: 'orange' }
-    ]
-    
-    return (
-      <div className="space-y-6">
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon
-            return (
-              <div key={index} className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className={`text-sm ${themeClasses.text.secondary}`}>{stat.label}</p>
-                    <p className={`text-2xl font-bold mt-1 ${themeClasses.text.primary}`}>{stat.value}</p>
-                  </div>
-                  <div className={`p-3 rounded-lg ${themeClasses.iconBg[stat.color]}`}>
-                    <Icon className={`w-6 h-6 ${
-                      stat.color === 'blue' ? isDark ? 'text-blue-400' : 'text-blue-600' :
-                      stat.color === 'green' ? isDark ? 'text-green-400' : 'text-green-600' :
-                      stat.color === 'purple' ? isDark ? 'text-purple-400' : 'text-purple-600' : 
-                      isDark ? 'text-amber-400' : 'text-amber-600'
-                    }`} />
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-sm text-green-600 font-medium">{stat.change}</span>
-                  <span className={`text-sm ml-2 ${themeClasses.text.secondary}`}>from last month</span>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-        
-        {/* Recent Activity & Quick Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Activity */}
-          <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
-            <h3 className={`text-lg font-semibold mb-4 ${themeClasses.text.primary}`}>Recent Activity</h3>
-            <div className="space-y-4">
-              {[
-                { user: 'Admin', action: 'added new aptitude question', time: '2 hours ago' },
-                { user: 'Sarah Miller', action: 'updated core concept', time: '5 hours ago' },
-                { user: 'System', action: 'user registration completed', time: '1 day ago' },
-                { user: 'Admin', action: 'published new content', time: '2 days ago' }
-              ].map((activity, index) => (
-                <div key={index} className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${isDark ? 'hover:bg-white/5' : 'hover:bg-gray-50'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${themeClasses.iconBg.blue}`}>
-                    <User className="w-4 h-4 text-blue-500" />
-                  </div>
-                  <div className="flex-1">
-                    <p className={`text-sm ${themeClasses.text.primary}`}>
-                      <span className="font-medium">{activity.user}</span> {activity.action}
-                    </p>
-                    <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>{activity.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Quick Actions */}
-          <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
-            <h3 className={`text-lg font-semibold mb-4 ${themeClasses.text.primary}`}>Quick Actions</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {/* Show different quick actions based on role */}
-              {hasContentAccess && (
-                <>
-                  <button 
-                    className={`p-4 border rounded-lg transition-colors text-center ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
-                    onClick={() => setActiveModule('aptitude')}
-                  >
-                    <HelpCircle className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-                    <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Add Question</p>
-                    <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>Create new aptitude question</p>
-                  </button>
-                  
-                  <button 
-                    className={`p-4 border rounded-lg transition-colors text-center ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
-                    onClick={() => setActiveModule('concepts')}
-                  >
-                    <BookOpen className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                    <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Add Concept</p>
-                    <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>Create new core concept</p>
-                  </button>
-                </>
-              )}
-              
-              {isAdmin && (
-                <button 
-                  className={`p-4 border rounded-lg transition-colors text-center ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}
-                  onClick={() => setActiveModule('users')}
-                >
-                  <Users className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-                  <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Add User</p>
-                  <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>Create new user account</p>
-                </button>
-              )}
-              
-              <button className={`p-4 border rounded-lg transition-colors text-center ${isDark ? 'border-gray-700 hover:bg-white/5' : 'border-gray-200 hover:bg-gray-50'}`}>
-                <Download className="w-6 h-6 text-amber-500 mx-auto mb-2" />
-                <p className={`text-sm font-medium ${themeClasses.text.primary}`}>Export Data</p>
-                <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>Export reports & analytics</p>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-  
   // Aptitude Questions Management Component
   const AptitudeQuestionsModule = () => {
     return <AptitudeQuestionManagement theme={theme} />
   }
-  
+
   // Core Concepts Management Component
   const CoreConceptsModule = () => {
-    return (
-      <div className="space-y-6">
-        {/* Add Concept Form */}
-        <CoreConceptForm 
-          onSubmit={(data) => {
-            console.log('Adding concept:', data)
-            showToast.success('Core concept added successfully!')
-          }}
-        />
-        
-        {/* Concepts List */}
-        <div className={`rounded-xl border overflow-hidden ${themeClasses.cardBg}`}>
-          <div className="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h3 className={`text-lg font-semibold ${themeClasses.text.primary}`}>All Core Concepts</h3>
-              <p className={`text-sm ${themeClasses.text.secondary}`}>Manage educational content and subjects</p>
-            </div>
-            <button className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${themeClasses.button.primary}`}>
-              <Plus className="w-4 h-4" />
-              Add Concept
-            </button>
-          </div>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className={`${themeClasses.table.header}`}>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Title</th>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Subject</th>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Difficulty</th>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Topics</th>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Status</th>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
-                {coreConcepts.map((concept) => (
-                  <tr key={concept.id} className={`transition-colors ${themeClasses.table.row}`}>
-                    <td className="py-4 px-6">
-                      <div>
-                        <p className={`font-medium ${themeClasses.text.primary}`}>{concept.title}</p>
-                        <p className={`text-sm mt-1 line-clamp-2 ${themeClasses.text.secondary}`}>{concept.description}</p>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${themeClasses.iconBg.purple} ${isDark ? 'text-purple-400' : 'text-purple-800'}`}>
-                        {concept.subject}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-2">
-                        <Star className={`w-4 h-4 ${
-                          concept.difficulty === 'Beginner' ? 'text-green-500' :
-                          concept.difficulty === 'Intermediate' ? 'text-yellow-500' : 'text-red-500'
-                        }`} />
-                        <span className={`text-sm ${themeClasses.text.primary}`}>{concept.difficulty}</span>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-2">
-                        <Hash className={`w-4 h-4 ${themeClasses.text.secondary}`} />
-                        <span className={`text-sm font-medium ${themeClasses.text.primary}`}>{concept.topics}</span>
-                        <span className={`text-sm ${themeClasses.text.secondary}`}>topics</span>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${
-                        concept.status === 'Published' ? themeClasses.status.published :
-                        concept.status === 'Draft' ? themeClasses.status.draft :
-                        themeClasses.role.student
-                      }`}>
-                        {concept.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-2">
-                        <button className={`p-1 rounded transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`} aria-label="Edit concept">
-                          <Edit className="w-4 h-4 text-blue-500" />
-                        </button>
-                        <button className={`p-1 rounded transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`} aria-label="Delete concept">
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </button>
-                        <button className={`p-1 rounded transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`} aria-label="View concept">
-                          <Eye className={`w-4 h-4 ${themeClasses.text.secondary}`} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    )
+    return <CoreConceptManagement theme={theme} />
   }
   
   // Main content renderer based on active module and user permissions
@@ -622,13 +317,21 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
     
     switch (activeModule) {
       case 'dashboard':
-        return <DashboardOverview />
+        return <DashboardOverview theme={theme} />
       case 'users':
         // Only admins can access user management
         return isAdmin ? <UsersModule /> : (
           <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
             <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text.primary}`}>Access Denied</h2>
             <p className={themeClasses.text.secondary}>User management is only available to administrators.</p>
+          </div>
+        )
+      case 'notifications':
+        // Only admins can access notification management
+        return isAdmin ? <NotificationManagement theme={theme} onNotificationChange={fetchNotifications} /> : (
+          <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
+            <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text.primary}`}>Access Denied</h2>
+            <p className={themeClasses.text.secondary}>Notification management is only available to administrators.</p>
           </div>
         )
       case 'aptitude':
@@ -640,7 +343,7 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
         return isAdmin ? (
           <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
             <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text.primary}`}>Settings</h2>
-            <p className={themeClasses.text.secondary}>Settings panel would be implemented here.</p>
+            <p className={`${themeClasses.text.primary} opacity-70`}>Settings panel would be implemented here.</p>
           </div>
         ) : (
           <div className={`rounded-xl border p-6 ${themeClasses.cardBg}`}>
@@ -668,7 +371,7 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
       </div>
       
       {/* Top Navigation Header */}
-      <header className={`border-b sticky top-0 z-50 ${themeClasses.headerBg}`}>
+      <header className={`border-b sticky top-0 z-50 ${themeClasses.headerBg} backdrop-blur-sm`}>
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             {/* Left: Logo & Mobile Menu Toggle */}
@@ -678,7 +381,7 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
               >
-                <Menu className="w-5 h-5 text-secondary" />
+                <Menu className={`w-5 h-5 ${themeClasses.text.secondary}`} />
               </button>
               
               <div className="flex items-center gap-3">
@@ -696,46 +399,223 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
               </div>
             </div>
             
-            {/* Right: User Menu & Notifications */}
-            <div className="flex items-center gap-4">
-              {/* Search */}
-              <div className="relative hidden md:block">
+            {/* Center: Search Bar */}
+            <div className="flex-1 max-w-md mx-8 hidden md:block">
+              <div className="relative">
                 <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${themeClasses.text.secondary}`} />
                 <input
                   type="search"
                   placeholder="Search..."
-                  className={`pl-10 pr-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${themeClasses.input}`}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={`w-full pl-10 pr-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${themeClasses.input}`}
                   aria-label="Search in admin panel"
                 />
               </div>
-              
-              {/* Notifications */}
+            </div>
+            
+            {/* Right: Actions & User Menu */}
+            <div className="flex items-center gap-2">
+              {/* Theme Toggle Button */}
               <button 
-                className="p-2 rounded-lg relative transition-colors hover:opacity-80"
-                aria-label="View notifications"
+                onClick={toggleTheme}
+                className={`p-2 rounded-lg transition-colors hover:opacity-80 ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
+                aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
+                title={`Switch to ${isDark ? 'light' : 'dark'} theme`}
               >
-                <Bell className={`w-5 h-5 ${themeClasses.text.secondary}`} />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                {isDark ? (
+                  <Sun className={`w-5 h-5 ${themeClasses.text.secondary}`} />
+                ) : (
+                  <Moon className={`w-5 h-5 ${themeClasses.text.secondary}`} />
+                )}
               </button>
               
-              {/* User Profile Dropdown */}
-              <div className="relative">
+              {/* Notifications Dropdown */}
+              <div className="relative" ref={notificationDropdownRef}>
                 <button 
-                  className="flex items-center gap-3 p-2 rounded-lg transition-colors hover:opacity-80"
+                  onClick={() => setNotificationDropdownOpen(!notificationDropdownOpen)}
+                  className={`p-2 rounded-lg relative transition-colors hover:opacity-80 ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
+                  aria-label="View notifications"
+                  title="Notifications"
+                >
+                  <Bell className={`w-5 h-5 ${themeClasses.text.secondary}`} />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                  )}
+                </button>
+                
+                {/* Notifications Dropdown Menu */}
+                {notificationDropdownOpen && (
+                  <div className={`absolute right-0 mt-2 w-96 rounded-lg border shadow-lg z-50 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                      <div>
+                        <h3 className={`font-semibold ${themeClasses.text.primary}`}>Notifications</h3>
+                        {unreadCount > 0 && (
+                          <p className={`text-xs ${themeClasses.text.secondary}`}>{unreadCount} unread</p>
+                        )}
+                      </div>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={markAllAsRead}
+                          className="text-xs text-blue-500 hover:text-blue-600 font-medium"
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="p-8 text-center">
+                          <Bell className={`w-12 h-12 mx-auto mb-2 ${themeClasses.text.secondary}`} />
+                          <p className={`text-sm ${themeClasses.text.secondary}`}>No notifications</p>
+                        </div>
+                      ) : (
+                        notifications.map((notification) => (
+                          <div 
+                            key={notification.id} 
+                            onClick={() => {
+                              if (!notification.read) {
+                                markAsRead(notification.id);
+                              }
+                            }}
+                            className={`p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors ${
+                              !notification.read ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''
+                            }`}
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <p className={`text-sm font-medium ${themeClasses.text.primary}`}>
+                                  {notification.title}
+                                </p>
+                                <p className={`text-xs mt-1 ${themeClasses.text.secondary}`}>
+                                  {notification.message}
+                                </p>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                    notification.type === 'success' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                                    notification.type === 'warning' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                                    notification.type === 'error' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                                  }`}>
+                                    {notification.type}
+                                  </span>
+                                  <p className={`text-xs ${themeClasses.text.secondary}`}>
+                                    {getTimeAgo(notification.createdAt)}
+                                  </p>
+                                </div>
+                              </div>
+                              {!notification.read && (
+                                <div className="w-2 h-2 bg-blue-500 rounded-full ml-2 mt-1"></div>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    {isAdmin && (
+                      <div className="p-3 border-t border-gray-200 dark:border-gray-700">
+                        <button 
+                          onClick={() => {
+                            setNotificationDropdownOpen(false);
+                            setActiveModule('notifications');
+                          }}
+                          className={`w-full text-sm text-blue-500 hover:text-blue-600 font-medium`}
+                        >
+                          Manage notifications
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              
+              {/* User Profile Dropdown */}
+              <div className="relative" ref={profileDropdownRef}>
+                <button 
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className={`flex items-center gap-3 p-2 rounded-lg transition-colors hover:opacity-80 ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
                   aria-label="User profile menu"
+                  title="Profile menu"
                 >
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${themeClasses.iconBg.blue}`}>
-                    <User className="w-5 h-5 text-blue-500" />
+                    <UserCircle className="w-5 h-5 text-blue-500" />
                   </div>
                   <div className="text-left hidden md:block">
-                    <p className={`text-sm font-medium ${themeClasses.text.primary}`}>{user?.name || 'User'}</p>
+                    <p className={`text-sm font-medium ${themeClasses.text.primary}`}>
+                      {user?.name || 'Satyajeet S. Desai'}
+                    </p>
                     <p className={`text-xs ${themeClasses.text.secondary}`}>
                       {user?.role === 'admin' ? 'Administrator' : 
-                       user?.role === 'content-manager' ? 'Content Manager' : 'User'}
+                       user?.role === 'content-manager' ? 'Content Manager' : 'Administrator'}
                     </p>
                   </div>
-                  <ChevronDown className={`w-4 h-4 ${themeClasses.text.secondary}`} />
+                  <ChevronDown className={`w-4 h-4 ${themeClasses.text.secondary} transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
+                
+                {/* Profile Dropdown Menu */}
+                {profileDropdownOpen && (
+                  <div className={`absolute right-0 mt-2 w-64 rounded-lg border shadow-lg z-50 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                    {/* User Info Header */}
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${themeClasses.iconBg.blue}`}>
+                          <UserCircle className="w-8 h-8 text-blue-500" />
+                        </div>
+                        <div>
+                          <p className={`font-semibold ${themeClasses.text.primary}`}>
+                            {user?.name || 'Satyajeet S. Desai'}
+                          </p>
+                          <p className={`text-sm ${themeClasses.text.secondary}`}>
+                            {user?.email || 'admin@example.com'}
+                          </p>
+                          <span className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${themeClasses.role.admin}`}>
+                            {user?.role === 'admin' ? 'Administrator' : 
+                             user?.role === 'content-manager' ? 'Content Manager' : 'Administrator'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Menu Items */}
+                    <div className="py-2">
+                      <button 
+                        onClick={() => {
+                          setProfileDropdownOpen(false);
+                          // Navigate to profile page or show profile modal
+                          showToast('Profile page coming soon', 'info');
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-2 text-left transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-50'}`}
+                      >
+                        <User className={`w-4 h-4 ${themeClasses.text.secondary}`} />
+                        <span className={`text-sm ${themeClasses.text.primary}`}>View Profile</span>
+                      </button>
+                      
+                      <button 
+                        onClick={() => {
+                          setProfileDropdownOpen(false);
+                          setActiveModule('settings');
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-2 text-left transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-50'}`}
+                      >
+                        <Settings className={`w-4 h-4 ${themeClasses.text.secondary}`} />
+                        <span className={`text-sm ${themeClasses.text.primary}`}>Settings</span>
+                      </button>
+                      
+                      <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                      
+                      <button 
+                        onClick={() => {
+                          setProfileDropdownOpen(false);
+                          handleLogout();
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-2 text-left transition-colors ${isDark ? 'hover:bg-red-500/20 text-red-400' : 'hover:bg-red-50 text-red-600'}`}
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span className="text-sm font-medium">Log Out</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -862,11 +742,12 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
             <h2 className={`text-2xl font-bold ${themeClasses.text.primary}`}>
               {modules.find(m => m.id === activeModule)?.label || 'Dashboard'}
             </h2>
-            <p className={`${themeClasses.text.secondary} mt-2`}>
+            <p className={`${themeClasses.text.primary} opacity-70 mt-2`}>
               {activeModule === 'users' && 'Manage user accounts, roles, and permissions'}
               {activeModule === 'aptitude' && 'Create and manage aptitude test questions'}
               {activeModule === 'concepts' && 'Manage educational content and core concepts'}
               {activeModule === 'dashboard' && 'Overview of platform analytics and metrics'}
+              {activeModule === 'notifications' && 'Create and manage system notifications'}
               {activeModule === 'settings' && 'Configure platform settings and preferences'}
             </p>
           </div>
@@ -874,19 +755,7 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
           {/* Main Content */}
           {renderContent()}
           
-          {/* Footer */}
-          <footer className={`mt-8 pt-6 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className={`text-sm ${themeClasses.text.secondary}`}>
-                © 2024 Learning Platform. All rights reserved.
-              </p>
-              <div className={`flex items-center gap-6 text-sm ${themeClasses.text.secondary}`}>
-                <a href="#" className="hover:text-blue-500 transition-colors">Privacy Policy</a>
-                <a href="#" className="hover:text-blue-500 transition-colors">Terms of Service</a>
-                <a href="#" className="hover:text-blue-500 transition-colors">Help Center</a>
-              </div>
-            </div>
-          </footer>
+          
         </main>
       </div>
       
@@ -902,7 +771,7 @@ function Admin({ theme = 'light', contentManagerMode = false }) {
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
-        }
+        }Az
       `}</style>
     </div>
   )

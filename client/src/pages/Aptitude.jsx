@@ -1,490 +1,248 @@
-// aptitude.jsx
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   Search, Filter, ChevronDown, ChevronUp,
-  BarChart3, Clock, BookOpen, Target,
-  Hash, Percent, Calculator, Shapes,
-  Brain, Puzzle, GitBranch, TrendingUp,
-  MessageSquare, Book, SpellCheck, Eye,
-  SortAsc, SortDesc, X, Play, Zap,
-  TrendingUp as TrendingUpIcon, AlertCircle,
-  CheckCircle
+  BarChart3, BookOpen, Target,
+  Hash, Calculator, Shapes,
+  Brain, SortAsc, SortDesc, X, Play, Zap,
+  AlertCircle, CheckCircle, Loader
 } from "lucide-react";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+// Define all possible topics that should always be displayed
+const ALL_TOPICS = [
+  // Quantitative
+  { name: "Arithmetic", category: "Quantitative", difficulty: "Easy", description: "Basic arithmetic operations, fractions, decimals, and percentages" },
+  { name: "Algebra", category: "Quantitative", difficulty: "Medium", description: "Equations, inequalities, polynomials, and algebraic expressions" },
+  { name: "Geometry", category: "Quantitative", difficulty: "Medium", description: "Plane geometry, coordinate geometry, and mensuration" },
+  { name: "Trigonometry", category: "Quantitative", difficulty: "Hard", description: "Trigonometric functions, identities, and equations" },
+  { name: "Number System", category: "Quantitative", difficulty: "Easy", description: "Number properties, divisibility, and number theory" },
+  { name: "Probability", category: "Quantitative", difficulty: "Medium", description: "Basic probability, permutations, and combinations" },
+  { name: "Permutations & Combinations", category: "Quantitative", difficulty: "Hard", description: "Counting principles and arrangement problems" },
+  { name: "Data Interpretation", category: "Quantitative", difficulty: "Medium", description: "Charts, graphs, tables, and data analysis" },
+  { name: "Percentages", category: "Quantitative", difficulty: "Easy", description: "Percentage calculations and applications" },
+  { name: "Profit & Loss", category: "Quantitative", difficulty: "Easy", description: "Business mathematics and financial calculations" },
+  { name: "Simple & Compound Interest", category: "Quantitative", difficulty: "Medium", description: "Interest calculations and time value of money" },
+  { name: "Time, Speed & Distance", category: "Quantitative", difficulty: "Medium", description: "Motion problems and relative speed" },
+  
+  // Logical Reasoning
+  { name: "Number Series", category: "Logical Reasoning", difficulty: "Easy", description: "Identifying patterns in number sequences" },
+  { name: "Letter Series", category: "Logical Reasoning", difficulty: "Easy", description: "Pattern recognition in alphabet sequences" },
+  { name: "Analogies", category: "Logical Reasoning", difficulty: "Medium", description: "Word relationships and comparisons" },
+  { name: "Blood Relations", category: "Logical Reasoning", difficulty: "Medium", description: "Family tree and relationship puzzles" },
+  { name: "Direction Sense", category: "Logical Reasoning", difficulty: "Easy", description: "Direction and distance problems" },
+  { name: "Seating Arrangement", category: "Logical Reasoning", difficulty: "Hard", description: "Linear and circular arrangement puzzles" },
+  { name: "Puzzles", category: "Logical Reasoning", difficulty: "Hard", description: "Logical puzzles and brain teasers" },
+  { name: "Syllogism", category: "Logical Reasoning", difficulty: "Medium", description: "Logical deductions from given statements" },
+  { name: "Logical Deduction", category: "Logical Reasoning", difficulty: "Hard", description: "Complex logical reasoning problems" },
+  { name: "Data Sufficiency", category: "Logical Reasoning", difficulty: "Medium", description: "Determining if given data is sufficient" },
+  
+  // Verbal
+  { name: "Spotting Errors", category: "Verbal", difficulty: "Easy", description: "Identifying grammatical errors in sentences" },
+  { name: "Synonyms", category: "Verbal", difficulty: "Easy", description: "Words with similar meanings" },
+  { name: "Antonyms", category: "Verbal", difficulty: "Easy", description: "Words with opposite meanings" },
+  { name: "Reading Comprehension", category: "Verbal", difficulty: "Medium", description: "Understanding and analyzing passages" },
+  { name: "Sentence Correction", category: "Verbal", difficulty: "Medium", description: "Correcting grammatical errors in sentences" },
+  { name: "Para Jumbles", category: "Verbal", difficulty: "Hard", description: "Rearranging sentences into coherent paragraphs" },
+  { name: "Cloze Test", category: "Verbal", difficulty: "Medium", description: "Filling blanks in passages with appropriate words" },
+  { name: "Idioms and Phrases", category: "Verbal", difficulty: "Easy", description: "Common idioms and their meanings" }
+];
+
 function Aptitude({ theme }) {
+  const navigate = useNavigate();
+  
+  // State for data
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   // State for filters and search
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedDifficulty, setSelectedDifficulty] = useState("All");
+  const [selectedTopic, setSelectedTopic] = useState("All Topics");
   const [sortBy, setSortBy] = useState("default");
   const [expandedSubtopic, setExpandedSubtopic] = useState(null);
 
+  // Fetch questions from API
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
+
+  const fetchQuestions = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      
+      const response = await axios.get(`${API_URL}/aptitude/public/questions`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+
+      if (response.data.success) {
+        setQuestions(response.data.questions);
+      }
+    } catch (err) {
+      console.error("Error fetching questions:", err);
+      setError("Failed to load questions. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  // Get unique categories from ALL_TOPICS
+  const categories = useMemo(() => {
+    return ["All", ...new Set(ALL_TOPICS.map(t => t.category))];
+  }, []);
+
+  // Get all topics from ALL_TOPICS
+  const allTopicNames = useMemo(() => {
+    return ["All Topics", ...ALL_TOPICS.map(t => t.name)];
+  }, []);
+
+  // Create topic data with question counts
+  const topicsWithData = useMemo(() => {
+    return ALL_TOPICS.map(topic => {
+      const topicQuestions = questions.filter(q => q.topic === topic.name);
+      return {
+        ...topic,
+        questionCount: topicQuestions.length,
+        questions: topicQuestions,
+        hasData: topicQuestions.length > 0
+      };
+    });
+  }, [questions]);
+
+  // Group questions by category for overview cards
+  const categoryStats = useMemo(() => {
+    const stats = {};
+    topicsWithData.forEach(topic => {
+      if (!stats[topic.category]) {
+        stats[topic.category] = {
+          total: 0,
+          topics: new Set(),
+          byDifficulty: { Easy: 0, Medium: 0, Hard: 0 }
+        };
+      }
+      stats[topic.category].total += topic.questionCount;
+      if (topic.hasData) {
+        stats[topic.category].topics.add(topic.name);
+      }
+      topic.questions.forEach(q => {
+        stats[topic.category].byDifficulty[q.difficulty]++;
+      });
+    });
+    return stats;
+  }, [topicsWithData]);
+
   // Overview cards data
-  const overviewCards = [
-    {
-      id: 1,
-      title: "Quantitative",
-      description: "Algebra, arithmetic, data interpretation, and geometry",
-      icon: Calculator,
-      progress: 35,
-      totalTopics: 12,
-      totalProblems: 475,
-      avgTime: "60 min",
-      colorScheme: {
-        bg: theme === 'dark' ? "bg-gradient-to-br from-blue-500/10 to-indigo-500/10" : "bg-gradient-to-br from-blue-50 to-indigo-50",
-        border: theme === 'dark' ? "border-blue-500/20" : "border-blue-200",
+  const overviewCards = useMemo(() => {
+    const categoryIcons = {
+      'Quantitative': { 
+        icon: Calculator, 
+        gradient: "from-blue-500 to-indigo-600", 
+        color: "blue",
         iconBg: theme === 'dark' ? "bg-gradient-to-br from-blue-500/20 to-indigo-500/20" : "bg-gradient-to-br from-blue-100 to-indigo-100",
-        iconColor: "text-blue-500",
-        gradient: "from-blue-500 to-indigo-600",
         text: theme === 'dark' ? "text-blue-400" : "text-blue-600"
       },
-      stats: [
-        { label: "Topics", value: "12" },
-        { label: "Problems", value: "475" },
-        { label: "Avg Time", value: "60 min" }
-      ]
-    },
-    {
-      id: 2,
-      title: "Logical Reasoning",
-      description: "Pattern recognition, puzzles, and analytical reasoning",
-      icon: Brain,
-      progress: 65,
-      totalTopics: 10,
-      totalProblems: 415,
-      avgTime: "45 min",
-      colorScheme: {
-        bg: theme === 'dark' ? "bg-gradient-to-br from-purple-500/10 to-indigo-500/10" : "bg-gradient-to-br from-purple-50 to-indigo-50",
-        border: theme === 'dark' ? "border-purple-500/20" : "border-purple-200",
+      'Logical Reasoning': { 
+        icon: Brain, 
+        gradient: "from-purple-500 to-indigo-600", 
+        color: "purple",
         iconBg: theme === 'dark' ? "bg-gradient-to-br from-purple-500/20 to-indigo-500/20" : "bg-gradient-to-br from-purple-100 to-indigo-100",
-        iconColor: "text-purple-500",
-        gradient: "from-purple-500 to-indigo-600",
         text: theme === 'dark' ? "text-purple-400" : "text-purple-600"
       },
-      stats: [
-        { label: "Topics", value: "10" },
-        { label: "Problems", value: "415" },
-        { label: "Avg Time", value: "45 min" }
-      ]
-    },
-    {
-      id: 3,
-      title: "Verbal Ability",
-      description: "Reading comprehension, grammar, and vocabulary",
-      icon: BookOpen,
-      progress: 85,
-      totalTopics: 8,
-      totalProblems: 420,
-      avgTime: "75 min",
-      colorScheme: {
-        bg: theme === 'dark' ? "bg-gradient-to-br from-green-500/10 to-emerald-500/10" : "bg-gradient-to-br from-green-50 to-emerald-50",
-        border: theme === 'dark' ? "border-green-500/20" : "border-green-200",
+      'Verbal': { 
+        icon: BookOpen, 
+        gradient: "from-green-500 to-emerald-600", 
+        color: "green",
         iconBg: theme === 'dark' ? "bg-gradient-to-br from-green-500/20 to-emerald-500/20" : "bg-gradient-to-br from-green-100 to-emerald-100",
-        iconColor: "text-green-500",
-        gradient: "from-green-500 to-emerald-600",
         text: theme === 'dark' ? "text-green-400" : "text-green-600"
       },
-      stats: [
-        { label: "Topics", value: "8" },
-        { label: "Problems", value: "420" },
-        { label: "Avg Time", value: "75 min" }
-      ]
-    }
-  ];
-  // All aptitude subtopics with additional metadata
-  const allSubtopics = [
-    // Quantitative Category
-    {
-      id: 1,
-      name: "Arithmetic",
-      category: "Quantitative",
-      type: "Formulas",
-      difficulty: "Easy",
-      marks: 20,
-      problems: 45,
-      progress: 35,
-      icon: Calculator,
-      description: "Basic arithmetic operations, fractions, decimals, and percentages"
-    },
-    {
-      id: 2,
-      name: "Algebra",
-      category: "Quantitative",
-      type: "Formulas",
-      difficulty: "Medium",
-      marks: 20,
-      problems: 52,
-      progress: 28,
-      icon: TrendingUp,
-      description: "Equations, inequalities, polynomials, and algebraic expressions"
-    },
-    {
-      id: 3,
-      name: "Geometry",
-      category: "Quantitative",
-      type: "Formulas",
-      difficulty: "Medium",
-      marks: 20,
-      problems: 38,
-      progress: 42,
-      icon: Shapes,
-      description: "Plane geometry, coordinate geometry, and mensuration"
-    },
-    {
-      id: 4,
-      name: "Trigonometry",
-      category: "Quantitative",
-      type: "Formulas",
-      difficulty: "Hard",
-      marks: 20,
-      problems: 30,
-      progress: 15,
-      icon: Target,
-      description: "Trigonometric functions, identities, and equations"
-    },
-    {
-      id: 5,
-      name: "Number System",
-      category: "Quantitative",
-      type: "Concepts",
-      difficulty: "Easy",
-      marks: 20,
-      problems: 40,
-      progress: 65,
-      icon: Hash,
-      description: "Number properties, divisibility, and number theory"
-    },
-    {
-      id: 6,
-      name: "Probability",
-      category: "Quantitative",
-      type: "Concepts",
-      difficulty: "Medium",
-      marks: 20,
-      problems: 35,
-      progress: 38,
-      icon: Percent,
-      description: "Basic probability, permutations, and combinations"
-    },
-    {
-      id: 7,
-      name: "Permutations & Combinations",
-      category: "Quantitative",
-      type: "Concepts",
-      difficulty: "Hard",
-      marks: 20,
-      problems: 28,
-      progress: 22,
-      icon: GitBranch,
-      description: "Counting principles and arrangement problems"
-    },
-    {
-      id: 8,
-      name: "Data Interpretation",
-      category: "Quantitative",
-      type: "Concepts",
-      difficulty: "Medium",
-      marks: 20,
-      problems: 48,
-      progress: 55,
-      icon: BarChart3,
-      description: "Charts, graphs, tables, and data analysis"
-    },
-    {
-      id: 9,
-      name: "Percentages",
-      category: "Quantitative",
-      type: "Formulas",
-      difficulty: "Easy",
-      marks: 20,
-      problems: 42,
-      progress: 72,
-      icon: Percent,
-      description: "Percentage calculations and applications"
-    },
-    {
-      id: 10,
-      name: "Profit & Loss",
-      category: "Quantitative",
-      type: "Formulas",
-      difficulty: "Easy",
-      marks: 20,
-      problems: 36,
-      progress: 68,
-      icon: TrendingUp,
-      description: "Business mathematics and financial calculations"
-    },
-    {
-      id: 11,
-      name: "Simple & Compound Interest",
-      category: "Quantitative",
-      type: "Formulas",
-      difficulty: "Medium",
-      marks: 20,
-      problems: 32,
-      progress: 45,
-      icon: TrendingUp,
-      description: "Interest calculations and time value of money"
-    },
-    {
-      id: 12,
-      name: "Time, Speed & Distance",
-      category: "Quantitative",
-      type: "Formulas",
-      difficulty: "Medium",
-      marks: 20,
-      problems: 44,
-      progress: 50,
-      icon: Clock,
-      description: "Motion problems and relative speed"
-    },
+      'Non-verbal': { 
+        icon: Shapes, 
+        gradient: "from-amber-500 to-orange-600", 
+        color: "amber",
+        iconBg: theme === 'dark' ? "bg-gradient-to-br from-amber-500/20 to-orange-500/20" : "bg-gradient-to-br from-amber-100 to-orange-100",
+        text: theme === 'dark' ? "text-amber-400" : "text-amber-600"
+      }
+    };
 
-    // Logical Reasoning Category
-    {
-      id: 13,
-      name: "Number Series",
-      category: "Logical Reasoning",
-      type: "Patterns",
-      difficulty: "Easy",
-      marks: 20,
-      problems: 50,
-      progress: 75,
-      icon: Hash,
-      description: "Identifying patterns in number sequences"
-    },
-    {
-      id: 14,
-      name: "Letter Series",
-      category: "Logical Reasoning",
-      type: "Patterns",
-      difficulty: "Easy",
-      marks: 20,
-      problems: 45,
-      progress: 70,
-      icon: MessageSquare,
-      description: "Pattern recognition in alphabet sequences"
-    },
-    {
-      id: 15,
-      name: "Analogies",
-      category: "Logical Reasoning",
-      type: "Relationships",
-      difficulty: "Medium",
-      marks: 20,
-      problems: 40,
-      progress: 58,
-      icon: Brain,
-      description: "Word relationships and comparisons"
-    },
-    {
-      id: 16,
-      name: "Blood Relations",
-      category: "Logical Reasoning",
-      type: "Relationships",
-      difficulty: "Medium",
-      marks: 20,
-      problems: 35,
-      progress: 62,
-      icon: GitBranch,
-      description: "Family tree and relationship puzzles"
-    },
-    {
-      id: 17,
-      name: "Direction Sense",
-      category: "Logical Reasoning",
-      type: "Spatial",
-      difficulty: "Easy",
-      marks: 20,
-      problems: 38,
-      progress: 80,
-      icon: Target,
-      description: "Direction and distance problems"
-    },
-    {
-      id: 18,
-      name: "Seating Arrangement",
-      category: "Logical Reasoning",
-      type: "Puzzles",
-      difficulty: "Hard",
-      marks: 20,
-      problems: 42,
-      progress: 40,
-      icon: Puzzle,
-      description: "Linear and circular arrangement puzzles"
-    },
-    {
-      id: 19,
-      name: "Puzzles",
-      category: "Logical Reasoning",
-      type: "Puzzles",
-      difficulty: "Hard",
-      marks: 20,
-      problems: 55,
-      progress: 35,
-      icon: Puzzle,
-      description: "Logical puzzles and brain teasers"
-    },
-    {
-      id: 20,
-      name: "Syllogism",
-      category: "Logical Reasoning",
-      type: "Deduction",
-      difficulty: "Medium",
-      marks: 20,
-      problems: 32,
-      progress: 55,
-      icon: Brain,
-      description: "Logical deductions from given statements"
-    },
-    {
-      id: 21,
-      name: "Logical Deduction",
-      category: "Logical Reasoning",
-      type: "Deduction",
-      difficulty: "Hard",
-      marks: 20,
-      problems: 28,
-      progress: 30,
-      icon: Brain,
-      description: "Complex logical reasoning problems"
-    },
-    {
-      id: 22,
-      name: "Data Sufficiency",
-      category: "Logical Reasoning",
-      type: "Analysis",
-      difficulty: "Medium",
-      marks: 20,
-      problems: 48,
-      progress: 65,
-      icon: BarChart3,
-      description: "Determining if given data is sufficient"
-    },
+    const descriptions = {
+      'Quantitative': "Algebra, arithmetic, data interpretation, Trignometry, Number System, Probabitlity, Permutations & Combinations, Percentages, Profit & Loss, Simple & Compound Interest, Time, Speed & Distance, and geometry",
+      'Logical Reasoning': "Pattern recognition, Number Series, Letter Series, Blood Relations, Direction Sense, Seating Arrangement, Syllogism, Puzzles, Logical Deduction, Data Sufficiency, and Analytical reasoning",
+      'Verbal': "Reading comprehension, Spotting Errors, Synonyms, Antonyms, Reading Comprehension, Sentence Correction, Para Jumbles, Cloze Test, Idioms and Phrases, Grammar, and Vocabulary",
+      'Non-verbal': "Visual reasoning and pattern analysis"
+    };
 
-    // Verbal Ability Category
-    {
-      id: 23,
-      name: "Spotting Errors",
-      category: "Verbal Ability",
-      type: "Grammar",
-      difficulty: "Easy",
-      marks: 20,
-      problems: 60,
-      progress: 85,
-      icon: SpellCheck,
-      description: "Identifying grammatical errors in sentences"
-    },
-    {
-      id: 24,
-      name: "Synonyms",
-      category: "Verbal Ability",
-      type: "Vocabulary",
-      difficulty: "Easy",
-      marks: 20,
-      problems: 55,
-      progress: 90,
-      icon: Book,
-      description: "Words with similar meanings"
-    },
-    {
-      id: 25,
-      name: "Antonyms",
-      category: "Verbal Ability",
-      type: "Vocabulary",
-      difficulty: "Easy",
-      marks: 20,
-      problems: 55,
-      progress: 88,
-      icon: Book,
-      description: "Words with opposite meanings"
-    },
-    {
-      id: 26,
-      name: "Reading Comprehension",
-      category: "Verbal Ability",
-      type: "Comprehension",
-      difficulty: "Medium",
-      marks: 20,
-      problems: 65,
-      progress: 70,
-      icon: Eye,
-      description: "Understanding and analyzing passages"
-    },
-    {
-      id: 27,
-      name: "Sentence Correction",
-      category: "Verbal Ability",
-      type: "Grammar",
-      difficulty: "Medium",
-      marks: 20,
-      problems: 52,
-      progress: 75,
-      icon: SpellCheck,
-      description: "Correcting grammatical errors in sentences"
-    },
-    {
-      id: 28,
-      name: "Para Jumbles",
-      category: "Verbal Ability",
-      type: "Comprehension",
-      difficulty: "Hard",
-      marks: 20,
-      problems: 45,
-      progress: 60,
-      icon: BookOpen,
-      description: "Rearranging sentences into coherent paragraphs"
-    },
-    {
-      id: 29,
-      name: "Cloze Test",
-      category: "Verbal Ability",
-      type: "Vocabulary",
-      difficulty: "Medium",
-      marks: 20,
-      problems: 48,
-      progress: 72,
-      icon: Book,
-      description: "Filling blanks in passages with appropriate words"
-    },
-    {
-      id: 30,
-      name: "Idioms and Phrases",
-      category: "Verbal Ability",
-      type: "Vocabulary",
-      difficulty: "Easy",
-      marks: 20,
-      problems: 40,
-      progress: 82,
-      icon: MessageSquare,
-      description: "Common idioms and their meanings"
-    },
-  ];
+    const cards = [];
+    
+    Object.entries(categoryStats).forEach(([category, stats]) => {
+      const config = categoryIcons[category] || { 
+        icon: BookOpen, 
+        gradient: "from-gray-500 to-gray-600", 
+        color: "gray",
+        iconBg: theme === 'dark' ? "bg-gradient-to-br from-gray-500/20 to-gray-500/20" : "bg-gradient-to-br from-gray-100 to-gray-100",
+        text: theme === 'dark' ? "text-gray-400" : "text-gray-600"
+      };
+      
+      const totalQuestions = stats.total;
+      const progress = totalQuestions > 0 
+        ? Math.round((stats.byDifficulty.Easy / totalQuestions) * 100 * 0.4 + 
+                     (stats.byDifficulty.Medium / totalQuestions) * 100 * 0.3 + 
+                     (stats.byDifficulty.Hard / totalQuestions) * 100 * 0.3)
+        : 0;
 
-  // Get unique categories for filter
-  const categories = ["All", ...new Set(allSubtopics.map(t => t.category))];
-  const difficulties = ["All", "Easy", "Medium", "Hard"];
+      // Count total topics in this category (not just those with data)
+      const totalTopicsInCategory = ALL_TOPICS.filter(t => t.category === category).length;
 
-  // Filter and sort subtopics
-  const filteredSubtopics = useMemo(() => {
-    let result = [...allSubtopics];
+      cards.push({
+        title: category,
+        icon: config.icon,
+        description: descriptions[category] || "Comprehensive practice problems",
+        gradient: config.gradient,
+        color: config.color,
+        iconBg: config.iconBg,
+        text: config.text,
+        total: stats.total,
+        topics: totalTopicsInCategory,
+        topicsWithData: stats.topics.size,
+        byDifficulty: stats.byDifficulty,
+        progress: progress,
+        stats: [
+          { label: "Topics", value: totalTopicsInCategory },
+          { label: "Problems", value: stats.total },
+          { label: "Available", value: stats.topics.size }
+        ]
+      });
+    });
+
+    return cards;
+  }, [categoryStats, theme]);
+
+
+  // Filter topics (always show all topics, just filter for display)
+  const filteredTopics = useMemo(() => {
+    let result = [...topicsWithData];
 
     // Apply search filter
     if (searchQuery) {
-      result = result.filter(subtopic =>
-        subtopic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        subtopic.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        subtopic.description.toLowerCase().includes(searchQuery.toLowerCase())
+      result = result.filter(topic =>
+        topic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        topic.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        topic.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     // Apply category filter
     if (selectedCategory !== "All") {
-      result = result.filter(subtopic => subtopic.category === selectedCategory);
+      result = result.filter(topic => topic.category === selectedCategory);
     }
 
-    // Apply difficulty filter
-    if (selectedDifficulty !== "All") {
-      result = result.filter(subtopic => subtopic.difficulty === selectedDifficulty);
+    // Apply topic filter
+    if (selectedTopic !== "All Topics") {
+      result = result.filter(topic => topic.name === selectedTopic);
     }
 
     // Apply sorting
@@ -495,61 +253,84 @@ function Aptitude({ theme }) {
       case "name-desc":
         result.sort((a, b) => b.name.localeCompare(a.name));
         break;
-      case "progress-desc":
-        result.sort((a, b) => b.progress - a.progress);
-        break;
-      case "progress-asc":
-        result.sort((a, b) => a.progress - b.progress);
-        break;
-      case "problems-desc":
-        result.sort((a, b) => b.problems - a.problems);
-        break;
-      case "difficulty":
-        const difficultyOrder = { "Easy": 1, "Medium": 2, "Hard": 3 };
-        result.sort((a, b) => difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]);
+      case "category":
+        result.sort((a, b) => a.category.localeCompare(b.category));
         break;
       default:
-        // Default: category then name
-        result.sort((a, b) => {
-          if (a.category === b.category) {
-            return a.name.localeCompare(b.name);
-          }
-          return a.category.localeCompare(b.category);
-        });
+        // Default: keep original order
+        break;
     }
 
     return result;
-  }, [searchQuery, selectedCategory, selectedDifficulty, sortBy]);
+  }, [topicsWithData, searchQuery, selectedCategory, selectedTopic, sortBy]);
 
   // Statistics
   const stats = useMemo(() => {
-    const total = allSubtopics.length;
-    const completed = allSubtopics.filter(t => t.progress >= 100).length;
-    const avgProgress = allSubtopics.reduce((sum, t) => sum + t.progress, 0) / total;
-    const totalProblems = allSubtopics.reduce((sum, t) => sum + t.problems, 0);
+    const total = questions.length;
+    const byDifficulty = {
+      Easy: questions.filter(q => q.difficulty === 'Easy').length,
+      Medium: questions.filter(q => q.difficulty === 'Medium').length,
+      Hard: questions.filter(q => q.difficulty === 'Hard').length
+    };
+    const uniqueTopics = new Set(questions.map(q => q.topic)).size;
+    const totalTopics = ALL_TOPICS.length;
+    
+    const totalQuestions = total || 1;
+    const avgProgress = Math.round(
+      (byDifficulty.Easy / totalQuestions) * 100 * 0.4 +
+      (byDifficulty.Medium / totalQuestions) * 100 * 0.3 +
+      (byDifficulty.Hard / totalQuestions) * 100 * 0.3
+    );
 
-    return { total, completed, avgProgress: Math.round(avgProgress), totalProblems };
-  }, []);
+    return { 
+      total, 
+      byDifficulty, 
+      uniqueTopics,
+      totalTopics,
+      avgProgress,
+      completed: Math.floor(total * 0.65)
+    };
+  }, [questions]);
 
-  // Handle assessment start for overview cards
-  const handleStartAssessment = (category) => {
-    console.log(`Starting full assessment for: ${category}`);
-    // Add your assessment logic here
+  // Handle start exam for a category
+  const handleStartExam = (category) => {
+    const categoryQuestions = questions.filter(q => q.category === category);
+    if (categoryQuestions.length === 0) {
+      navigate('/no-data-available', { state: { category } });
+    } else {
+      navigate('/aptitude-exam', { state: { category } });
+    }
   };
 
-  // Handle subtopic click for practice
-  const handlePractice = (subtopic) => {
-    console.log(`Starting practice for: ${subtopic.name}`);
-    // Add your practice logic here
+  // Handle start exam for a specific topic
+  const handleStartTopicExam = (topic) => {
+    const topicQuestions = questions.filter(q => q.topic === topic);
+    if (topicQuestions.length === 0) {
+      navigate('/no-data-available', { state: { topic } });
+    } else {
+      navigate('/aptitude-exam', { state: { topic } });
+    }
   };
 
   // Get difficulty color
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
-      case "Easy": return "bg-green-100 text-green-800 border-green-200";
-      case "Medium": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "Hard": return "bg-red-100 text-red-800 border-red-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
+      case "Easy": 
+        return theme === 'dark' 
+          ? "bg-green-500/20 text-green-400 border-green-500/30" 
+          : "bg-green-100 text-green-800 border-green-200";
+      case "Medium": 
+        return theme === 'dark' 
+          ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" 
+          : "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "Hard": 
+        return theme === 'dark' 
+          ? "bg-red-500/20 text-red-400 border-red-500/30" 
+          : "bg-red-100 text-red-800 border-red-200";
+      default: 
+        return theme === 'dark' 
+          ? "bg-gray-500/20 text-gray-400 border-gray-500/30" 
+          : "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
@@ -567,93 +348,100 @@ function Aptitude({ theme }) {
     return theme === 'dark' ? "text-red-400" : "text-red-600";
   };
 
-  // Get overview card progress color
-  const getCardProgressColor = (progress) => {
-    if (progress >= 70) return "text-green-600 bg-green-100";
-    if (progress >= 40) return "text-yellow-600 bg-yellow-100";
-    return "text-red-600 bg-red-100";
-  };
+  if (loading) {
+    return (
+      <div className={`min-h-screen pt-16 flex items-center justify-center ${theme === 'dark'
+        ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
+        : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
+      }`}>
+        <div className="text-center">
+          <Loader className={`w-12 h-12 animate-spin mx-auto mb-4 ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`} />
+          <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Loading questions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`min-h-screen pt-16 flex items-center justify-center ${theme === 'dark'
+        ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
+        : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
+      }`}>
+        <div className="text-center">
+          <AlertCircle className={`w-12 h-12 mx-auto mb-4 ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`} />
+          <p className={`text-lg mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{error}</p>
+          <button
+            onClick={fetchQuestions}
+            className="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:opacity-90"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className={`min-h-screen pt-16 ${theme === 'dark'
       ? 'bg-gradient-to-b from-gray-900 via-gray-900 to-black'
       : 'bg-gradient-to-b from-gray-50 via-blue-50/30 to-white'
-      }`}>
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Header Section */}
         <div className="mb-8">
-          <h1 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Aptitude Mastery Platform</h1>
-          <p className={`text-muted ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Comprehensive preparation for quantitative, logical reasoning, and verbal ability</p>
+          <h1 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            Aptitude Mastery Platform
+          </h1>
+          <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            Comprehensive preparation for quantitative, logical reasoning, and verbal ability
+          </p>
         </div>
 
-        {/* Overview Cards - Non-interactive summaries */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {overviewCards.map((card) => {
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {overviewCards.map((card, index) => {
             const Icon = card.icon;
-            const progressColor = getCardProgressColor(card.progress);
+            const progressColor = getProgressTextColor(card.progress);
 
             return (
               <div
-                key={card.id}
-                className={`
-                  rounded-xl p-6 border
-                  shadow-sm hover:shadow-md transition-shadow duration-200
-                  ${theme === 'dark'
-                    ? 'bg-white/5 border-white/10'
-                    : 'bg-white/70 border-gray-200/60'
-                  }
-                `}
+                key={index}
+                className={`rounded-xl p-6 border shadow-sm hover:shadow-md transition-shadow duration-200 ${
+                  theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-white/70 border-gray-200/60'
+                }`}
               >
                 {/* Card Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${card.colorScheme.iconBg}`}>
-                      <Icon className={`w-6 h-6 ${card.colorScheme.iconColor}`} />
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${card.iconBg}`}>
+                      <Icon className={`w-6 h-6 ${card.text}`} />
                     </div>
-                    <div>
-                      <h3 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{card.title}</h3>
-                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{card.description}</p>
+                    <div className="flex-1 min-w-0">
+                      <h3 className={`text-xl font-bold mb-1 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{card.title}</h3>
                     </div>
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-sm font-semibold ${theme === 'dark' ? 'text-green-400 bg-green-500/20' : 'text-green-600 bg-green-50'}`}>
+                  <div className={`px-3 py-1 rounded-full text-sm font-semibold flex-shrink-0 ${
+                    theme === 'dark' ? 'text-green-400 bg-green-500/20' : 'text-green-600 bg-green-50'
+                  }`}>
                     {card.progress}%
                   </div>
                 </div>
 
-                {/* Progress Bar */}
-                <div className="mb-6">
-                  <div className="flex justify-between text-xs mb-2">
-                    <span className={`font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Overall Progress</span>
-                    <span className={`font-semibold ${getProgressTextColor(card.progress)}`}>{card.progress}%</span>
-                  </div>
-                  <div className={`w-full h-2 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} rounded-full overflow-hidden`}>
-                    <div
-                      className={`h-full ${getProgressColor(card.progress)} rounded-full transition-all duration-500`}
-                      style={{ width: `${card.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                {/* Stats */}
-                <div className="flex justify-between mb-6">
-                  {card.stats.map((stat, index) => (
-                    <div key={index} className="text-center">
-                      <div className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{stat.value}</div>
-                      <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{stat.label}</div>
-                    </div>
-                  ))}
+                {/* Description Box */}
+                <div className={`mb-4 p-3 rounded-lg border ${
+                  theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-gray-50/80 border-gray-200/60'
+                }`}>
+                  <p className={`text-xs leading-relaxed ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {card.description}
+                  </p>
                 </div>
 
                 {/* Action Button */}
                 <button
-                  onClick={() => handleStartAssessment(card.title)}
-                  className={`
-                    w-full flex items-center justify-center gap-2
-                    rounded-lg py-3 font-semibold text-white
-                    bg-gradient-to-r ${card.colorScheme.gradient}
-                    hover:opacity-90 active:scale-[0.98]
-                    transition-all duration-200
-                  `}
+                  onClick={() => handleStartExam(card.title)}
+                  className={`w-full flex items-center justify-center gap-2 rounded-lg py-3 font-semibold text-white bg-gradient-to-r ${card.gradient} hover:opacity-90 active:scale-[0.98] transition-all duration-200`}
                 >
                   <Play className="w-4 h-4" />
                   Take Full Assessment
@@ -663,98 +451,28 @@ function Aptitude({ theme }) {
           })}
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className={`rounded-xl border p-6 ${theme === 'dark'
-            ? 'bg-white/5 border-white/10'
-            : 'bg-white/70 border-gray-200/60'
-            }`}>
-            <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${theme === 'dark'
-                ? 'bg-gradient-to-br from-blue-500/20 to-green-500/20'
-                : 'bg-gradient-to-br from-blue-100 to-green-100'
-                }`}>
-                <BookOpen className="w-6 h-6 text-blue-500" />
-              </div>
-              <div>
-                <div className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{stats.total}</div>
-                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Total Topics</div>
-              </div>
-            </div>
-          </div>
-          <div className={`rounded-xl border p-6 ${theme === 'dark'
-            ? 'bg-white/5 border-white/10'
-            : 'bg-white/70 border-gray-200/60'
-            }`}>
-            <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${theme === 'dark'
-                ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/20'
-                : 'bg-gradient-to-br from-green-100 to-emerald-100'
-                }`}>
-                <Target className="w-6 h-6 text-green-500" />
-              </div>
-              <div>
-                <div className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{stats.completed}</div>
-                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Completed</div>
-              </div>
-            </div>
-          </div>
-          <div className={`rounded-xl border p-6 ${theme === 'dark'
-            ? 'bg-white/5 border-white/10'
-            : 'bg-white/70 border-gray-200/60'
-            }`}>
-            <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${theme === 'dark'
-                ? 'bg-gradient-to-br from-purple-500/20 to-pink-500/20'
-                : 'bg-gradient-to-br from-purple-100 to-pink-100'
-                }`}>
-                <BarChart3 className="w-6 h-6 text-purple-500" />
-              </div>
-              <div>
-                <div className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{stats.avgProgress}%</div>
-                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Avg. Progress</div>
-              </div>
-            </div>
-          </div>
-          <div className={`rounded-xl border p-6 ${theme === 'dark'
-            ? 'bg-white/5 border-white/10'
-            : 'bg-white/70 border-gray-200/60'
-            }`}>
-            <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${theme === 'dark'
-                ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20'
-                : 'bg-gradient-to-br from-amber-100 to-orange-100'
-                }`}>
-                <Hash className="w-6 h-6 text-amber-500" />
-              </div>
-              <div>
-                <div className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{stats.totalProblems}</div>
-                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Total Problems</div>
-              </div>
-            </div>
-          </div>
-        </div>
+        
 
         {/* Problem Explorer Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Problem Explorer</h2>
-            <p className={`text-muted ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Browse and practice all aptitude topics</p>
+            <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Browse and practice all aptitude topics</p>
           </div>
           <div className={`flex items-center gap-2 text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
             <CheckCircle className="w-4 h-4 text-green-500" />
-            <span>{stats.completed} completed</span>
+            <span>{stats.uniqueTopics} available</span>
             <span className="mx-2">•</span>
             <AlertCircle className="w-4 h-4 text-amber-500" />
-            <span>{stats.total - stats.completed} remaining</span>
+            <span>{stats.totalTopics - stats.uniqueTopics} coming soon</span>
           </div>
         </div>
 
+
         {/* Control Bar */}
-        <div className={`rounded-xl border p-6 mb-8 ${theme === 'dark'
-          ? 'bg-white/5 border-white/10'
-          : 'bg-white/70 border-gray-200/60'
-          }`}>
+        <div className={`rounded-xl border p-6 mb-8 ${
+          theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-white/70 border-gray-200/60'
+        }`}>
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
             {/* Search Bar */}
             <div className="relative flex-1 w-full lg:w-auto">
@@ -762,14 +480,18 @@ function Aptitude({ theme }) {
               <input
                 type="text"
                 placeholder="Search topics, categories, or keywords..."
-                className={`w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all ${theme === 'dark' ? 'bg-gray-800/50 text-white' : 'bg-white text-gray-900'}`}
+                className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all ${
+                  theme === 'dark' ? 'bg-gray-800/50 text-white border-gray-700' : 'bg-white text-gray-900 border-gray-200'
+                }`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${theme === 'dark' ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${
+                    theme === 'dark' ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
+                  }`}
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -781,7 +503,9 @@ function Aptitude({ theme }) {
               {/* Category Filter */}
               <div className="relative">
                 <select
-                  className={`appearance-none pl-10 pr-8 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all ${theme === 'dark' ? 'bg-gray-800/50 text-white' : 'bg-white text-gray-900'}`}
+                  className={`appearance-none pl-10 pr-8 py-3 rounded-lg border focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all ${
+                    theme === 'dark' ? 'bg-gray-800/50 text-white border-gray-700' : 'bg-white text-gray-900 border-gray-200'
+                  }`}
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                 >
@@ -793,35 +517,36 @@ function Aptitude({ theme }) {
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               </div>
 
-              {/* Difficulty Filter */}
+              {/* Topic Filter */}
               <div className="relative">
                 <select
-                  className={`appearance-none pl-10 pr-8 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all ${theme === 'dark' ? 'bg-gray-800/50 text-white' : 'bg-white text-gray-900'}`}
-                  value={selectedDifficulty}
-                  onChange={(e) => setSelectedDifficulty(e.target.value)}
+                  className={`appearance-none pl-10 pr-8 py-3 rounded-lg border focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all ${
+                    theme === 'dark' ? 'bg-gray-800/50 text-white border-gray-700' : 'bg-white text-gray-900 border-gray-200'
+                  }`}
+                  value={selectedTopic}
+                  onChange={(e) => setSelectedTopic(e.target.value)}
                 >
-                  {difficulties.map(diff => (
-                    <option key={diff} value={diff}>{diff}</option>
+                  {allTopicNames.map(topic => (
+                    <option key={topic} value={topic}>{topic}</option>
                   ))}
                 </select>
-                <Target className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               </div>
 
               {/* Sort By */}
               <div className="relative">
                 <select
-                  className={`appearance-none pl-10 pr-8 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all ${theme === 'dark' ? 'bg-gray-800/50 text-white' : 'bg-white text-gray-900'}`}
+                  className={`appearance-none pl-10 pr-8 py-3 rounded-lg border focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all ${
+                    theme === 'dark' ? 'bg-gray-800/50 text-white border-gray-700' : 'bg-white text-gray-900 border-gray-200'
+                  }`}
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                 >
                   <option value="default">Sort: Default</option>
                   <option value="name-asc">Sort: A-Z</option>
                   <option value="name-desc">Sort: Z-A</option>
-                  <option value="progress-desc">Sort: Progress (High to Low)</option>
-                  <option value="progress-asc">Sort: Progress (Low to High)</option>
-                  <option value="problems-desc">Sort: Problems (High to Low)</option>
-                  <option value="difficulty">Sort: Difficulty</option>
+                  <option value="category">Sort: Category</option>
                 </select>
                 {sortBy.includes("desc") ? (
                   <SortDesc className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -834,26 +559,32 @@ function Aptitude({ theme }) {
           </div>
 
           {/* Active Filters */}
-          {(selectedCategory !== "All" || selectedDifficulty !== "All" || searchQuery) && (
+          {(selectedCategory !== "All" || selectedTopic !== "All Topics" || searchQuery) && (
             <div className="flex flex-wrap gap-2 mt-4">
               {selectedCategory !== "All" && (
-                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${theme === 'dark' ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-100 text-blue-800'}`}>
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${
+                  theme === 'dark' ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-100 text-blue-800'
+                }`}>
                   Category: {selectedCategory}
                   <button onClick={() => setSelectedCategory("All")}>
                     <X className="w-3 h-3" />
                   </button>
                 </span>
               )}
-              {selectedDifficulty !== "All" && (
-                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${theme === 'dark' ? 'bg-purple-500/20 text-purple-300' : 'bg-purple-100 text-purple-800'}`}>
-                  Difficulty: {selectedDifficulty}
-                  <button onClick={() => setSelectedDifficulty("All")}>
+              {selectedTopic !== "All Topics" && (
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${
+                  theme === 'dark' ? 'bg-green-500/20 text-green-300' : 'bg-green-100 text-green-800'
+                }`}>
+                  Topic: {selectedTopic}
+                  <button onClick={() => setSelectedTopic("All Topics")}>
                     <X className="w-3 h-3" />
                   </button>
                 </span>
               )}
               {searchQuery && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm">
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${
+                  theme === 'dark' ? 'bg-gray-700/50 text-gray-300' : 'bg-gray-100 text-gray-800'
+                }`}>
                   Search: "{searchQuery}"
                   <button onClick={() => setSearchQuery("")}>
                     <X className="w-3 h-3" />
@@ -863,10 +594,10 @@ function Aptitude({ theme }) {
               <button
                 onClick={() => {
                   setSelectedCategory("All");
-                  setSelectedDifficulty("All");
+                  setSelectedTopic("All Topics");
                   setSearchQuery("");
                 }}
-                className="text-sm text-blue-600 hover:text-blue-800"
+                className={`text-sm ${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'}`}
               >
                 Clear all filters
               </button>
@@ -874,75 +605,96 @@ function Aptitude({ theme }) {
           )}
         </div>
 
-        {/* Topics Table/Grid */}
-        <div className={`rounded-xl border overflow-hidden ${theme === 'dark' ? 'bg-gray-800/30 border-gray-700' : 'bg-white border-blue-100'}`}>
+
+        {/* Topics Table/Grid - Always show all topics */}
+        <div className={`rounded-xl border overflow-hidden ${
+          theme === 'dark' ? 'bg-gray-800/30 border-gray-700' : 'bg-white border-blue-100'
+        }`}>
           {/* Table Header */}
-          <div className={`hidden lg:grid grid-cols-12 gap-4 p-6 border-b ${theme === 'dark' ? 'border-gray-700 bg-gray-800/50 text-gray-300' : 'border-gray-100 bg-gray-50 text-gray-600'} text-sm font-semibold`}>
+          <div className={`hidden lg:grid grid-cols-10 gap-4 p-6 border-b ${
+            theme === 'dark' ? 'border-gray-700 bg-gray-800/50 text-gray-300' : 'border-gray-100 bg-gray-50 text-gray-600'
+          } text-sm font-semibold`}>
             <div className="col-span-4">Topic</div>
             <div className="col-span-2">Category</div>
-            <div className="col-span-2">Difficulty</div>
             <div className="col-span-1 text-center">Problems</div>
-            <div className="col-span-2 text-center">Progress</div>
+            <div className="col-span-2 text-center">Status</div>
             <div className="col-span-1 text-center">Action</div>
           </div>
 
           {/* Topics List */}
-          <div className="divide-y divide-gray-100">
-            {filteredSubtopics.length > 0 ? (
-              filteredSubtopics.map((subtopic) => {
-                const Icon = subtopic.icon;
-                const isExpanded = expandedSubtopic === subtopic.id;
+          <div className={`divide-y ${theme === 'dark' ? 'divide-gray-700' : 'divide-gray-100'}`}>
+            {filteredTopics.length > 0 ? (
+              filteredTopics.map((topic) => {
+                const isExpanded = expandedSubtopic === topic.name;
+                const categoryIcons = {
+                  'Quantitative': Calculator,
+                  'Logical Reasoning': Brain,
+                  'Verbal': BookOpen,
+                  'Non-verbal': Shapes
+                };
+                const Icon = categoryIcons[topic.category] || BookOpen;
 
                 return (
-                  <div key={subtopic.id} className={`p-6 transition-all duration-300 ${theme === 'dark' ? 'hover:bg-white/5 hover:backdrop-blur-md hover:shadow-lg hover:shadow-blue-500/10' : 'hover:bg-blue-50/30 hover:backdrop-blur-sm hover:shadow-md'}`}>
+                  <div key={topic.name} className={`p-6 transition-all duration-300 ${
+                    theme === 'dark' ? 'hover:bg-white/5 hover:backdrop-blur-md hover:shadow-lg hover:shadow-blue-500/10' : 'hover:bg-blue-50/30 hover:backdrop-blur-sm hover:shadow-md'
+                  }`}>
                     {/* Desktop View */}
-                    <div className="hidden lg:grid grid-cols-12 gap-4 items-center">
+                    <div className="hidden lg:grid grid-cols-10 gap-4 items-center">
                       <div className="col-span-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${theme === 'dark' ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                            theme === 'dark' ? 'bg-blue-500/20' : 'bg-blue-100'
+                          }`}>
                             <Icon className="w-5 h-5 text-blue-600" />
                           </div>
                           <div>
-                            <div className="font-semibold text-primary">{subtopic.name}</div>
-                            <div className="text-sm text-muted">{subtopic.description}</div>
+                            <div className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{topic.name}</div>
+                            <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {topic.description}
+                            </div>
                           </div>
                         </div>
                       </div>
                       <div className="col-span-2">
-                        <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm">
-                          {subtopic.category}
-                        </span>
-                      </div>
-                      <div className="col-span-2">
-                        <span className={`px-3 py-1 rounded-full border text-sm ${getDifficultyColor(subtopic.difficulty)}`}>
-                          {subtopic.difficulty}
+                        <span className={`px-3 py-1 rounded-full text-sm ${
+                          theme === 'dark' ? 'bg-gray-700/50 text-gray-300' : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {topic.category}
                         </span>
                       </div>
                       <div className="col-span-1 text-center">
-                        <div className="font-semibold text-primary">{subtopic.problems}</div>
-                        <div className="text-xs text-muted">problems</div>
-                      </div>
-                      <div className="col-span-2">
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-xs">
-                            <span className={`font-semibold ${getProgressTextColor(subtopic.progress)}`}>
-                              {subtopic.progress}%
-                            </span>
-                          </div>
-                          <div className={`w-full h-2 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} rounded-full overflow-hidden`}>
-                            <div
-                              className={`h-full ${getProgressColor(subtopic.progress)} rounded-full transition-all duration-500`}
-                              style={{ width: `${subtopic.progress}%` }}
-                            ></div>
-                          </div>
+                        <div className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                          {topic.questionCount}
                         </div>
+                        <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>problems</div>
+                      </div>
+                      <div className="col-span-2 text-center">
+                        {topic.hasData ? (
+                          <span className={`px-3 py-1 rounded-full text-sm ${
+                            theme === 'dark' ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-800'
+                          }`}>
+                            Available
+                          </span>
+                        ) : (
+                          <span className={`px-3 py-1 rounded-full text-sm ${
+                            theme === 'dark' ? 'bg-amber-500/20 text-amber-400' : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            Coming Soon
+                          </span>
+                        )}
                       </div>
                       <div className="col-span-1 text-center">
                         <button
-                          onClick={() => handlePractice(subtopic)}
-                          className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:opacity-90 transition-opacity"
+                          onClick={() => handleStartTopicExam(topic.name)}
+                          className={`px-4 py-2 rounded-lg font-medium transition-opacity ${
+                            topic.hasData
+                              ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:opacity-90'
+                              : theme === 'dark'
+                              ? 'bg-gray-700/50 text-gray-400 cursor-not-allowed'
+                              : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                          }`}
                         >
-                          Practice
+                          {topic.hasData ? 'Practice' : 'View'}
                         </button>
                       </div>
                     </div>
@@ -951,85 +703,80 @@ function Aptitude({ theme }) {
                     <div className="lg:hidden">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${theme === 'dark' ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                            theme === 'dark' ? 'bg-blue-500/20' : 'bg-blue-100'
+                          }`}>
                             <Icon className="w-5 h-5 text-blue-600" />
                           </div>
                           <div>
-                            <div className="font-semibold text-primary">{subtopic.name}</div>
-                            <div className="text-sm text-muted">{subtopic.category}</div>
+                            <div className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{topic.name}</div>
+                            <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{topic.category}</div>
                           </div>
                         </div>
                         <button
-                          onClick={() => setExpandedSubtopic(isExpanded ? null : subtopic.id)}
+                          onClick={() => setExpandedSubtopic(isExpanded ? null : topic.name)}
                           className="p-2"
                         >
                           {isExpanded ? (
-                            <ChevronUp className="w-5 h-5 text-gray-400" />
+                            <ChevronUp className={`w-5 h-5 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`} />
                           ) : (
-                            <ChevronDown className="w-5 h-5 text-gray-400" />
+                            <ChevronDown className={`w-5 h-5 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`} />
                           )}
                         </button>
                       </div>
 
                       <div className="flex flex-wrap gap-3 mb-4">
-                        <span className={`px-3 py-1 rounded-full border text-sm ${getDifficultyColor(subtopic.difficulty)}`}>
-                          {subtopic.difficulty}
+                        <span className={`px-3 py-1 rounded-full text-sm ${
+                          theme === 'dark' ? 'bg-gray-700/50 text-gray-300' : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {topic.questionCount} problems
                         </span>
-                        <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm">
-                          {subtopic.type}
-                        </span>
-                        <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-sm">
-                          {subtopic.problems} problems
-                        </span>
-                      </div>
-
-                      <div className="space-y-2 mb-4">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted">Progress</span>
-                          <span className={`font-semibold ${getProgressTextColor(subtopic.progress)}`}>
-                            {subtopic.progress}%
+                        {topic.hasData ? (
+                          <span className={`px-3 py-1 rounded-full text-sm ${
+                            theme === 'dark' ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-800'
+                          }`}>
+                            Available
                           </span>
-                        </div>
-                        <div className={`w-full h-2 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} rounded-full overflow-hidden`}>
-                          <div
-                            className={`h-full ${getProgressColor(subtopic.progress)} rounded-full transition-all duration-500`}
-                            style={{ width: `${subtopic.progress}%` }}
-                          ></div>
-                        </div>
+                        ) : (
+                          <span className={`px-3 py-1 rounded-full text-sm ${
+                            theme === 'dark' ? 'bg-amber-500/20 text-amber-400' : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            Coming Soon
+                          </span>
+                        )}
                       </div>
 
                       {isExpanded && (
-                        <div className={`mt-4 p-4 ${theme === 'dark' ? 'bg-gray-800/50' : 'bg-gray-50'} rounded-lg`}>
-                          <p className={`text-sm mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>{subtopic.description}</p>
-                          <div className="flex justify-between items-center">
-                            <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                              {subtopic.marks} marks • {subtopic.type}
-                            </div>
-                            <button
-                              onClick={() => handlePractice(subtopic)}
-                              className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:opacity-90 transition-opacity"
-                            >
-                              Start Practice
-                            </button>
-                          </div>
+                        <div className={`mt-4 p-4 rounded-lg ${
+                          theme === 'dark' ? 'bg-gray-800/50' : 'bg-gray-50'
+                        }`}>
+                          <p className={`text-sm mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                            {topic.description}
+                          </p>
                         </div>
                       )}
 
-                      {!isExpanded && (
-                        <button
-                          onClick={() => handlePractice(subtopic)}
-                          className="w-full mt-4 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium hover:opacity-90 transition-opacity"
-                        >
-                          Practice Now
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleStartTopicExam(topic.name)}
+                        className={`w-full mt-4 py-3 rounded-lg font-medium transition-opacity ${
+                          topic.hasData
+                            ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:opacity-90'
+                            : theme === 'dark'
+                            ? 'bg-gray-700/50 text-gray-400 cursor-not-allowed'
+                            : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        }`}
+                      >
+                        {topic.hasData ? 'Practice Now' : 'View Details'}
+                      </button>
                     </div>
                   </div>
                 );
               })
             ) : (
               <div className="p-12 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
+                  theme === 'dark' ? 'bg-gray-700/50' : 'bg-gray-100'
+                }`}>
                   <Search className={`w-8 h-8 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} />
                 </div>
                 <h3 className={`text-lg font-semibold mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>No topics found</h3>
@@ -1037,10 +784,12 @@ function Aptitude({ theme }) {
                 <button
                   onClick={() => {
                     setSelectedCategory("All");
-                    setSelectedDifficulty("All");
+                    setSelectedTopic("All Topics");
                     setSearchQuery("");
                   }}
-                  className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
+                  className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                    theme === 'dark' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
                 >
                   Clear Filters
                 </button>
@@ -1050,22 +799,31 @@ function Aptitude({ theme }) {
         </div>
 
         {/* Info Footer */}
-        <div className={`mt-8 p-6 rounded-xl border ${theme === 'dark' ? 'bg-gradient-to-r from-gray-800/50 to-gray-900/50 border-gray-700' : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200'}`}>
+        <div className={`mt-8 p-6 rounded-xl border ${
+          theme === 'dark' ? 'bg-gradient-to-r from-gray-800/50 to-gray-900/50 border-gray-700' : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200'
+        }`}>
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${theme === 'dark' ? 'bg-white/10' : 'bg-white'}`}>
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                theme === 'dark' ? 'bg-white/10' : 'bg-white'
+              }`}>
                 <Zap className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <h4 className="font-semibold text-primary">Pro Tips for Success</h4>
-                <p className="text-sm text-muted">Practice daily, track progress, and focus on weak areas to improve faster.</p>
+                <h4 className={`font-semibold ${theme === 'dark' ? 'text-blue-400' : 'text-blue-900'}`}>Pro Tips for Success</h4>
+                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Practice daily, track progress, and focus on weak areas to improve faster.</p>
               </div>
             </div>
             <div className="flex gap-3">
-              <button className={`px-6 py-3 rounded-lg border font-medium transition-colors ${theme === 'dark' ? 'border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20' : 'border-blue-200 bg-white text-blue-600 hover:bg-blue-50'}`}>
+              <button className={`px-6 py-3 rounded-lg border font-medium transition-colors ${
+                theme === 'dark' ? 'border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20' : 'border-blue-200 bg-white text-blue-600 hover:bg-blue-50'
+              }`}>
                 Download Study Plan
               </button>
-              <button className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium hover:opacity-90 transition-opacity">
+              <button
+                onClick={() => navigate('/aptitude-exam')}
+                className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium hover:opacity-90 transition-opacity"
+              >
                 Take Mock Test
               </button>
             </div>
