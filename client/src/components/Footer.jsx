@@ -97,7 +97,7 @@ function Footer({ theme }) {
             </h4>
             <div className="flex space-x-1.5 sm:space-x-2 mb-3 sm:mb-4">
               <a 
-                href="https://github.com" 
+                href="https://github.com/satyajeet323" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className={`p-1.5 rounded transition-colors ${theme === 'dark'
@@ -183,7 +183,7 @@ function Footer({ theme }) {
                 Need help?
               </p>
               <a 
-                href="mailto:support@skillsync.com" 
+                href="mailto:sattudesai007@gmail.com" 
                 className={`text-xs font-medium transition-colors ${theme === 'dark'
                   ? 'text-green-400 hover:text-green-300'
                   : 'text-green-600 hover:text-green-700'
@@ -209,7 +209,7 @@ function Footer({ theme }) {
                 ? 'bg-white/5 text-gray-400' 
                 : 'bg-gray-100 text-gray-600'
               }`}>
-                Developed My SkillSync Company (Satyajeet , Vaishnavi)
+                Developed By Coders Paradise Group
               </span>
               <span className="hidden sm:inline">|</span>
               <a 

@@ -1,0 +1,906 @@
+[
+  {
+    "questionNumber": 88,
+    "question": "What is 15% of 240?",
+    "options": {
+      "A": "36",
+      "B": "32",
+      "C": "40",
+      "D": "38"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "15% of 240 = (15/100) × 240 = 0.15 × 240 = 36",
+    "status": "Published",
+    "tags": ["percentage", "basic arithmetic"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 89,
+    "question": "What is 25% of 80?",
+    "options": {
+      "A": "20",
+      "B": "25",
+      "C": "15",
+      "D": "30"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "25% of 80 = (25/100) × 80 = 0.25 × 80 = 20",
+    "status": "Published",
+    "tags": ["percentage", "basic arithmetic"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 90,
+    "question": "What is 3/4 + 2/3?",
+    "options": {
+      "A": "17/12",
+      "B": "5/7",
+      "C": "11/12",
+      "D": "13/12"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Medium",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "3/4 + 2/3 = 9/12 + 8/12 = 17/12",
+    "status": "Published",
+    "tags": ["fractions", "addition"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 91,
+    "question": "What is 27 ÷ 3 + 4 × 2?",
+    "options": {
+      "A": "17",
+      "B": "22",
+      "C": "15",
+      "D": "18"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "Following BODMAS: 27 ÷ 3 + 4 × 2 = 9 + 8 = 17",
+    "status": "Published",
+    "tags": ["BODMAS", "order of operations"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 92,
+    "question": "What is 0.25 as a fraction in lowest terms?",
+    "options": {
+      "A": "1/4",
+      "B": "25/100",
+      "C": "2/8",
+      "D": "5/20"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "0.25 = 25/100 = 1/4 (in lowest terms)",
+    "status": "Published",
+    "tags": ["decimal to fraction", "simplification"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 93,
+    "question": "Calculate: 144 ÷ 12 + 8 × 3",
+    "options": {
+      "A": "36",
+      "B": "30",
+      "C": "42",
+      "D": "48"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "144 ÷ 12 + 8 × 3 = 12 + 24 = 36",
+    "status": "Published",
+    "tags": ["BODMAS", "mixed operations"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 94,
+    "question": "What is 5/8 - 1/4?",
+    "options": {
+      "A": "3/8",
+      "B": "1/2",
+      "C": "1/4",
+      "D": "4/8"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Medium",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "5/8 - 1/4 = 5/8 - 2/8 = 3/8",
+    "status": "Published",
+    "tags": ["fractions", "subtraction"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 95,
+    "question": "Find the average of 12, 18, 24, 30:",
+    "options": {
+      "A": "21",
+      "B": "20",
+      "C": "22",
+      "D": "24"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "Average = (12 + 18 + 24 + 30) ÷ 4 = 84 ÷ 4 = 21",
+    "status": "Published",
+    "tags": ["average", "mean"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 96,
+    "question": "What is 2.5 × 4.8?",
+    "options": {
+      "A": "12",
+      "B": "12.5",
+      "C": "11.8",
+      "D": "10.8"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Medium",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "2.5 × 4.8 = 25 × 48 ÷ 100 = 1200 ÷ 100 = 12",
+    "status": "Published",
+    "tags": ["decimal multiplication"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 97,
+    "question": "Round 47.68 to the nearest whole number:",
+    "options": {
+      "A": "48",
+      "B": "47",
+      "C": "50",
+      "D": "45"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "47.68 rounds to 48 since the decimal part (0.68) is greater than 0.5",
+    "status": "Published",
+    "tags": ["rounding", "approximation"],
+    "isActive": true
+  }
+,
+  {
+    "questionNumber": 98,
+    "question": "What is 7² - 3²?",
+    "options": {
+      "A": "40",
+      "B": "42",
+      "C": "38",
+      "D": "36"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "7² - 3² = 49 - 9 = 40",
+    "status": "Published",
+    "tags": ["squares", "subtraction"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 99,
+    "question": "Convert 3/5 to decimal:",
+    "options": {
+      "A": "0.6",
+      "B": "0.5",
+      "C": "0.75",
+      "D": "0.8"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "3/5 = 3 ÷ 5 = 0.6",
+    "status": "Published",
+    "tags": ["fraction to decimal", "conversion"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 100,
+    "question": "What is 20% of 150?",
+    "options": {
+      "A": "30",
+      "B": "25",
+      "C": "35",
+      "D": "40"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "20% of 150 = (20/100) × 150 = 0.2 × 150 = 30",
+    "status": "Published",
+    "tags": ["percentage", "calculation"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 101,
+    "question": "Find the sum: 1/3 + 1/6 + 1/2",
+    "options": {
+      "A": "1",
+      "B": "5/6",
+      "C": "2/3",
+      "D": "3/4"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Medium",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "1/3 + 1/6 + 1/2 = 2/6 + 1/6 + 3/6 = 6/6 = 1",
+    "status": "Published",
+    "tags": ["fractions", "addition", "LCM"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 102,
+    "question": "What is √64 + √36?",
+    "options": {
+      "A": "14",
+      "B": "12",
+      "C": "16",
+      "D": "10"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "√64 + √36 = 8 + 6 = 14",
+    "status": "Published",
+    "tags": ["square roots", "addition"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 103,
+    "question": "Calculate: 15 × 12 ÷ 4",
+    "options": {
+      "A": "45",
+      "B": "40",
+      "C": "50",
+      "D": "48"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "15 × 12 ÷ 4 = 180 ÷ 4 = 45",
+    "status": "Published",
+    "tags": ["multiplication", "division"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 104,
+    "question": "What is 0.75 + 0.25?",
+    "options": {
+      "A": "1",
+      "B": "0.9",
+      "C": "1.1",
+      "D": "0.5"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "0.75 + 0.25 = 1.00 = 1",
+    "status": "Published",
+    "tags": ["decimal addition"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 105,
+    "question": "Find 30% of 200:",
+    "options": {
+      "A": "60",
+      "B": "50",
+      "C": "70",
+      "D": "80"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "30% of 200 = (30/100) × 200 = 0.3 × 200 = 60",
+    "status": "Published",
+    "tags": ["percentage", "calculation"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 106,
+    "question": "What is 8 × 7 - 6 × 5?",
+    "options": {
+      "A": "26",
+      "B": "24",
+      "C": "28",
+      "D": "30"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "8 × 7 - 6 × 5 = 56 - 30 = 26",
+    "status": "Published",
+    "tags": ["multiplication", "subtraction"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 107,
+    "question": "Convert 125% to decimal:",
+    "options": {
+      "A": "1.25",
+      "B": "1.5",
+      "C": "0.125",
+      "D": "12.5"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Arithmetic",
+    "solution": "125% = 125/100 = 1.25",
+    "status": "Published",
+    "tags": ["percentage to decimal", "conversion"],
+    "isActive": true
+  }
+,
+  {
+    "questionNumber": 108,
+    "question": "If 3x + 7 = 22, what is the value of x?",
+    "options": {
+      "A": "5",
+      "B": "4",
+      "C": "6",
+      "D": "3"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Algebra",
+    "solution": "3x + 7 = 22, so 3x = 15, therefore x = 5",
+    "status": "Published",
+    "tags": ["linear equation", "algebra basics"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 109,
+    "question": "If 2x - 5 = 11, find x:",
+    "options": {
+      "A": "8",
+      "B": "6",
+      "C": "7",
+      "D": "9"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Algebra",
+    "solution": "2x - 5 = 11, so 2x = 16, therefore x = 8",
+    "status": "Published",
+    "tags": ["linear equation", "solving equations"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 110,
+    "question": "Solve: x² - 5x + 6 = 0",
+    "options": {
+      "A": "x = 2, 3",
+      "B": "x = 1, 6",
+      "C": "x = -2, -3",
+      "D": "x = 2, -3"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Medium",
+    "category": "Quantitative",
+    "topic": "Algebra",
+    "solution": "Factoring: (x-2)(x-3) = 0, so x = 2 or x = 3",
+    "status": "Published",
+    "tags": ["quadratic equation", "factoring"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 111,
+    "question": "What is the area of a rectangle with length 12 cm and width 8 cm?",
+    "options": {
+      "A": "96 sq cm",
+      "B": "40 sq cm",
+      "C": "20 sq cm",
+      "D": "48 sq cm"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Geometry",
+    "solution": "Area of rectangle = length × width = 12 × 8 = 96 sq cm",
+    "status": "Published",
+    "tags": ["area", "rectangle", "mensuration"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 112,
+    "question": "What is the perimeter of a square with side 7 cm?",
+    "options": {
+      "A": "28 cm",
+      "B": "49 cm",
+      "C": "14 cm",
+      "D": "21 cm"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Geometry",
+    "solution": "Perimeter of square = 4 × side = 4 × 7 = 28 cm",
+    "status": "Published",
+    "tags": ["perimeter", "square"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 113,
+    "question": "What is the value of sin 30°?",
+    "options": {
+      "A": "1/2",
+      "B": "√3/2",
+      "C": "1",
+      "D": "√2/2"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Medium",
+    "category": "Quantitative",
+    "topic": "Trigonometry",
+    "solution": "sin 30° = 1/2 (standard trigonometric value)",
+    "status": "Published",
+    "tags": ["trigonometry", "standard angles"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 114,
+    "question": "What is cos 60°?",
+    "options": {
+      "A": "1/2",
+      "B": "√3/2",
+      "C": "1",
+      "D": "0"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Medium",
+    "category": "Quantitative",
+    "topic": "Trigonometry",
+    "solution": "cos 60° = 1/2 (standard trigonometric value)",
+    "status": "Published",
+    "tags": ["trigonometry", "cosine"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 115,
+    "question": "Which of the following is a prime number?",
+    "options": {
+      "A": "21",
+      "B": "27",
+      "C": "29",
+      "D": "33"
+    },
+    "correctAnswer": "C",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Number System",
+    "solution": "29 is prime as it has no divisors other than 1 and itself",
+    "status": "Published",
+    "tags": ["prime numbers", "number theory"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 116,
+    "question": "What is the LCM of 12 and 18?",
+    "options": {
+      "A": "36",
+      "B": "72",
+      "C": "6",
+      "D": "216"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Medium",
+    "category": "Quantitative",
+    "topic": "Number System",
+    "solution": "LCM(12,18) = (12×18)/GCD(12,18) = 216/6 = 36",
+    "status": "Published",
+    "tags": ["LCM", "number theory"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 117,
+    "question": "A coin is tossed twice. What is the probability of getting at least one head?",
+    "options": {
+      "A": "1/4",
+      "B": "1/2",
+      "C": "3/4",
+      "D": "1"
+    },
+    "correctAnswer": "C",
+    "difficulty": "Medium",
+    "category": "Quantitative",
+    "topic": "Probability",
+    "solution": "P(at least one head) = 1 - P(no heads) = 1 - P(TT) = 1 - 1/4 = 3/4",
+    "status": "Published",
+    "tags": ["probability", "coin toss"],
+    "isActive": true
+  }
+,
+  {
+    "questionNumber": 118,
+    "question": "In how many ways can 5 people be arranged in a row?",
+    "options": {
+      "A": "120",
+      "B": "60",
+      "C": "24",
+      "D": "100"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Medium",
+    "category": "Quantitative",
+    "topic": "Permutations & Combinations",
+    "solution": "5! = 5 × 4 × 3 × 2 × 1 = 120",
+    "status": "Published",
+    "tags": ["permutation", "factorial"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 119,
+    "question": "If the sales increased from 200 to 250, what is the percentage increase?",
+    "options": {
+      "A": "20%",
+      "B": "25%",
+      "C": "30%",
+      "D": "15%"
+    },
+    "correctAnswer": "B",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Percentages",
+    "solution": "Percentage increase = ((250-200)/200) × 100 = (50/200) × 100 = 25%",
+    "status": "Published",
+    "tags": ["percentage increase", "business math"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 120,
+    "question": "A shopkeeper sells an item for Rs. 120 and makes a profit of 20%. What was the cost price?",
+    "options": {
+      "A": "Rs. 100",
+      "B": "Rs. 96",
+      "C": "Rs. 110",
+      "D": "Rs. 90"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Medium",
+    "category": "Quantitative",
+    "topic": "Profit & Loss",
+    "solution": "SP = CP + 20% of CP = 1.2 × CP = 120, so CP = 120/1.2 = 100",
+    "status": "Published",
+    "tags": ["profit", "cost price", "selling price"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 121,
+    "question": "What is the simple interest on Rs. 1000 for 2 years at 5% per annum?",
+    "options": {
+      "A": "Rs. 100",
+      "B": "Rs. 50",
+      "C": "Rs. 150",
+      "D": "Rs. 200"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Simple & Compound Interest",
+    "solution": "SI = (P × R × T)/100 = (1000 × 5 × 2)/100 = 100",
+    "status": "Published",
+    "tags": ["simple interest", "interest calculation"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 122,
+    "question": "A car travels 60 km in 1 hour. How long will it take to travel 180 km?",
+    "options": {
+      "A": "2 hours",
+      "B": "3 hours",
+      "C": "4 hours",
+      "D": "2.5 hours"
+    },
+    "correctAnswer": "B",
+    "difficulty": "Easy",
+    "category": "Quantitative",
+    "topic": "Time, Speed & Distance",
+    "solution": "Speed = 60 km/h, Distance = 180 km, Time = Distance/Speed = 180/60 = 3 hours",
+    "status": "Published",
+    "tags": ["speed", "time", "distance"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 123,
+    "question": "Find the next number in the series: 2, 6, 12, 20, ?",
+    "options": {
+      "A": "30",
+      "B": "28",
+      "C": "32",
+      "D": "26"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Medium",
+    "category": "Logical Reasoning",
+    "topic": "Number Series",
+    "solution": "Pattern: 2×1+0=2, 2×2+2=6, 3×3+3=12, 4×4+4=20, 5×5+5=30",
+    "status": "Published",
+    "tags": ["number series", "pattern recognition"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 124,
+    "question": "Find the next letter in the series: A, D, G, J, ?",
+    "options": {
+      "A": "L",
+      "B": "M",
+      "C": "N",
+      "D": "K"
+    },
+    "correctAnswer": "B",
+    "difficulty": "Easy",
+    "category": "Logical Reasoning",
+    "topic": "Letter Series",
+    "solution": "Pattern: +3 positions each time. A(1) → D(4) → G(7) → J(10) → M(13)",
+    "status": "Published",
+    "tags": ["letter series", "alphabet pattern"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 125,
+    "question": "Book : Author :: Painting : ?",
+    "options": {
+      "A": "Canvas",
+      "B": "Artist",
+      "C": "Color",
+      "D": "Frame"
+    },
+    "correctAnswer": "B",
+    "difficulty": "Easy",
+    "category": "Logical Reasoning",
+    "topic": "Analogies",
+    "solution": "A book is created by an author, similarly a painting is created by an artist",
+    "status": "Published",
+    "tags": ["analogy", "relationship"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 126,
+    "question": "A is B's father. B is C's mother. What is A's relationship to C?",
+    "options": {
+      "A": "Father",
+      "B": "Grandfather",
+      "C": "Uncle",
+      "D": "Brother"
+    },
+    "correctAnswer": "B",
+    "difficulty": "Easy",
+    "category": "Logical Reasoning",
+    "topic": "Blood Relations",
+    "solution": "A is B's father, B is C's mother, so A is C's maternal grandfather",
+    "status": "Published",
+    "tags": ["blood relations", "family tree"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 127,
+    "question": "Ram walks 3 km North, then 4 km East. How far is he from the starting point?",
+    "options": {
+      "A": "7 km",
+      "B": "5 km",
+      "C": "6 km",
+      "D": "4 km"
+    },
+    "correctAnswer": "B",
+    "difficulty": "Medium",
+    "category": "Logical Reasoning",
+    "topic": "Direction Sense",
+    "solution": "Using Pythagorean theorem: √(3² + 4²) = √(9 + 16) = √25 = 5 km",
+    "status": "Published",
+    "tags": ["direction", "distance", "pythagorean theorem"],
+    "isActive": true
+  }
+,
+  {
+    "questionNumber": 128,
+    "question": "Five friends A, B, C, D, E are sitting in a row. A is to the left of B, C is to the right of D, E is between A and C. Who is in the middle?",
+    "options": {
+      "A": "A",
+      "B": "B",
+      "C": "C",
+      "D": "E"
+    },
+    "correctAnswer": "D",
+    "difficulty": "Hard",
+    "category": "Logical Reasoning",
+    "topic": "Seating Arrangement",
+    "solution": "Arrangement: A-E-C-D-B or D-A-E-C-B. In both cases, E is in the middle position",
+    "status": "Published",
+    "tags": ["seating arrangement", "logical deduction"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 129,
+    "question": "If all roses are flowers and some flowers are red, which conclusion is correct?",
+    "options": {
+      "A": "All roses are red",
+      "B": "Some roses are red",
+      "C": "No roses are red",
+      "D": "Cannot be determined"
+    },
+    "correctAnswer": "D",
+    "difficulty": "Medium",
+    "category": "Logical Reasoning",
+    "topic": "Syllogism",
+    "solution": "We cannot determine if roses are red from the given statements",
+    "status": "Published",
+    "tags": ["syllogism", "logical reasoning"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 130,
+    "question": "Find the grammatically incorrect sentence:",
+    "options": {
+      "A": "She is taller than me",
+      "B": "He runs faster than I do",
+      "C": "They are more intelligent than us",
+      "D": "We arrived earlier than them"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Medium",
+    "category": "Verbal",
+    "topic": "Spotting Errors",
+    "solution": "Should be 'She is taller than I' or 'She is taller than I am'",
+    "status": "Published",
+    "tags": ["grammar", "pronoun usage"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 131,
+    "question": "Choose the synonym of 'Abundant':",
+    "options": {
+      "A": "Scarce",
+      "B": "Plentiful",
+      "C": "Limited",
+      "D": "Rare"
+    },
+    "correctAnswer": "B",
+    "difficulty": "Easy",
+    "category": "Verbal",
+    "topic": "Synonyms",
+    "solution": "Abundant means plentiful or existing in large quantities",
+    "status": "Published",
+    "tags": ["vocabulary", "synonyms"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 132,
+    "question": "Choose the antonym of 'Optimistic':",
+    "options": {
+      "A": "Hopeful",
+      "B": "Positive",
+      "C": "Pessimistic",
+      "D": "Confident"
+    },
+    "correctAnswer": "C",
+    "difficulty": "Easy",
+    "category": "Verbal",
+    "topic": "Antonyms",
+    "solution": "Optimistic means hopeful, its opposite is pessimistic",
+    "status": "Published",
+    "tags": ["vocabulary", "antonyms"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 133,
+    "question": "Reading Passage: 'The rapid advancement of technology has transformed the way we communicate. Social media platforms have connected people globally but have also raised concerns about privacy and mental health.' What is the main idea?",
+    "options": {
+      "A": "Technology is harmful",
+      "B": "Social media connects people globally",
+      "C": "Technology has both positive and negative impacts on communication",
+      "D": "Privacy is not important"
+    },
+    "correctAnswer": "C",
+    "difficulty": "Medium",
+    "category": "Verbal",
+    "topic": "Reading Comprehension",
+    "solution": "The passage discusses both benefits (global connection) and drawbacks (privacy, mental health) of technology",
+    "status": "Published",
+    "tags": ["reading comprehension", "main idea"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 134,
+    "question": "Choose the correctly punctuated sentence:",
+    "options": {
+      "A": "The meeting which was scheduled for Monday, has been postponed.",
+      "B": "The meeting, which was scheduled for Monday has been postponed.",
+      "C": "The meeting, which was scheduled for Monday, has been postponed.",
+      "D": "The meeting which was scheduled for Monday has been postponed."
+    },
+    "correctAnswer": "C",
+    "difficulty": "Medium",
+    "category": "Verbal",
+    "topic": "Sentence Correction",
+    "solution": "Non-restrictive clause 'which was scheduled for Monday' should be set off by commas",
+    "status": "Published",
+    "tags": ["punctuation", "relative clauses"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 135,
+    "question": "Arrange the sentences: (1) He opened the door. (2) The bell rang. (3) He walked to the door. (4) He saw his friend outside.",
+    "options": {
+      "A": "2, 3, 1, 4",
+      "B": "1, 2, 3, 4",
+      "C": "3, 2, 1, 4",
+      "D": "2, 1, 3, 4"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Medium",
+    "category": "Verbal",
+    "topic": "Para Jumbles",
+    "solution": "Logical sequence: Bell rang → walked to door → opened door → saw friend",
+    "status": "Published",
+    "tags": ["paragraph arrangement", "logical sequence"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 136,
+    "question": "Fill in the blank: 'The company's financial situation has _____ significantly over the past year.' (Choose the most appropriate word)",
+    "options": {
+      "A": "deteriorated",
+      "B": "enhanced",
+      "C": "stabilized",
+      "D": "fluctuated"
+    },
+    "correctAnswer": "A",
+    "difficulty": "Medium",
+    "category": "Verbal",
+    "topic": "Cloze Test",
+    "solution": "Context suggests negative change, 'deteriorated' fits best",
+    "status": "Published",
+    "tags": ["context clues", "vocabulary"],
+    "isActive": true
+  },
+  {
+    "questionNumber": 137,
+    "question": "What does 'Break the ice' mean?",
+    "options": {
+      "A": "To break something made of ice",
+      "B": "To start a conversation",
+      "C": "To be very cold",
+      "D": "To solve a problem"
+    },
+    "correctAnswer": "B",
+    "difficulty": "Easy",
+    "category": "Verbal",
+    "topic": "Idioms and Phrases",
+    "solution": "'Break the ice' means to initiate conversation or social interaction",
+    "status": "Published",
+    "tags": ["idioms", "social interaction"],
+    "isActive": true
+  }
+]
