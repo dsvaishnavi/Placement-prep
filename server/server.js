@@ -31,7 +31,10 @@ app.use("/aptitude", aptituderouter);
 app.use("/core-concepts", coreConceptRouter);
 app.use("/notifications", notificationRouter);
 
-app.use("/" , authRouter);
+//Routes
+app.get("/", (req, res) => {
+  res.send("Our Server Is In Running Position");
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
